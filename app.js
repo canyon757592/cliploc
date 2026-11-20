@@ -636,7 +636,7 @@ function ebCard(){
     (S.ebook?'<button class="btn gh" data-v="dl">Télécharger le PDF</button>':'<button class="btn" data-v="ebuy">Acheter seule · '+(bfOn()?'<s>'+eur(EB_PRICE)+'</s> ':'')+eur(sale(EB_PRICE))+'</button>')+'</div>';
 }
 function stkRot(){const e=$("#stkA");if(!e||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return;const L=["Tous les réseaux","Instagram","TikTok","WhatsApp","Facebook","YouTube Shorts","Snapchat"];let i=0;setInterval(()=>{if(document.hidden)return;i=(i+1)%L.length;e.classList.add("sw");setTimeout(()=>{e.textContent=L[i];e.classList.remove("sw")},180)},2200)}
-function renderPlans(el){const hh=$("#heroHook");if(hh)hh.innerHTML=bfOn()?"Dès <b>"+eur(PLANS[1].p)+" / mois</b> <s>"+eur(PLANS[1].reg)+"</s> · offre de lancement jusqu\'au 30 novembre":"Dès <b>"+eur(PLANS[1].p)+" / mois</b> · sans engagement";el.classList.add("p3");el.innerHTML=PLANS.slice(1).map(planCard).join("");const eh=$("#ebHome");if(eh)eh.innerHTML=ebCard()}
+function renderPlans(el){el.classList.add("p3");el.innerHTML=PLANS.slice(1).map(planCard).join("");const eh=$("#ebHome");if(eh)eh.innerHTML=ebCard()}
 function cmpTable(){
   const Y='<span class="yes">✓</span>',N='<span class="nop">–</span>';
   const rows=[["Prix d\'un crédit",PLANS.map(p=>p.reg?eur(p.per):"")],["Crédits chaque mois",["—","12","40","120"]],["Styles Dynamique et Visite",[Y,Y,Y,Y]],["Styles Drone et Cinéma",[N,Y,Y,Y]],["Couleurs",["3","6","6","6"]],["HD et Full HD",[Y,Y,Y,Y]],["4K",[N,N,Y,Y]],["Montage diaporama de tes photos",[Y,Y,Y,Y]],["Animation IA en option"+(aiAvail()?"":" (bientôt)"),[N,N,Y,Y]],["Formation Airbnb",[N,N,"Offerte","Offerte"]],["Historique des projets",[N,N,Y,Y]]];
