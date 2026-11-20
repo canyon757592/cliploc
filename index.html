@@ -466,6 +466,15 @@ code{font-family:inherit;color:#00796B;background:none;font-weight:700}
 .gate{background:#fff!important}
 .gl{color:#484848}.gl li{color:#484848}
 .gate .mut,.gate p{color:#484848}
+.plans{grid-template-columns:1fr}@media(min-width:760px){.plans{grid-template-columns:repeat(2,1fr)}}@media(min-width:1100px){.plans{grid-template-columns:repeat(4,1fr)}.plans.p3{grid-template-columns:repeat(3,1fr)}}
+.plan li.no{color:#9a9a9a}.plan li.no::before{content:"✕ ";color:#bbb}
+.lkb{display:inline-block;font:700 .66rem "Plus Jakarta Sans",sans-serif;font-style:normal;color:#6A6A6A;background:#F2F2F2;border-radius:99px;padding:2px 8px;margin-top:5px}
+.stg.m button,.tile{position:relative}
+.lknote{font-size:.86rem;color:#6A6A6A;background:#F7F7F7;border:1px solid #EBEBEB;border-radius:14px;padding:10px 12px;margin-top:14px}
+.opt.off{opacity:.55;background:#F7F7F7;cursor:not-allowed}.opt small.why{color:#B45309;font-weight:600}.opt small.gift{color:#00796B;font-weight:700}
+.scx{overflow-x:auto}.cmp{font-size:.8rem;min-width:420px}.cmp th{font-size:.78rem}.cmp td{padding:9px 4px}.cmp .yes{color:#00796B;font-weight:800}.cmp .nop{color:#bbb}
+.tbl td.lkd{color:#9a9a9a;font-size:1rem}.tbl td.lkd small{display:block;font-size:.66rem;font-weight:600}
+.cmp tbody th{font:600 .84rem "Plus Jakarta Sans",sans-serif;text-align:left;padding:9px 6px}.cmp thead th{font:700 .72rem "Plus Jakarta Sans",sans-serif;color:#6A6A6A}
 @media(prefers-reduced-motion:no-preference){.btn:active{transform:scale(.98)}}
 </style>
 </head>
@@ -736,16 +745,17 @@ function track(n,p){EV.push({n:n,p:p||{},t:Date.now()});try{console.debug("[trac
 /* ---------- prix ---------- */
 const END=new Date("2026-11-30T23:59:59+01:00").getTime(),BFR=.4;
 const bfOn=()=>Date.now()<END;
-const DUR=[{s:15,p:6,d:"Un teaser percutant pour les réseaux."},{s:30,p:9,d:"Le format idéal pour une annonce.",tg:"POPULAIRE"},{s:45,p:12,d:"Plus de pièces, plus de détails."},{s:60,p:15,d:"La visite complète du logement."}];
-const QUA=[{k:"hd",l:"HD",r:"720p",x:0,d:"Léger, parfait pour les stories."},{k:"fhd",l:"Full HD",r:"1080p",x:3,d:"Le standard Instagram et TikTok.",tg:"CONSEILLÉ"},{k:"4k",l:"4K",r:"2160p",x:8,d:"Netteté maximale, grands écrans."}];
+const DUR=[{s:15,p:4,d:"Un teaser percutant pour les réseaux."},{s:30,p:8,d:"Le format idéal pour une annonce.",tg:"POPULAIRE"},{s:45,p:12,d:"Plus de pièces, plus de détails."},{s:60,p:16,d:"La visite complète du logement."}];
+const QUA=[{k:"hd",l:"HD",r:"720p",x:0,d:"Léger, parfait pour les stories."},{k:"fhd",l:"Full HD",r:"1080p",x:4,d:"Le standard Instagram et TikTok.",tg:"CONSEILLÉ"},{k:"4k",l:"4K",r:"2160p",x:12,d:"Netteté maximale, grands écrans."}];
 const r2=n=>Math.round(n*100)/100;
 const eur=n=>r2(n).toFixed(2).replace(".",",").replace(",00","")+" €";
 const sale=b=>bfOn()?r2(b*(1-BFR)):b;
 const pHTML=b=>bfOn()?"<s>"+eur(b)+"</s><b>"+eur(sale(b))+"</b>":"<b>"+eur(b)+"</b>";
 const PLANS=[
- {k:"unit",n:"Une vidéo",d:"Tu paies seulement la vidéo que tu crées.",p:null,f:["Durée de 15 à 60 s","HD, Full HD ou 4K","Sans filigrane","Vertical, carré ou large, sans bordure"]},
- {k:"pack",n:"Pack 10 vidéos",d:"10 vidéos à utiliser quand tu veux.",p:79,u:"10 vidéos",c:10,f:["10 vidéos, toutes durées","Jusqu'en Full HD (la 4K compte pour 2)","Sans filigrane","Elles n'expirent pas"],hot:true,bd:"LE PLUS CHOISI"},
- {k:"agence",n:"Abonnement Agence",d:"40 vidéos chaque mois, arrêt à tout moment.",p:149,u:"/ mois",c:40,m:true,f:["40 vidéos par mois, renouvelées chaque mois","Toutes durées, jusqu'en Full HD","Historique de tous tes projets","Tu arrêtes quand tu veux"]}
+ {k:"unit",r:0,n:"Une vidéo",d:"Tu paies seulement la vidéo que tu crées.",p:null,f:["Durée de 15 à 60 s","HD et Full HD (pas de 4K)","Styles Dynamique et Visite","3 couleurs : Naturel, Chaleureux, Frais","Sans filigrane, sans bordure","-Formation Airbnb non incluse"]},
+ {k:"essentiel",r:1,n:"Pack Essentiel",d:"12 crédits, sans abonnement.",p:39,u:"une fois",c:12,per:3.25,f:["12 crédits qui n'expirent pas","Les 4 styles : Drone et Cinéma inclus","Les 6 couleurs","HD et Full HD (pas de 4K)","-Formation Airbnb non incluse"]},
+ {k:"pro",r:2,n:"Pack Pro",d:"40 crédits + la formation offerte.",p:99,u:"une fois",c:40,per:2.48,ebook:true,f:["40 crédits qui n'expirent pas","Les 4 styles et les 6 couleurs","4K débloquée","Formation Airbnb offerte (PDF de 44 pages)"],hot:true,bd:"LE PLUS CHOISI"},
+ {k:"agence",r:3,n:"Abonnement Agence",d:"120 crédits chaque mois, arrêt à tout moment.",p:149,u:"/ mois",c:120,per:1.24,m:true,ebook:true,f:["120 crédits chaque mois","Tout est débloqué : styles, couleurs, 4K","Formation Airbnb offerte","Historique de tous tes projets","Tu arrêtes quand tu veux"],bd:"MEILLEUR PRIX"}
 ];
 
 /* ---------- décors (illustrations) ---------- */
@@ -766,8 +776,8 @@ function thumbHtml(f){const st=f?' style="filter:'+f+'"':"";
   if(S.files.length){if(!S.thumb||S.thumbN!==S.files[0]){if(S.thumb)URL.revokeObjectURL(S.thumb);S.thumb=URL.createObjectURL(S.files[0]);S.thumbN=S.files[0]}return '<i class="th"'+(f?' style="filter:'+f+';':' style="')+'background-image:url('+S.thumb+')"></i>'}
   return '<i class="th"'+st+'>'+scn(1)+'</i>'}
 function styleBox(){
-  return '<div class="sty"><label>Mouvement de caméra</label><div class="stg m" id="stM">'+MOT.map(m=>'<button type="button" data-m="'+m[0]+'" class="'+(S.motion===m[0]?"on":"")+'"><b>'+m[1]+'</b><span>'+m[2]+'</span></button>').join("")+'</div>'+
-  '<label style="margin-top:18px">Couleurs</label><div class="stg c" id="stC">'+COL.map(c=>'<button type="button" data-c="'+c[0]+'" class="'+(S.grade===c[0]?"on":"")+'">'+thumbHtml(c[2])+'<b>'+c[1]+'</b></button>').join("")+'</div></div>'}
+  return '<div class="sty"><label>Mouvement de caméra</label><div class="stg m" id="stM">'+MOT.map(m=>'<button type="button" data-m="'+m[0]+'" class="'+(S.motion===m[0]?"on":"")+'"><b>'+m[1]+'</b>'+lkb(MINM[m[0]])+'<span>'+m[2]+'</span></button>').join("")+'</div>'+
+  '<label style="margin-top:18px">Couleurs</label><div class="stg c" id="stC">'+COL.map(c=>'<button type="button" data-c="'+c[0]+'" class="'+(S.grade===c[0]?"on":"")+'">'+thumbHtml(c[2])+'<b>'+c[1]+'</b>'+lkb(MINC[c[0]])+'</button>').join("")+'</div>'+(need()>rank()?'<p class="lknote">🔒 Ce choix demande le '+TMIN[need()]+' ou mieux. Tu le verras à l\'étape paiement, ou change de style pour rester sur une vidéo à l\'unité.</p>':'')+'</div>'}
 /* ---------- montage réel (navigateur) ---------- */
 let _rm=null;const rmod=()=>_rm||(_rm=import("./render.js"));
 function sceneBlob(i){return new Promise((ok,ko)=>{const sc=SC[i%SC.length];
@@ -806,8 +816,16 @@ const mkPhotos=n=>Array.from({length:n},(_,k)=>{const q=[1,0,2,3,4,5][k%6];retur
 /* ---------- état ---------- */
 const S={motion:"dynamic",grade:"natural",thumb:"",files:[],rights:false,blobUrl:"",url:"",id:"",n:12,dur:30,q:"fhd",fmt:"v",music:"Chill estival",lang:"Français",caps:true,plan:"unit",cs:0,
   user:LS.get("vt_user",null),videos:LS.get("vt_videos",[]),credits:LS.get("vt_credits",0),sub:LS.get("vt_sub",false)};
-const save=()=>{LS.set("vt_user",S.user);LS.set("vt_videos",S.videos);LS.set("vt_credits",S.credits);LS.set("vt_sub",S.sub);LS.set("vt_ledger",S.ledger.slice(-60));LS.set("vt_ctot",S.credTotal);LS.set("vt_renew",S.renew);try{hdr()}catch(e){}};
+const save=()=>{LS.set("vt_tiers",S.tiers);LS.set("vt_user",S.user);LS.set("vt_videos",S.videos);LS.set("vt_credits",S.credits);LS.set("vt_sub",S.sub);LS.set("vt_ledger",S.ledger.slice(-60));LS.set("vt_ctot",S.credTotal);LS.set("vt_renew",S.renew);try{hdr()}catch(e){}};
 const base=()=>DUR.find(d=>d.s===S.dur).p+QUA.find(q=>q.k===S.q).x;
+const UNITP=4,cr=()=>base()/UNITP;
+const MINM={dynamic:0,tour:0,drone:1,cinema:1},MINC={natural:0,warm:0,fresh:0,cinema:1,vivid:1,mono:1},MINQ={hd:0,fhd:0,"4k":2};
+const TNAME=["Une vidéo","Pack Essentiel","Pack Pro","Abonnement Agence"],TMIN=["","Pack Essentiel","Pack Pro","Abonnement Agence"],TSHORT=["","Essentiel","Pro","Agence"];
+const need=()=>Math.max(MINM[S.motion]||0,MINC[S.grade]||0,MINQ[S.q]||0);
+const rank=()=>S.sub?3:(S.tiers&&S.tiers.pro)?2:(S.tiers&&S.tiers.essentiel)?1:0;
+const lkb=n=>n>rank()?'<em class="lkb">🔒 '+TSHORT[n]+'</em>':'';
+function lacks(r){const o=[];if((MINM[S.motion]||0)>r)o.push("le style "+MOT.find(m=>m[0]===S.motion)[1]);if((MINC[S.grade]||0)>r)o.push("la couleur "+COL.find(c=>c[0]===S.grade)[1]);if((MINQ[S.q]||0)>r)o.push("la qualité "+QUA.find(q=>q.k===S.q).l);return o}
+const crl=n=>n+" crédit"+(n>1?"s":"");
 const hashOf=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
 let timers=[],heroP=null,gbP=null,doneP=null,gpP=null;
 const later=(fn,ms)=>{const t=setTimeout(fn,ms);timers.push(t);return t};
@@ -896,11 +914,12 @@ function runAn(){
 function foundHtml(){return '<div class="found"><p><b>✓ Annonce reconnue</b><br><span class="mut">À l\'étape suivante, tu ajoutes les photos du logement.</span></p></div>'}
 function gateBullets(){return '<ul class="gl"><li>Sans filigrane, prête à publier</li><li>Tu ne paies qu\'après avoir vérifié ton récapitulatif</li><li>Remboursé automatiquement si le montage échoue</li></ul>'}
 function payExtras(opts){
-  const u=opts.find(o=>o.k==="unit"),pk=opts.find(o=>o.k==="pack");let h="";
-    if(!S.ebook)h+='<label class="bump"><input type="checkbox" id="pBump"'+(S.bump?" checked":"")+'><span><b>Ajoute la Formation Airbnb</b> pour <b>9 €</b> <s>'+eur(EB_PRICE)+'</s><small>Guide PDF de 44 pages : trouver des clients, écrire les messages, fixer ton prix.</small></span></label>';
+  const sel=opts.find(o=>o.k===S.plan);let h="";
+    if(!S.ebook&&!(sel&&sel.pack&&sel.pack.ebook))h+='<label class="bump"><input type="checkbox" id="pBump"'+(S.bump?" checked":"")+'><span><b>Ajoute la Formation Airbnb</b> pour <b>9 €</b> <s>'+eur(EB_PRICE)+'</s><small>Guide PDF de 44 pages : trouver des clients, écrire les messages, fixer ton prix.</small></span></label>';
   return h;
 }
-const ptotal=o=>(o.free?0:sale(o.p))+(S.bump&&!S.ebook?9:0);
+const bumpOn=o=>S.bump&&!S.ebook&&!(o.pack&&o.pack.ebook);
+const ptotal=o=>(o.free?0:sale(o.p))+(bumpOn(o)?9:0);
 const MSG="Bonjour [Prénom],\n\nJ'ai vu votre annonce « [Nom du logement] ». Je réalise des vidéos verticales à partir des photos d'une annonce, pour Instagram et TikTok.\n\nJe peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?";
 function msgText(){
   const n=S.name||"[Ton prénom]";
@@ -916,12 +935,11 @@ function msgBuilder(el){
   $("#mbC").onclick=()=>{(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast("Message copié."),()=>{t.select();toast("Sélectionne le texte pour le copier.")});track("msg_copy")};
   fill();
 }
-function balLine(){return S.credits>0?'<div class="bal"><span>🎟 Il te reste <b>'+S.credits+' vidéo'+(S.credits>1?"s":"")+'</b>'+(S.sub?" ce mois-ci":"")+'</span><button class="lk" id="balGo">Voir mon compte</button></div>':''}
+function balLine(){return S.credits>0?'<div class="bal"><span>🎟 Il te reste <b>'+crl(S.credits)+'</b>'+(S.sub?" ce mois-ci":"")+'</span><button class="lk" id="balGo">Voir mon compte</button></div>':''}
 function nextSteps(){
-  const pk=PLANS.find(p=>p.k==="pack");
   let h='<div class="nx"><p class="kk">ET MAINTENANT ?</p><h3>Passe à l\'action</h3>'+
    balLine()+'<div class="nxc"><b>1 · Envoie-la à ton prospect</b><span>Ton message est prêt : ajoute ton prénom et ton prix, puis copie.</span><div id="mbBox"></div></div>';
-  if(!S.sub)h+='<div class="nxc"><b>2 · Prépare les suivantes</b><span>Pack 10 : '+eur(sale(pk.p)/pk.c)+' la vidéo. Abonnement Agence : '+eur(sale(PLANS.find(p=>p.k==="agence").p)/40)+' la vidéo.</span><div class="nxb"><button class="btn s" id="nxPk">Acheter le pack</button><button class="btn gh s" id="nxAg">M\'abonner</button></div></div>';
+  if(!S.sub)h+='<div class="nxc"><b>2 · Prépare les suivantes</b><span>1 crédit : '+eur(sale(UNITP))+' à l\'unité, '+eur(sale(PLANS[2].per))+' avec le Pack Pro (formation offerte), '+eur(sale(PLANS[3].per))+' avec l\'abonnement Agence.</span><div class="nxb"><button class="btn s" id="nxPk">Voir les packs</button><button class="btn gh s" id="nxAg">M\'abonner</button></div></div>';
   if(!S.ebook)h+='<div class="nxc"><b>3 · Apprends à vendre</b><span>La formation Airbnb : trouver des hôtes, fixer ton prix.</span><button class="btn gh s" id="nxEb">Voir la formation</button></div>';
   return h+'</div>';
 }
@@ -936,7 +954,7 @@ function renderCfg(){
     DUR.map(d=>'<button class="tile'+(d.s===S.dur?" on":"")+'" data-d="'+d.s+'"><u>✓</u><span class="big">'+d.s+'<small>S</small></span><span class="ds">'+d.d+'</span>'+(d.tg?'<span class="tg">'+d.tg+'</span>':'')+'</button>').join("")+'</div>'+photoBox();
   }else if(step===1){
     h+='<p class="kk">QUALITÉ</p><h2>Quelle qualité d\'image ?</h2><p class="sub">Tu pourras télécharger la vidéo en MP4.</p><div class="gd c3" id="gd">'+
-    QUA.map(q=>'<button class="tile'+(q.k===S.q?" on":"")+'" data-q="'+q.k+'" style="min-height:104px"><u>✓</u><span class="big" style="font-size:1.8rem">'+q.l+'<small>'+q.r+'</small></span><span class="ds">'+q.d+'</span>'+(q.tg?'<span class="tg">'+q.tg+'</span>':'')+'</button>').join("")+'</div>';
+    QUA.map(q=>'<button class="tile'+(q.k===S.q?" on":"")+'" data-q="'+q.k+'" style="min-height:104px"><u>✓</u><span class="big" style="font-size:1.8rem">'+q.l+'<small>'+q.r+'</small></span><span class="ds">'+q.d+'</span>'+lkb(MINQ[q.k])+(q.tg?'<span class="tg">'+q.tg+'</span>':'')+'</button>').join("")+'</div>';
   }else{
     h+='<p class="kk">STYLE</p><h2>Style de ta vidéo</h2><p class="sub">Choisis le mouvement et les couleurs. Tu verras le résultat dans ta vidéo finale.</p>'+
     styleBox()+'<div style="margin-top:18px"><label>Format</label><div class="seg" id="sgF"><button data-f="v" class="'+(S.fmt==="v"?"on":"")+'">Vertical · Reels, TikTok</button><button data-f="s" class="'+(S.fmt==="s"?"on":"")+'">Carré · Instagram</button><button data-f="h" class="'+(S.fmt==="h"?"on":"")+'">Large · YouTube</button></div></div><p class="mut" style="font-size:.86rem;margin-top:12px">La vidéo remplit tout l\'écran dans le format choisi, sans bande noire. Les photos sont recadrées au centre.</p>';
@@ -997,11 +1015,13 @@ function renderGate(){
 
 /* ---------- 5. paiement (simulé) ---------- */
 function payCfg(){
-  const q=S.q==="4k"?2:1,b=base(),pk=PLANS.find(p=>p.k==="pack"),ag=PLANS.find(p=>p.k==="agence"),opts=[];
-  if(S.credits>=q)opts.push({k:"credit",n:"Utiliser mes vidéos restantes",s:"Il t'en restera "+(S.credits-q)+" après celle-ci.",p:0,free:true});
-  opts.push({k:"unit",n:"Cette vidéo seulement",s:S.dur+" s · "+QUA.find(x=>x.k===S.q).l+" · paiement unique",p:b});
-  opts.push({k:"pack",n:"Pack 10 vidéos",s:"Cette vidéo + "+(pk.c-q)+" autres à utiliser quand tu veux. Sans abonnement.",p:pk.p,pack:pk,per:sale(pk.p)/pk.c,after:pk.c-q,tag:"LE PLUS CHOISI"});
-  opts.push({k:"agence",n:"Abonnement Agence",s:"Cette vidéo + "+(ag.c-q)+" autres ce mois-ci. Renouvelé chaque mois, tu arrêtes quand tu veux.",p:ag.p,pack:ag,per:sale(ag.p)/ag.c,after:ag.c-q,tag:"MEILLEUR PRIX",mo:true});
+  const c=cr(),nd=need(),opts=[],rk=rank();
+  if(S.credits>=c)opts.push(rk>=nd?{k:"credit",n:"Utiliser mes crédits",s:crl(c)+" pour cette vidéo. Il t'en restera "+(S.credits-c)+".",p:0,free:true}:{k:"credit",n:"Utiliser mes crédits",s:crl(c)+" pour cette vidéo.",p:0,free:true,off:true,why:"Ta formule ne permet pas "+lacks(rk).join(", ")+"."});
+  opts.push({k:"unit",n:"Cette vidéo seulement",s:S.dur+" s · "+QUA.find(x=>x.k===S.q).l+" · "+crl(c)+" · paiement unique",p:base(),off:nd>0,why:nd>0?"Pas inclus à l'unité : "+lacks(0).join(", ")+".":""});
+  PLANS.slice(1).forEach(pl=>{
+    const off=pl.r<nd,after=pl.c-c;
+    opts.push({k:pl.k,n:pl.n,s:"Cette vidéo ("+crl(c)+") + "+after+" crédit"+(after>1?"s":"")+" à utiliser"+(pl.m?" ce mois-ci. Renouvelé chaque mois, tu arrêtes quand tu veux.":" quand tu veux, sans abonnement."),p:pl.p,pack:pl,per:sale(pl.p)/pl.c*c,after:after,tag:pl.bd,mo:pl.m,off:off,why:off?"Ne permet pas "+lacks(pl.r).join(", ")+".":"",gift:pl.ebook&&!S.ebook});
+  });
   return opts;
 }
 function paySel(){
@@ -1013,48 +1033,50 @@ function paySel(){
 }
 function optHtml(o){
   const u=sale(base()),save=o.per?Math.round((1-o.per/u)*100):0;
-  return '<button class="opt'+(o.k===S.plan?" on":"")+'" data-k="'+o.k+'"><span><b>'+o.n+'</b>'+(o.tag?'<em class="otg">'+o.tag+'</em>':'')+'<small>'+o.s+'</small>'+(o.per?'<small class="per">soit '+eur(o.per)+' la vidéo'+(save>0?' (−'+save+' %)':'')+'</small>':'')+'</span><span class="pp">'+(o.free?"0 €":pHTML(o.p))+(o.mo?'<i>par mois</i>':'')+'</span></button>';
+  return '<button class="opt'+(o.k===S.plan?" on":"")+(o.off?" off":"")+'" data-k="'+o.k+'"'+(o.off?' disabled aria-disabled="true"':'')+'><span><b>'+o.n+'</b>'+(o.tag?'<em class="otg">'+o.tag+'</em>':'')+'<small>'+o.s+'</small>'+(o.per&&!o.off?'<small class="per">cette vidéo te revient à '+eur(o.per)+(save>0?' (−'+save+' %)':'')+'</small>':'')+(o.gift&&!o.off?'<small class="gift">🎁 Formation Airbnb offerte (valeur '+eur(EB_PRICE)+')</small>':'')+(o.off&&o.why?'<small class="why">🔒 '+o.why+'</small>':'')+'</span><span class="pp">'+(o.free?"0 €":pHTML(o.p))+(o.mo?'<i>par mois</i>':'')+'</span></button>';
 }
 function renderPay(){
   track("pay_view");
-  const opts=payCfg();if(!S.planSet&&opts[0].k==="credit")S.plan="credit";if(!opts.some(o=>o.k===S.plan))S.plan=opts[0].k;
-  let h='<div class="dt"><i class="on"></i><i class="on"></i><i class="on"></i><span>PAIEMENT</span></div><div class="pb"><i style="width:100%"></i></div><p class="kk">DERNIÈRE ÉTAPE</p><h2>Choisis ta formule</h2><p class="sub">Une seule vidéo, un pack ou un abonnement. Dans tous les cas, ta vidéo est livrée sans filigrane.</p>'+paySel()+
+  const opts=payCfg(),ok=opts.filter(o=>!o.off);if(!S.planSet&&ok[0]&&ok[0].k==="credit")S.plan="credit";if(!ok.some(o=>o.k===S.plan))S.plan=(ok.find(o=>o.k==="unit")||ok.find(o=>o.k==="pro")||ok[0]).k;
+  let h='<div class="dt"><i class="on"></i><i class="on"></i><i class="on"></i><span>PAIEMENT</span></div><div class="pb"><i style="width:100%"></i></div><p class="kk">DERNIÈRE ÉTAPE</p><h2>Choisis ta formule</h2><p class="sub">Ta vidéo coûte '+crl(cr())+' (1 crédit = 15 s en HD). Paie à l\'unité, prends un pack ou un abonnement. Dans tous les cas, elle est livrée sans filigrane.</p>'+paySel()+(need()>0?'<p class="lknote" style="margin-top:12px">🔒 Tu as choisi '+lacks(0).join(", ")+' : il faut un pack. <button class="lk" id="pEdit">Changer mon style</button></p>':'')+
   opts.map(optHtml).join("")+
   payExtras(opts)+'<label class="ck"><input type="checkbox" id="pOk"><span>Je confirme avoir l\'accord du propriétaire pour utiliser les photos de cette annonce dans une vidéo.</span></label><div class="errm" id="pErr"></div><div class="sec2">🔒 Paiement sécurisé par Stripe · Facture envoyée par email</div>';
   $("#payCard").innerHTML=h;
   syncPay(opts);
   $$("#pD button").forEach(b=>b.onclick=()=>{S.dur=+b.dataset.d;track("pay_dur",{s:S.dur});renderPay()});
   $$("#pQ button").forEach(b=>b.onclick=()=>{S.q=b.dataset.q;track("pay_q",{q:S.q});renderPay()});
+  const pe=$("#pEdit");if(pe)pe.onclick=()=>{S.cs=2;go("cfg")};
   const pb=$("#pBump");if(pb)pb.onchange=()=>{S.bump=pb.checked;track("bump",{on:S.bump});syncPay(opts)};
-  $$("#payCard .opt").forEach(b=>b.onclick=()=>{S.planSet=true;S.plan=b.dataset.k;track("pay_plan",{k:S.plan});renderPay()});
+  $$("#payCard .opt:not(.off)").forEach(b=>b.onclick=()=>{S.planSet=true;S.plan=b.dataset.k;track("pay_plan",{k:S.plan});renderPay()});
   $("#payBtn").onclick=()=>{
     if(!$("#pOk").checked){$("#pErr").textContent="Confirme l'accord du propriétaire pour continuer.";return}
     const o=opts.find(x=>x.k===S.plan);track("pay_click",{plan:o.k});
-    if(o.k==="credit"&&!S.bump){settle(o);finish(o);return}
+    if(o.k==="credit"&&!bumpOn(o)){settle(o);finish(o);return}
     openMd('<p class="kk">PAIEMENT SIMULÉ</p><h2 style="margin-bottom:10px">Stripe s\'ouvre ici</h2><p class="mut">Dans la vraie version, tu es redirigé vers la page de paiement sécurisée de Stripe. Ici, la maquette simule un paiement réussi.</p><div class="rec" style="margin-top:14px"><span class="chip y">'+o.n.toUpperCase()+'</span><span class="chip">'+eur(ptotal(o))+'</span></div><button class="btn big" id="mdOk">Simuler un paiement réussi</button><p class="lg"><button class="lk" onclick="V.closeMd()">Annuler</button></p>');
     $("#mdOk").onclick=()=>{closeMd();settle(o);finish(o)};
   };
 }
-function syncPay(opts){const o=opts.find(x=>x.k===S.plan),t=ptotal(o);$("#payPz").innerHTML=(o.free&&!S.bump)?"<b>0 €</b>":(S.bump?"<b>"+eur(t)+"</b>":pHTML(o.p));$("#payBtn").textContent=t===0?"Débloquer ma vidéo":"Payer "+eur(t)}
+function syncPay(opts){const o=opts.find(x=>x.k===S.plan),t=ptotal(o);$("#payPz").innerHTML=(o.free&&!bumpOn(o))?"<b>0 €</b>":(bumpOn(o)?"<b>"+eur(t)+"</b>":pHTML(o.p));$("#payBtn").textContent=t===0?"Débloquer ma vidéo":"Payer "+eur(t)}
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const RENEW=30*864e5;
 function addCredits(n,label){const before=S.credits;S.credits+=n;S.credTotal=before<=0?n:S.credTotal+n;S.ledger.push({l:label,d:n,at:Date.now()})}
 function useCredits(n,label){S.credits-=n;S.ledger.push({l:label,d:-n,at:Date.now()})}
+function grant(pl){addCredits(pl.c,pl.n);if(pl.m){S.sub=true;S.renew=Date.now()+RENEW}else S.tiers[pl.k]=true;if(pl.ebook&&!S.ebook){S.ebook=true;LS.set("vt_ebook",true);S.ledger.push({l:"Formation Airbnb offerte (PDF)",d:0,at:Date.now()})}}
 function settle(o){
-  const q=S.q==="4k"?2:1,lab="Vidéo · annonce "+S.id;
-  if(o.pack){addCredits(o.pack.c,o.pack.n);if(o.pack.m){S.sub=true;S.renew=Date.now()+RENEW}useCredits(q,lab)}
+  const q=cr(),lab="Vidéo · annonce "+S.id;
+  if(o.pack){grant(o.pack);useCredits(q,lab)}
   else if(o.k==="credit")useCredits(q,lab);
   else S.ledger.push({l:lab+" (payée à l'unité)",d:0,at:Date.now()});
-  if(S.bump&&!S.ebook){S.ebook=true;LS.set("vt_ebook",true);S.ledger.push({l:"Formation Airbnb (PDF)",d:0,at:Date.now()})}
+  if(bumpOn(o)){S.ebook=true;LS.set("vt_ebook",true);S.ledger.push({l:"Formation Airbnb (PDF)",d:0,at:Date.now()})}
   save();
 }
 /* achat direct d'un pack / abonnement, sans vidéo en cours */
 function buy(k){
-  const pl=PLANS.find(x=>x.k===k);if(!pl||!pl.p)return;
+  const pl=PLANS.find(x=>x.k===k);if(!pl||!pl.p)return;if(pl.m&&S.sub){toast("Tu as déjà cet abonnement.");return}
   if(!S.user){S.back=document.body.dataset.s;S.buyK=k;track("buy_login",{k:k});go("auth");return}
   track("buy_open",{k:k});
-  openMd('<p class="kk">PAIEMENT SIMULÉ</p><h2 style="margin-bottom:10px">'+pl.n+'</h2><p class="mut">'+(pl.m?"40 vidéos par mois, renouvelées chaque mois. Tu peux arrêter quand tu veux.":"10 vidéos à utiliser quand tu veux, sans abonnement.")+'</p><div class="rec" style="margin-top:14px"><span class="chip y">'+eur(sale(pl.p))+(pl.m?" par mois":"")+'</span><span class="chip">'+pl.c+' vidéos</span></div><button class="btn big" id="mdOk">Simuler un paiement réussi</button><p class="lg"><button class="lk" onclick="V.closeMd()">Annuler</button></p>');
-  $("#mdOk").onclick=()=>{closeMd();addCredits(pl.c,pl.n);if(pl.m){S.sub=true;S.renew=Date.now()+RENEW}save();track("buy_success",{k:k});toast(pl.c+" vidéos ajoutées à ton compte.");go("dash")};
+  openMd('<p class="kk">PAIEMENT SIMULÉ</p><h2 style="margin-bottom:10px">'+pl.n+'</h2><p class="mut">'+(pl.m?pl.c+" crédits par mois, renouvelés chaque mois. Tu peux arrêter quand tu veux.":pl.c+" crédits à utiliser quand tu veux, sans abonnement.")+(pl.ebook&&!S.ebook?" La formation Airbnb est offerte.":"")+'</p><div class="rec" style="margin-top:14px"><span class="chip y">'+eur(sale(pl.p))+(pl.m?" par mois":"")+'</span><span class="chip">'+pl.c+' crédits</span></div><button class="btn big" id="mdOk">Simuler un paiement réussi</button><p class="lg"><button class="lk" onclick="V.closeMd()">Annuler</button></p>');
+  $("#mdOk").onclick=()=>{closeMd();grant(pl);save();track("buy_success",{k:k});toast(pl.c+" crédits ajoutés à ton compte.");go("dash")};
 }
 function finish(o){track("pay_success",{plan:o.k});S.cur={id:Date.now(),listing:S.id,dur:S.dur,q:S.q,fmt:S.fmt,n:S.n,date:new Date().toLocaleDateString("fr-FR"),caps:S.caps};go("rd2")}
 
@@ -1100,7 +1122,7 @@ function renderDone(){
   $("#rvB").onclick=()=>{if(!stars){toast("Choisis une note.");return}const l=LS.get("vt_reviews_pending",[]);l.push({stars:stars,text:$("#rvT").value.slice(0,500),at:Date.now()});LS.set("vt_reviews_pending",l);track("review",{stars:stars});toast("Merci ! Ton avis sera publié après vérification.")};
   msgBuilder($("#mbBox"));
   const bg=$("#balGo");if(bg)bg.onclick=()=>go("dash");
-  const np=$("#nxPk");if(np)np.onclick=()=>{track("next_pack");buy("pack")};
+  const np=$("#nxPk");if(np)np.onclick=()=>{track("next_pack");prGo("packs")};
   const na=$("#nxAg");if(na)na.onclick=()=>{track("next_agence");buy("agence")};
   const ne=$("#nxEb");if(ne)ne.onclick=()=>{track("next_ebook");go("eb")};
   $("#nv").onclick=()=>{S.url="";S.cur=null;focusBar()};$("#mv").onclick=()=>go("dash");
@@ -1109,7 +1131,7 @@ function renderDone(){
 
 /* ---------- onglets ---------- */
 const NAVS=[["lp","Accueil"],["u","Une vidéo"],["p","Packs & abonnement"],["ex","Exemples"],["eb","Formation Airbnb","NOUVEAU"],["fq","Contact"]];
-S.prMode="unit";S.ledger=LS.get("vt_ledger",[]);S.credTotal=LS.get("vt_ctot",0);S.name=LS.get("vt_name","");S.price=LS.get("vt_price",60);S.renew=LS.get("vt_renew",0);
+S.tiers=LS.get("vt_tiers",{});S.prMode="unit";S.ledger=LS.get("vt_ledger",[]);S.credTotal=LS.get("vt_ctot",0);S.name=LS.get("vt_name","");S.price=LS.get("vt_price",60);S.renew=LS.get("vt_renew",0);
 let exP=[];
 function nav(){
   const cur=document.body.dataset.s;
@@ -1158,18 +1180,18 @@ function renderDash0(){
   const dt=t=>new Date(t).toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
   const led=S.ledger.slice().reverse();
   $("#dashBox").innerHTML=
-   '<div class="crd"><p class="kk">MON COMPTE</p><h2>Mes vidéos restantes</h2><div class="bal2"><b>'+c+'</b><span>vidéo'+(c>1?"s":"")+' restante'+(c>1?"s":"")+(S.sub?" ce mois-ci":"")+'</span></div>'+
-   (S.credTotal>0?'<div class="pb" style="margin:12px 0 6px"><i style="width:'+pct+'%"></i></div><p class="mut sm">'+(tot-c)+' utilisée'+((tot-c)>1?"s":"")+' sur '+tot+'</p>':'<p class="mut sm" style="margin-top:8px">Tu n\'as pas encore de pack. Prends-en un pour payer moins cher chaque vidéo.</p>')+
-   (S.sub?'<div class="subc"><b>Abonnement Agence · actif</b><span>40 vidéos par mois. Prochain renouvellement le '+renew+'.</span><button class="lk" id="subX">Arrêter l\'abonnement</button></div>':'')+
-   '<div class="nxb" style="margin-top:14px"><button class="btn" id="dBuyP">Acheter un pack</button>'+(S.sub?'':'<button class="btn gh" id="dBuyA">M\'abonner</button>')+'</div>'+
-   '<p class="note">La 4K compte pour 2 vidéos. Tu reçois un email quand il t\'en reste 2.</p></div>'+
+   '<div class="crd"><p class="kk">MON COMPTE</p><h2>Mes crédits</h2><div class="bal2"><b>'+c+'</b><span>crédit'+(c>1?"s":"")+' restant'+(c>1?"s":"")+(S.sub?" ce mois-ci":"")+'</span></div><p class="mut sm" style="margin-top:6px">Ta formule : <b>'+TNAME[rank()]+'</b>'+(rank()<3?' · 4K '+(rank()>=2?'débloquée':'verrouillée')+' · '+(rank()>=1?'tous les styles':'styles Dynamique et Visite'):' · tout est débloqué')+'</p>'+
+   (S.credTotal>0?'<div class="pb" style="margin:12px 0 6px"><i style="width:'+pct+'%"></i></div><p class="mut sm">'+(tot-c)+' utilisé'+((tot-c)>1?"s":"")+' sur '+tot+'</p>':'<p class="mut sm" style="margin-top:8px">Tu n\'as pas encore de crédits. Un pack réduit le prix de chaque vidéo et débloque des options.</p>')+
+   (S.sub?'<div class="subc"><b>Abonnement Agence · actif</b><span>120 crédits par mois. Prochain renouvellement le '+renew+'.</span><button class="lk" id="subX">Arrêter l\'abonnement</button></div>':'')+
+   '<div class="nxb" style="margin-top:14px"><button class="btn" id="dBuyP">Voir les formules</button>'+(S.sub?'':'<button class="btn gh" id="dBuyA">M\'abonner</button>')+'</div>'+
+   '<p class="note">1 crédit = 15 s en HD. Le nombre de crédits d\'une vidéo est affiché avant de payer. Tu reçois un email quand il t\'en reste 2.</p></div>'+
    '<div class="crd" style="margin-top:14px"><p class="kk">MES VIDÉOS</p>'+
    (v.length?'<div class="vl">'+v.map(x=>'<div class="vi"><div class="th">'+scn(0)+'</div><div style="flex:1"><b>Annonce '+x.listing+'</b><small>'+x.dur+' s · '+QUA.find(q=>q.k===x.q).l+' · '+x.date+'</small></div><button class="btn gh s" onclick="V.toast(\'Maquette : téléchargement à venir.\')">Télécharger</button></div>').join("")+'</div>':'<div class="empty">Aucune vidéo pour l\'instant.<br><br><button class="btn" onclick="V.focus()">Créer ma première vidéo</button></div>')+'</div>'+
    (led.length?'<div class="crd" style="margin-top:14px"><p class="kk">HISTORIQUE</p>'+led.slice(0,12).map(e=>'<div class="lg2"><span>'+esc(e.l)+'<small>'+dt(e.at)+'</small></span><b class="'+(e.d>0?"pos":e.d<0?"neg":"")+'">'+(e.d>0?"+"+e.d:e.d<0?e.d:"—")+'</b></div>').join("")+'</div>':'')+
    '<div class="crd" style="margin-top:14px"><p class="kk">MON MESSAGE POUR LES PROPRIÉTAIRES</p><div id="mbBox"></div></div>';
   msgBuilder($("#mbBox"));
-  $("#dBuyP").onclick=()=>buy("pack");const da=$("#dBuyA");if(da)da.onclick=()=>buy("agence");
-  const sx=$("#subX");if(sx)sx.onclick=()=>{openMd('<p class="kk">ABONNEMENT AGENCE</p><h2 style="margin-bottom:10px">Arrêter l\'abonnement ?</h2><p class="mut">Tes vidéos restantes restent utilisables jusqu\'au '+renew+'. Ensuite, plus de renouvellement.</p><button class="btn big" id="subOk">Oui, arrêter</button><p class="lg"><button class="lk" onclick="V.closeMd()">Garder mon abonnement</button></p>');$("#subOk").onclick=()=>{S.sub=false;save();closeMd();track("sub_cancel");toast("Abonnement arrêté. Tes vidéos restantes sont conservées.");renderDash()}};
+  $("#dBuyP").onclick=()=>prGo("packs");const da=$("#dBuyA");if(da)da.onclick=()=>buy("agence");
+  const sx=$("#subX");if(sx)sx.onclick=()=>{openMd('<p class="kk">ABONNEMENT AGENCE</p><h2 style="margin-bottom:10px">Arrêter l\'abonnement ?</h2><p class="mut">Tes crédits restants restent utilisables jusqu\'au '+renew+'. Ensuite, plus de renouvellement.</p><button class="btn big" id="subOk">Oui, arrêter</button><p class="lg"><button class="lk" onclick="V.closeMd()">Garder mon abonnement</button></p>');$("#subOk").onclick=()=>{S.sub=false;save();closeMd();track("sub_cancel");toast("Abonnement arrêté. Tes crédits restants sont conservés.");renderDash()}};
 }
 
 function renderDash(){renderDash0();if(S.user&&S.ebook)$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd" style="margin-top:14px"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" onclick="V.dl()">Télécharger</button></div></div>')}
@@ -1177,26 +1199,33 @@ function renderDash(){renderDash0();if(S.user&&S.ebook)$("#dashBox").insertAdjac
 /* ---------- tarifs ---------- */
 function planCard(p){
   const unit=p.k==="unit";
-  const per=unit?"Le prix dépend de la durée et de la qualité":"soit "+eur(sale(p.p)/p.c)+" la vidéo";
+  const per=unit?"1 crédit = 15 s en HD. Prix selon durée et qualité.":"soit "+eur(sale(p.per))+" le crédit";
+  const ft=p.f.map(x=>x[0]==="-"?'<li class="no">'+x.slice(1)+'</li>':'<li>'+x+'</li>').join("");
   return '<div class="plan'+(p.hot?" hot":"")+'">'+(p.bd?'<span class="bd2">'+p.bd+'</span>':'<span class="bd2" style="visibility:hidden">.</span>')+'<h3 style="margin-top:12px">'+p.n+'</h3><p class="mut sm" style="margin-top:4px">'+p.d+'</p>'+
-  '<div class="pr">'+(unit?'<em>dès</em>':'')+(bfOn()?'<s>'+eur(unit?6:p.p)+'</s>':'')+eur(sale(unit?6:p.p))+' <small>'+(unit?"/ vidéo":p.u)+'</small></div><p class="pv">'+per+'</p>'+
-  '<ul>'+p.f.map(x=>'<li>'+x+'</li>').join("")+'</ul><button class="btn'+(p.hot?"":" gh")+'" onclick="'+(unit?"V.focus()":"V.buy(\''+p.k+'\')")+'">'+(unit?"Créer ma vidéo":(p.m?"M'abonner":"Acheter le pack"))+'</button></div>';
+  '<div class="pr">'+(unit?'<em>dès</em>':'')+(bfOn()?'<s>'+eur(unit?UNITP:p.p)+'</s>':'')+eur(sale(unit?UNITP:p.p))+' <small>'+(unit?"/ vidéo":p.u)+'</small></div><p class="pv">'+per+'</p>'+
+  '<ul>'+ft+'</ul><button class="btn'+(p.hot?"":" gh")+'" onclick="'+(unit?"V.focus()":"V.buy(\''+p.k+'\')")+'">'+(unit?"Créer ma vidéo":(p.m?"M'abonner":"Acheter le pack"))+'</button></div>';
 }
 function renderPlans(el){el.innerHTML=PLANS.map(planCard).join("")}
+function cmpTable(){
+  const Y='<span class="yes">✓</span>',N='<span class="nop">–</span>';
+  const rows=[["Prix d\'un crédit",PLANS.map(p=>eur(sale(p.k==="unit"?UNITP:p.per)))],["Crédits inclus",["—","12","40","120 / mois"]],["Styles Dynamique et Visite",[Y,Y,Y,Y]],["Styles Drone et Cinéma",[N,Y,Y,Y]],["Couleurs",["3","6","6","6"]],["HD et Full HD",[Y,Y,Y,Y]],["4K",[N,N,Y,Y]],["Formation Airbnb",[N,N,"Offerte","Offerte"]],["Historique des projets",[N,N,Y,Y]]];
+  return '<div class="crd mx" style="margin-top:18px"><p class="kk" style="padding:10px 10px 0">Comparer les formules</p><div class="scx"><table class="tbl cmp"><thead><tr><th></th>'+PLANS.map(p=>'<th>'+(p.k==="unit"?"Unité":p.n.replace("Pack ","").replace("Abonnement ",""))+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr><th>'+r[0]+'</th>'+r[1].map(x=>'<td>'+x+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></div>';
+}
+function credBox(){
+  return '<div class="crd" style="margin-top:18px"><p class="kk">Comment marchent les crédits</p><p class="mut sm" style="margin:6px 0 10px">Chaque vidéo coûte un nombre de crédits selon sa durée et sa qualité. Le prix exact est affiché avant de payer.</p><div class="scx"><table class="tbl cmp"><thead><tr><th></th>'+QUA.map(q=>'<th>'+q.l+'</th>').join("")+'</tr></thead><tbody>'+DUR.map(d=>'<tr><th>'+d.s+' s</th>'+QUA.map(q=>'<td><b>'+((d.p+q.x)/UNITP)+'</b></td>').join("")+'</tr>').join("")+'</tbody></table></div><ul class="gl" style="margin-top:12px"><li>Le solde s\'affiche en haut du site, à côté de « Mes vidéos ».</li><li>Les crédits d\'un pack n\'expirent pas. Ceux de l\'abonnement sont renouvelés chaque mois.</li><li>Tu reçois un email quand il t\'en reste 2.</li></ul></div>';
+}
 function renderPr(){
   const m=S.prMode==="packs"?"packs":"unit";
   $("#prTg").innerHTML='<button data-m="unit" class="'+(m==="unit"?"on":"")+'">Une seule vidéo</button><button data-m="packs" class="'+(m==="packs"?"on":"")+'">Packs &amp; abonnement</button>';
   $$("#prTg button").forEach(b=>b.onclick=()=>{S.prMode=b.dataset.m;renderPr();nav()});
-  const pk=PLANS.find(x=>x.k==="pack"),ag=PLANS.find(x=>x.k==="agence");
   if(m==="unit"){
     $("#prBody").innerHTML='<div class="crd mx"><table class="tbl"><thead><tr><th></th>'+QUA.map(q=>'<th>'+q.l+'<small>'+q.r+'</small></th>').join("")+'</tr></thead><tbody>'+
-      DUR.map(d=>'<tr><th>'+d.s+' s<small>'+d.d+'</small></th>'+QUA.map(q=>{const b=d.p+q.x;return '<td>'+(bfOn()?'<s>'+eur(b)+'</s>':'')+'<b>'+eur(sale(b))+'</b></td>'}).join("")+'</tr>').join("")+'</tbody></table></div>'+
-      '<p class="note">'+(bfOn()?"Black Friday −40 % jusqu'au 30 novembre. ":"")+'Prix TTC. Tu vois le prix exact avant de payer.</p>'+
+      DUR.map(d=>'<tr><th>'+d.s+' s<small>'+d.d+'</small></th>'+QUA.map(q=>{const b=d.p+q.x;if(MINQ[q.k]>0)return '<td class="lkd">🔒<small>Pack Pro</small></td>';return '<td>'+(bfOn()?'<s>'+eur(b)+'</s>':'')+'<b>'+eur(sale(b))+'</b></td>'}).join("")+'</tr>').join("")+'</tbody></table></div>'+
+      '<p class="note">'+(bfOn()?"Black Friday −40 % jusqu'au 30 novembre. ":"")+'Prix TTC. À l\'unité : styles Dynamique et Visite, 3 couleurs, pas de 4K. Les packs débloquent le reste.</p>'+
       '<button class="btn big" onclick="V.focus()">Créer ma vidéo</button>'+
-      '<p class="mut" style="margin-top:16px;text-align:center">Tu en fais souvent ? <button class="lk" onclick="V.pr(\'packs\')">Voir les packs</button> : dès '+eur(sale(ag.p)/ag.c)+' la vidéo.</p>';
+      '<p class="mut" style="margin-top:16px;text-align:center">Tu en fais souvent ? <button class="lk" onclick="V.pr(\'packs\')">Voir les packs</button> : dès '+eur(sale(PLANS[3].per))+' le crédit.</p>';
   }else{
-    $("#prBody").innerHTML='<div class="plans">'+planCard(pk)+planCard(ag)+'</div>'+
-      '<div class="crd" style="margin-top:18px"><p class="kk">Comment suivre tes vidéos restantes</p><ul class="gl"><li>Le nombre de vidéos qu\'il te reste s\'affiche en haut du site, à côté de « Mes vidéos ».</li><li>Chaque vidéo créée en retire une (deux en 4K). L\'historique est dans ton compte.</li><li>Tu reçois un email quand il t\'en reste 2.</li><li>Le pack n\'expire pas. L\'abonnement ajoute 40 vidéos chaque mois et s\'arrête quand tu veux.</li></ul></div>'+
+    $("#prBody").innerHTML='<div class="plans p3">'+planCard(PLANS[1])+planCard(PLANS[2])+planCard(PLANS[3])+'</div>'+cmpTable()+credBox()+
       '<p class="mut" style="margin-top:16px;text-align:center">Une seule vidéo à faire ? <button class="lk" onclick="V.pr(\'unit\')">Voir le prix à l\'unité</button></p>';
   }
 }
