@@ -62,8 +62,14 @@
     if (t) call("/auth/v1/logout", {}, t).catch(() => {});
   }
   /* Lien de confirmation par email : Supabase renvoie ici avec #access_token=… */
+  let recovery = false, linkErr = "";
   async function fromHash() {
     const h = location.hash || "";
+    if (h.indexOf("error_code=") >= 0) {   // lien expiré ou déjà utilisé
+      try { linkErr = new URLSearchParams(h.slice(1)).get("error_code") || "link_error" } catch (e) { linkErr = "link_error" }
+      try { history.replaceState(null, "", location.pathname + location.search) } catch (e) {}
+      return false;
+    }
     if (h.indexOf("access_token=") < 0) return false;
     const p = new URLSearchParams(h.slice(1)), a = p.get("access_token"), r = p.get("refresh_token");
     try { history.replaceState(null, "", location.pathname + location.search) } catch (e) {}
@@ -71,6 +77,7 @@
     const u = await call("/auth/v1/user", undefined, a, "GET");
     if (!u.ok || !u.j || !u.j.email) return false;
     keep({ a, r, e: Date.now() + (Number(p.get("expires_in")) || 3600) * 1000, u: u.j.id, m: u.j.email });
+    if (p.get("type") === "recovery") recovery = true;   // lien « mot de passe oublié » : l'écran propose un nouveau mot de passe
     return true;
   }
 
@@ -276,5 +283,34 @@
     catch (e) { return { ok: false, error: "Pas de connexion. Vérifie ton réseau et réessaie." } }
     return saveDetails({ avatar_path: null });
   }
-  window.CL = { details, saveDetails, avatarGet, avatarSet, avatarDel, reviews, submitReview, ebook, portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
+
+  /* Mot de passe oublié, nouveau mot de passe, suppression du compte. */
+  async function recover(email) {
+    const res = await call("/auth/v1/recover", { email }, undefined, "POST");
+    if (res.ok) return { ok: true };   // même réponse que l'email existe ou non (pas d'énumération de comptes)
+    const m = JSON.stringify(res.j || {}) + " " + res.status;
+    if (/rate_limit|over_email|too many|429/i.test(m)) return { ok: false, error: "Trop de demandes. Réessaie dans quelques minutes." };
+    if (/network/.test(m)) return { ok: false, error: "Pas de connexion. Vérifie ton réseau et réessaie." };
+    return { ok: false, error: "Envoi impossible pour le moment. Réessaie dans un instant." };
+  }
+  async function setPassword(pw) {
+    const t = await token(); if (!t) return { ok: false, error: "Ta session a expiré. Reconnecte-toi." };
+    const res = await call("/auth/v1/user", { password: pw }, t, "PUT");
+    if (res.ok) return { ok: true };
+    const m = JSON.stringify(res.j || {}) + " " + res.status;
+    const E = [[/same_password|different from the old/i, "Choisis un mot de passe différent de l'ancien."], [/weak_password|at least|characters/i, "Mot de passe trop faible : choisis-en un plus long, avec des lettres et des chiffres."], [/not_authenticated|JWT|expired|401|403/i, "Ta session a expiré. Reconnecte-toi."], [/network/, "Pas de connexion. Vérifie ton réseau et réessaie."]];
+    for (const [re, msg] of E) if (re.test(m)) return { ok: false, error: msg };
+    return { ok: false, error: "Changement impossible pour le moment. Réessaie dans un instant." };
+  }
+  async function deleteAccount(password) {
+    const t = await token(); if (!t) return { ok: false, error: "Ta session a expiré. Reconnecte-toi." };
+    let r; try { r = await fetch(URL_ + "/functions/v1/delete-account", { method: "POST", headers: hdr(t), body: JSON.stringify({ confirm: "SUPPRIMER", password }), cache: "no-store" }) }
+    catch (e) { return { ok: false, error: "Pas de connexion. Vérifie ton réseau et réessaie." } }
+    let j = null; try { j = await r.json() } catch (e) {}
+    if (r.ok && j && j.ok === true) { keep(null); return { ok: true } }
+    const E = { wrong_password: "Mot de passe incorrect.", rate_limited: "Trop de tentatives. Réessaie dans quelques minutes.", auth_required: "Ta session a expiré. Reconnecte-toi.",
+      subscription_active: "Ton abonnement est encore actif et n'a pas pu être arrêté automatiquement : ton compte n'a pas été supprimé. Écris-nous et on l'arrête puis on supprime ton compte. Si tu as déjà résilié, tu pourras le supprimer quand l'abonnement sera terminé." };
+    return { ok: false, error: E[j && j.error] || "La suppression n'a pas pu aboutir. Réessaie dans un instant ou écris-nous." };
+  }
+  window.CL = { recover, setPassword, deleteAccount, isRecovery: () => recovery, linkError: () => linkErr, details, saveDetails, avatarGet, avatarSet, avatarDel, reviews, submitReview, ebook, portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
 })();

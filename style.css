@@ -566,3 +566,5 @@ img.avi{background:var(--cd2)}
 .hdac:hover{background:var(--cd2)}.hdac .cb{margin-left:0}
 .hdn{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:560px){.hdn{display:none}.hdac{padding:3px}.hdac .cb{margin-right:6px}}
+
+.dgr{border-color:#F4C7C3}.dgr .kk{color:#D92D20}

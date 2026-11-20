@@ -643,7 +643,9 @@ function renderDash(){
    '<label class="full"><span>Adresse email</span><input class="inp" id="pf_email" type="email" disabled></label>'+
    inp("phone",{attrs:'type="tel" inputmode="tel" autocomplete="tel" placeholder="ex. 06 12 34 56 78"',full:true,opt:true})+inp("company",{attrs:'autocomplete="organization"',full:true,opt:true})+inp("addr1",{attrs:'autocomplete="street-address"',full:true,opt:true})+inp("zip",{attrs:'autocomplete="postal-code" inputmode="text"',opt:true})+inp("city",{attrs:'autocomplete="address-level2"',opt:true})+inp("country",{attrs:'autocomplete="country-name"',full:true,opt:true})+
    '</div><p class="pfe" id="pfErr" role="alert"></p><button type="submit" class="btn" id="pfSave" style="margin-top:6px">Enregistrer</button></form>'+
-   '<p class="note" style="margin-top:14px">Tous les champs sont facultatifs. Ces informations servent à personnaliser ton compte : elles restent privées, ne sont jamais affichées publiquement et ne sont pas utilisées pour t\'envoyer de la publicité. Pour changer ton adresse email, écris-nous depuis la page Contact.</p></div>';
+   '<p class="note" style="margin-top:14px">Tous les champs sont facultatifs. Ces informations servent à personnaliser ton compte : elles restent privées, ne sont jamais affichées publiquement et ne sont pas utilisées pour t\'envoyer de la publicité. Pour changer ton adresse email, écris-nous depuis la page Contact.</p></div>'+
+   '<div class="crd"><p class="kk">SÉCURITÉ</p><h2>Mot de passe</h2><form id="pwForm" novalidate><div class="pff"><label><span>Nouveau mot de passe</span><input class="inp" id="pw1" type="password" autocomplete="new-password" placeholder="8 caractères minimum"></label><label><span>Répète-le</span><input class="inp" id="pw2" type="password" autocomplete="new-password"></label></div><p class="pfe" id="pwErr" role="alert"></p><button type="submit" class="btn gh s" id="pwSave">Changer mon mot de passe</button></form></div>'+
+   '<div class="crd dgr"><p class="kk">ZONE SENSIBLE</p><h2>Supprimer mon compte</h2><p class="mut sm" style="margin:6px 0 12px">Efface définitivement ton compte : profil, photo, vidéos, historique et crédits restants. Les factures restent conservées chez notre prestataire de paiement, comme la loi l\'impose.</p><button type="button" class="btn dng s" id="delAcc">Supprimer mon compte</button></div>';
   const vd='<div class="crd"><p class="kk">MES VIDÉOS</p>'+
    (v.length?'<div class="vl">'+v.map(x=>'<div class="vi"><div class="th">'+scn(0)+'</div><div style="flex:1"><b>Annonce '+esc(x.listing)+'</b><small>'+(+x.dur||0)+' s · '+esc((QUA.find(q=>q.k===x.q)||QUA[0]).l)+' · '+esc(x.date)+'</small></div><button class="btn gh s" data-v="toast" data-a="Maquette : téléchargement à venir.">Télécharger</button></div>').join("")+'</div>':'<div class="empty">Aucune vidéo pour l\'instant.<br><br><button class="btn" data-v="focus">Créer ma première vidéo</button></div>')+'</div>'+
    (v.length?'<div class="crd rvw">'+rvHtml()+'</div>':'');
@@ -666,6 +668,22 @@ function renderDash(){
     catch(err){pk.disabled=false;pk.textContent=hasAv?"Changer la photo":"Ajouter une photo";toast(err&&err.message==="big"?"Cette image est trop lourde (12 Mo maximum).":"Cette image n'a pas pu être lue. Essaie avec un JPEG ou un PNG.")}};
   const pd=$("#pfDel");if(pd)pd.onclick=async()=>{pd.disabled=true;const r=await CL.avatarDel();if(!r.ok){pd.disabled=false;toast(r.error);return}
     if(S.avUrl){try{URL.revokeObjectURL(S.avUrl)}catch(x){}}S.avUrl="";S.pf=Object.assign({},S.pf,{avatar_path:null});toast("Photo retirée.");hdr();renderDash();setTab("pf")};
+  $("#pwForm").onsubmit=async e=>{e.preventDefault();const er=$("#pwErr"),a=$("#pw1").value,c=$("#pw2").value;er.textContent="";
+    if(a.length<8){er.textContent="Le mot de passe doit faire 8 caractères minimum.";return}
+    if(a!==c){er.textContent="Les deux mots de passe ne sont pas identiques.";return}
+    const b=$("#pwSave");b.disabled=true;const r=await CL.setPassword(a);b.disabled=false;
+    if(!r.ok){er.textContent=r.error;return}
+    $("#pw1").value="";$("#pw2").value="";track("password_change");toast("Mot de passe modifié.")};
+  $("#delAcc").onclick=()=>{
+    openMd('<p class="kk" style="color:#D92D20">SUPPRESSION DÉFINITIVE</p><h2 style="margin-bottom:8px">Supprimer mon compte ?</h2><p class="mut">Tout sera effacé : ton profil, ta photo, tes vidéos, ton historique et tes crédits restants. Cette action ne peut pas être annulée.</p>'+(rank()>0?'<p class="mut" style="margin-top:8px"><b>Ton abonnement sera arrêté tout de suite, sans remboursement du mois en cours.</b></p>':'')+
+      '<div class="fld" style="margin-top:14px"><input class="inp" id="dPw" type="password" autocomplete="current-password" placeholder="Ton mot de passe"></div><div class="fld"><input class="inp" id="dCf" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Écris SUPPRIMER pour confirmer"></div><div class="errm" id="dErr"></div><button class="btn dng big" id="dGo">Supprimer définitivement</button><button class="btn gh big" data-v="closeMd" style="margin-top:8px">Annuler</button>');
+    $("#dGo").onclick=async()=>{const er=$("#dErr"),b=$("#dGo");er.textContent="";
+      if(!$("#dPw").value){er.textContent="Entre ton mot de passe.";return}
+      if($("#dCf").value.trim()!=="SUPPRIMER"){er.textContent="Écris le mot SUPPRIMER (en majuscules) pour confirmer.";return}
+      b.disabled=true;const t0=b.textContent;b.textContent="Suppression…";
+      const r=await CL.deleteAccount($("#dPw").value);b.disabled=false;b.textContent=t0;
+      if(!r.ok){er.textContent=r.error;return}
+      closeMd();S.videos=[];logout();track("account_deleted");toast("Ton compte et tes données ont été supprimés.")}};
   $("#pfForm").onsubmit=async e=>{e.preventDefault();const er=$("#pfErr"),b=$("#pfSave");er.textContent="";
     const d={};for(const k of PFK){let x=($("#pf_"+k).value||"").trim().replace(/\s+/g," ");if(k==="username")x=x.toLowerCase().replace(/^@/,"");d[k]=x}
     const bad=pfCheck(d);if(bad){er.textContent=bad;return}
@@ -715,11 +733,34 @@ function renderPr(){
 }
 
 /* ---------- compte ---------- */
+function renderForgot(){
+  $("#authCard").innerHTML='<p class="kk">MOT DE PASSE OUBLIÉ</p><h2>On t\'envoie un lien</h2><p class="mut sm" style="margin-top:6px">Entre l\'email de ton compte : tu reçois un lien pour choisir un nouveau mot de passe.</p><div class="fld" style="margin-top:14px"><input class="inp" id="fE" type="email" autocomplete="email" placeholder="Ton email"></div><div class="errm" id="fErr"></div><button class="btn big" id="fGo" style="margin-top:6px">Recevoir le lien</button><p class="lg"><button class="lk" id="fBk" type="button">Retour à la connexion</button></p>';
+  $("#fBk").onclick=()=>renderAuth("login");
+  $("#fGo").onclick=async()=>{const e=$("#fE").value.trim(),er=$("#fErr"),b=$("#fGo");er.textContent="";
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
+    b.disabled=true;const t0=b.textContent;b.textContent="Envoi…";const r=await CL.recover(e);b.disabled=false;b.textContent=t0;
+    if(!r.ok){er.textContent=r.error;return}
+    track("password_forgot");
+    $("#authCard").innerHTML='<p class="kk">EMAIL ENVOYÉ</p><h2>Regarde ta boîte mail</h2><p class="mut" style="margin-top:8px">Si un compte existe avec <b>'+esc(e)+'</b>, un lien vient d\'être envoyé. Il est valable environ une heure. Pense à regarder les courriers indésirables.</p><button class="btn big" id="fOk">Retour à la connexion</button>';
+    $("#fOk").onclick=()=>renderAuth("login")};
+}
+function renderReset(){
+  $("#authCard").innerHTML='<p class="kk">NOUVEAU MOT DE PASSE</p><h2>Choisis ton mot de passe</h2><div class="fld" style="margin-top:14px"><input class="inp" id="rP1" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères minimum)"></div><div class="fld"><input class="inp" id="rP2" type="password" autocomplete="new-password" placeholder="Répète-le"></div><div class="errm" id="rErr"></div><button class="btn big" id="rGo" style="margin-top:6px">Enregistrer</button>';
+  $("#rGo").onclick=async()=>{const a=$("#rP1").value,c=$("#rP2").value,er=$("#rErr"),b=$("#rGo");er.textContent="";
+    if(a.length<8){er.textContent="Le mot de passe doit faire 8 caractères minimum.";return}
+    if(a!==c){er.textContent="Les deux mots de passe ne sont pas identiques.";return}
+    b.disabled=true;const t0=b.textContent;b.textContent="Un instant…";const r=await CL.setPassword(a);b.disabled=false;b.textContent=t0;
+    if(!r.ok){er.textContent=r.error;return}
+    track("password_reset");toast("Mot de passe modifié. Tu es connecté.");go("dash")};
+}
 function renderAuth(mode){
+  if(mode==="forgot")return renderForgot();
+  if(mode==="reset")return renderReset();
   const su=mode==="signup";
   $("#authCard").innerHTML='<p class="kk">'+(su?"CRÉER UN COMPTE":"CONNEXION")+'</p><h2>'+(su?"Rejoins Cliploc":"Content de te revoir")+'</h2><div class="fld" style="margin-top:14px"><input class="inp" id="aE" type="email" autocomplete="email" placeholder="Ton email"></div><div class="fld"><input class="inp" id="aP" type="password" autocomplete="'+(su?"new-password":"current-password")+'" placeholder="Mot de passe"></div>'+
    (su?'<label class="ck"><input type="checkbox" id="aC"><span>J\'accepte les conditions d\'utilisation et la politique de confidentialité.</span></label>':'')+'<div class="errm" id="aErr"></div><button class="btn big" id="aGo" style="margin-top:6px">'+(su?"Créer mon compte":"Me connecter")+'</button><p class="lg">'+(su?"Déjà un compte ?":"Pas encore de compte ?")+' <button class="lk" id="aSw">'+(su?"Se connecter":"Créer un compte")+'</button></p>';
   $("#aSw").onclick=()=>renderAuth(su?"login":"signup");
+  if(!su){$("#aGo").insertAdjacentHTML("afterend",'<p class="lg" style="margin-top:12px"><button class="lk" id="aFg" type="button">Mot de passe oublié ?</button></p>');$("#aFg").onclick=()=>renderAuth("forgot")}
   $("#aGo").onclick=async()=>{const e=$("#aE").value.trim(),p=$("#aP").value,er=$("#aErr");
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
     if(p.length<8){er.textContent="Le mot de passe doit faire 8 caractères minimum.";return}
@@ -789,7 +830,9 @@ $("#ctGo").onclick=()=>{const e=$("#ctE").value.trim(),m=$("#ctM").value.trim(),
   er.textContent="";const l=LS.get("vt_contact",[]);l.push({e:e,m:m.slice(0,1000),at:Date.now()});LS.set("vt_contact",l);track("contact_sent");$("#ctM").value="";toast("Message envoyé (maquette). On te répond par email.")};
 CL.restore().catch(()=>false).then(()=>{const ss=CL.session();if(ss){S.user={email:ss.m};hdr();return CL.sweep().catch(()=>{}).then(()=>syncProfile())}}).catch(()=>{}).then(()=>{
   const q=new URLSearchParams(location.search),pd=q.get("paid")==="1",pc=q.get("pay")==="cancel";
-  if(pd||pc){try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}afterPay(pd)}});
+  if(pd||pc){try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}afterPay(pd)}
+  if(CL.linkError()){toast("Ce lien n'est plus valable. Redemande-en un avec « Mot de passe oublié ».");go("auth");renderAuth("forgot")}
+  else if(CL.isRecovery()&&S.user){go("auth");renderAuth("reset")}});
 CL.flags().then(f=>{S.flags=f;const cs=document.body.dataset.s;renderPlans($("#plHome"));homeAi();if(cs==="cfg")renderCfg();if(cs==="pr")renderPr()}).catch(()=>{});
 faq();trustBox();loadReal();renderPlans($("#plHome"));homeStyles();homeAi();hdr();nav();stkRot();CL.reviews().then(l=>{if(l.length){AVIS.length=0;l.forEach(x=>AVIS.push(x));trustBox()}}).catch(()=>{});
 const h0=(location.hash||"#lp").slice(1);go(h0==="lp"||SCR.indexOf(h0)<0?"lp":(NEED[h0]?"lp":h0),{nopush:true});
