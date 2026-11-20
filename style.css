@@ -518,7 +518,7 @@ body{background:var(--bg)}
 .cnote{color:#6A6A6A;font-size:.8rem;text-align:center;margin:8px auto 0;max-width:46em}
 .ag{display:grid;gap:12px}@media(min-width:760px){.ag{grid-template-columns:repeat(2,1fr)}}
 .ag .cd h3{font-size:1.3rem;letter-spacing:-.02em;color:var(--g);margin:0 0 6px}
-.stk.a{transition:opacity .18s}.stk.a.sw{opacity:0}
+.stk.a{transition:opacity .18s}.stk.a.stkh{opacity:0}
 
 .mq{overflow:hidden;background:#1F1F1F;color:#fff;padding:13px 0}
 .mqt{display:flex;width:max-content;animation:mq 42s linear infinite}

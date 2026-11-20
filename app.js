@@ -717,7 +717,7 @@ function ebCard(){
   return '<div class="crd ebs"><div><b>Tu veux juste la formation Airbnb ?</b><p class="mut sm">Guide PDF de 44 pages, 14 chapitres : trouver des clients, écrire les messages, fixer ton prix. Sans abonnement, paiement unique.</p></div>'+
     (S.ebook?'<button class="btn gh" data-v="dl">Télécharger le PDF</button>':'<button class="btn" data-v="ebuy">Acheter seule · '+(bfOn()?'<s>'+eur(EB_PRICE)+'</s> ':'')+eur(sale(EB_PRICE))+'</button>')+'</div>';
 }
-function stkRot(){const e=$("#stkA");if(!e||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return;const L=["Tous les réseaux","Instagram","TikTok","WhatsApp","Facebook","YouTube Shorts","Snapchat"];let i=0;setInterval(()=>{if(document.hidden)return;i=(i+1)%L.length;e.classList.add("sw");setTimeout(()=>{e.textContent=L[i];e.classList.remove("sw")},180)},2200)}
+function stkRot(){const e=$("#stkA");if(!e||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return;const L=["Tous les réseaux","Instagram","TikTok","WhatsApp","Facebook","YouTube Shorts","Snapchat"];let i=0;setInterval(()=>{if(document.hidden)return;i=(i+1)%L.length;e.classList.add("stkh");setTimeout(()=>{e.textContent=L[i];e.classList.remove("stkh")},180)},2200)}
 function renderPlans(el){el.classList.add("p3");el.innerHTML=PLANS.slice(1).map(planCard).join("");const eh=$("#ebHome");if(eh)eh.innerHTML=ebCard()}
 function cmpTable(){
   const Y='<span class="yes">✓</span>',N='<span class="nop">–</span>';
