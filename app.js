@@ -10,17 +10,17 @@ function track(n,p){EV.push({n:n,p:p||{},t:Date.now()});try{console.debug("[trac
 /* ---------- prix ---------- */
 const END=new Date("2026-11-30T23:59:59+01:00").getTime(),BFR=.4;
 const bfOn=()=>Date.now()<END;
-const DUR=[{s:15,p:5,d:"Un teaser percutant pour les réseaux."},{s:30,p:10,d:"Le format idéal pour une annonce.",tg:"POPULAIRE"},{s:45,p:15,d:"Plus de pièces, plus de détails."},{s:60,p:20,d:"La visite complète du logement."}];
-const QUA=[{k:"hd",l:"HD",r:"720p",x:0,d:"Léger, parfait pour les stories."},{k:"fhd",l:"Full HD",r:"1080p",x:5,d:"Le standard Instagram et TikTok.",tg:"CONSEILLÉ"},{k:"4k",l:"4K",r:"2160p",x:15,d:"Netteté maximale, grands écrans."}];
+const DUR=[{s:15,p:6,d:"Un teaser percutant pour les réseaux."},{s:30,p:12,d:"Le format idéal pour une annonce.",tg:"POPULAIRE"},{s:45,p:18,d:"Plus de pièces, plus de détails."},{s:60,p:24,d:"La visite complète du logement."}];
+const QUA=[{k:"hd",l:"HD",r:"720p",x:0,d:"Léger, parfait pour les stories."},{k:"fhd",l:"Full HD",r:"1080p",x:6,d:"Le standard Instagram et TikTok.",tg:"CONSEILLÉ"},{k:"4k",l:"4K",r:"2160p",x:18,d:"Netteté maximale, grands écrans."}];
 const r2=n=>Math.round(n*100)/100;
 const eur=n=>r2(n).toFixed(2).replace(".",",").replace(",00","")+" €";
 const sale=b=>bfOn()?r2(b*(1-BFR)):b;
 const pHTML=b=>bfOn()?"<s>"+eur(b)+"</s><b>"+eur(sale(b))+"</b>":"<b>"+eur(b)+"</b>";
 const PLANS=[
  {k:"unit",r:0,n:"Une vidéo",d:"Tu paies seulement la vidéo que tu crées.",p:null,f:["Durée de 15 à 60 s","HD et Full HD (pas de 4K)","Styles Dynamique et Visite","3 couleurs : Naturel, Chaleureux, Frais","Sans filigrane, sans bordure","-Formation Airbnb non incluse"]},
- {k:"essentiel",r:1,n:"Pack Essentiel",d:"12 crédits, sans abonnement.",p:49,u:"une fois",c:12,f:["12 crédits qui n'expirent pas","Les 4 styles : Drone et Cinéma inclus","Les 6 couleurs","HD et Full HD (pas de 4K)","-Formation Airbnb non incluse"]},
- {k:"pro",r:2,n:"Pack Pro",d:"40 crédits + la formation offerte.",p:129,u:"une fois",c:40,ebook:true,f:["40 crédits qui n'expirent pas","Les 4 styles et les 6 couleurs","4K débloquée","Formation Airbnb offerte (PDF de 44 pages)"],hot:true,bd:"LE PLUS CHOISI"},
- {k:"agence",r:3,n:"Abonnement Agence",d:"120 crédits chaque mois, arrêt à tout moment.",p:199,u:"/ mois",c:120,m:true,ebook:true,f:["120 crédits chaque mois","Tout est débloqué : styles, couleurs, 4K","Formation Airbnb offerte","Historique de tous tes projets","Tu arrêtes quand tu veux"],bd:"MEILLEUR PRIX"}
+ {k:"essentiel",r:1,n:"Pack Essentiel",d:"12 crédits, sans abonnement.",p:69,u:"une fois",c:12,f:["12 crédits qui n'expirent pas","Les 4 styles : Drone et Cinéma inclus","Les 6 couleurs","HD et Full HD (pas de 4K)","-Formation Airbnb non incluse"]},
+ {k:"pro",r:2,n:"Pack Pro",d:"40 crédits + la formation offerte.",p:179,u:"une fois",c:40,ebook:true,f:["40 crédits qui n'expirent pas","Les 4 styles et les 6 couleurs","4K débloquée","Formation Airbnb offerte (PDF de 44 pages)"],hot:true,bd:"LE PLUS CHOISI"},
+ {k:"agence",r:3,n:"Abonnement Agence",d:"120 crédits chaque mois, arrêt à tout moment.",p:299,u:"/ mois",c:120,m:true,ebook:true,f:["120 crédits chaque mois","Tout est débloqué : styles, couleurs, 4K","Formation Airbnb offerte","Historique de tous tes projets","Tu arrêtes quand tu veux"],bd:"MEILLEUR PRIX"}
 ];
 
 PLANS.forEach(p=>{if(p.c)p.per=p.p/p.c});
@@ -94,7 +94,7 @@ function cleanState(){
 }
 const save=()=>{LS.set("vt_tiers",S.tiers);LS.set("vt_user",S.user);LS.set("vt_videos",S.videos);LS.set("vt_credits",S.credits);LS.set("vt_sub",S.sub);LS.set("vt_ledger",S.ledger.slice(-60));LS.set("vt_ctot",S.credTotal);LS.set("vt_renew",S.renew);try{hdr()}catch(e){}};
 const base=()=>DUR.find(d=>d.s===S.dur).p+QUA.find(q=>q.k===S.q).x;
-const UNITP=5,AIC=3,MINAI=2,AI_ON=false,cr=()=>base()/UNITP+(S.ai?S.dur/15*AIC:0);
+const UNITP=6,AIC=3,MINAI=2,AI_ON=false,cr=()=>base()/UNITP+(S.ai?S.dur/15*AIC:0);
 const MINM={dynamic:0,tour:0,drone:1,cinema:1},MINC={natural:0,warm:0,fresh:0,cinema:1,vivid:1,mono:1},MINQ={hd:0,fhd:0,"4k":2};
 const TNAME=["Une vidéo","Pack Essentiel","Pack Pro","Abonnement Agence"],TMIN=["","Pack Essentiel","Pack Pro","Abonnement Agence"],TSHORT=["","Essentiel","Pro","Agence"];
 const need=()=>Math.max(MINM[S.motion]||0,MINC[S.grade]||0,MINQ[S.q]||0,S.ai?MINAI:0);
@@ -191,11 +191,12 @@ function foundHtml(){return '<div class="found"><p><b>✓ Annonce reconnue</b><b
 function gateBullets(){return '<ul class="gl"><li>Sans filigrane, prête à publier</li><li>Tu ne paies qu\'après avoir vérifié ton récapitulatif</li><li>Remboursé automatiquement si le montage échoue</li></ul>'}
 function payExtras(opts){
   const sel=opts.find(o=>o.k===S.plan);let h="";
-    if(!S.ebook&&!(sel&&sel.pack&&sel.pack.ebook))h+='<label class="bump"><input type="checkbox" id="pBump"'+(S.bump?" checked":"")+'><span><b>Ajoute la Formation Airbnb</b> pour <b>9 €</b> <s>'+eur(EB_PRICE)+'</s><small>Guide PDF de 44 pages : trouver des clients, écrire les messages, fixer ton prix.</small></span></label>';
+    if(!S.ebook&&!(sel&&sel.pack&&sel.pack.ebook))h+='<label class="bump"><input type="checkbox" id="pBump"'+(S.bump?" checked":"")+'><span><b>Ajoute la Formation Airbnb</b> pour <b>'+eur(BUMP_PRICE)+'</b> <s>'+eur(EB_PRICE)+'</s><small>Guide PDF de 44 pages : trouver des clients, écrire les messages, fixer ton prix.</small></span></label>';
   return h;
 }
 const bumpOn=o=>S.bump&&!S.ebook&&!(o.pack&&o.pack.ebook);
-const ptotal=o=>(o.free?0:sale(o.p))+(bumpOn(o)?9:0);
+const BUMP_PRICE=14;
+const ptotal=o=>(o.free?0:sale(o.p))+(bumpOn(o)?BUMP_PRICE:0);
 const MSG="Bonjour [Prénom],\n\nJ'ai vu votre annonce « [Nom du logement] ». Je réalise des vidéos verticales à partir des photos d'une annonce, pour Instagram et TikTok.\n\nJe peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?";
 function msgText(){
   const n=S.name||"[Ton prénom]";
@@ -432,7 +433,7 @@ function gallery(){
 /* ---------- formation (ebook) ---------- */
 const CHAP=[["Le business en dix minutes","Ce que tu vends, à qui, et combien il te reste à la fin."],["Tes clients","Six profils, ce qu'ils veulent, et par qui commencer."],["Se mettre en règle","Micro-entreprise, factures, droit sur les photos, prospection autorisée."],["Ton offre et tes prix","Trois offres, calcul de marge avec les vrais tarifs."],["Ta vitrine","Trois vidéos d'exemple, profil Instagram, WhatsApp Business."],["Dix méthodes pour trouver des clients","Entourage, Facebook, Instagram, LinkedIn, partenaires, terrain…"],["Quatorze messages à copier","Premier contact, relances, devis, livraison, avis."],["Le déroulé d'une vente","Sept étapes, de la démo au paiement et à la recommandation."],["Répondre aux objections","Dix objections courantes et comment y répondre."],["Faire grandir ton activité","Packs, abonnements, objectifs mensuels."],["T'organiser et suivre tes chiffres","Semaine type, feuille de suivi, entonnoir."],["Livrer comme un pro","Checklist, formats, conseils de publication."],["Les erreurs à éviter","Douze erreurs et quoi faire à la place."],["Plan d'action sur 30 jours","Un calendrier jour par jour."]];
 function dlEb(){track("ebook_download");const a=document.createElement("a");a.href="formation-cliploc.pdf";a.download="Cliploc-La-formation.pdf";document.body.appendChild(a);a.click();a.remove()}
-const EB_PRICE=29;
+const EB_PRICE=39;
 S.ebook=LS.get("vt_ebook",false);
 function renderEb(){
   $("#chBox").innerHTML=CHAP.map((c,i)=>'<div class="ch"><b class="n">'+String(i+1).padStart(2,"0")+'</b><div><b>'+c[0]+'</b><span>'+c[1]+'</span></div></div>').join("");
