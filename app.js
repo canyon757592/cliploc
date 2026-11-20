@@ -343,11 +343,73 @@ function renderPay(){
       const b=$("#payBtn");b.disabled=true;$("#pErr").textContent="";S.cur=newCur();
       try{await ensureJob()}catch(e){S.cur=null;$("#pErr").textContent=e.message;b.disabled=false;return}
       finish(o);return}
-    payLater();
+    if(!aiAvailPay()){payLater();return}
+    const b=$("#payBtn");b.disabled=true;$("#pErr").textContent="";
+    const need=cr(),bump=bumpOn(o);
+    let spec,grant=0;
+    if(o.k==="credit"){spec={kind:"ebook",bump:true}}
+    else if(o.k==="unit"){spec={kind:"unit",dur:S.dur,q:S.q,bump:bump};grant=need}
+    else if(o.k==="agence"){spec={kind:"agence"};grant=o.pack.c}
+    else{spec={kind:"pack",plan:o.k,bump:bump};grant=o.pack.c}
+    startCheckout(spec,{video:true,before:S.credits,grant:grant,ebook:o.k==="credit"||bump});
   };
 }
-/* Le paiement par carte (Stripe) n'est pas encore branché : seuls les crédits déjà sur le compte servent. */
+/* Paiement Stripe : le serveur calcule le prix et crée la session, on part sur la page de paiement Stripe, puis on revient ici.
+   Pendant ce temps le projet (photos comprises) est gardé sur l'appareil, dans le navigateur (IndexedDB). */
+const IDB={
+  open(){return new Promise((ok,ko)=>{try{const r=indexedDB.open("cliploc",1);r.onupgradeneeded=()=>r.result.createObjectStore("d");r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)}catch(e){ko(e)}})},
+  async run(mode,fn){const db=await this.open();return new Promise((ok,ko)=>{const t=db.transaction("d",mode),o=fn(t.objectStore("d"));t.oncomplete=()=>{db.close();ok(o&&o.result)};t.onerror=()=>{db.close();ko(t.error)}})},
+  put(v){return this.run("readwrite",st=>st.put(v,"draft"))},get(){return this.run("readonly",st=>st.get("draft"))},del(){return this.run("readwrite",st=>st.delete("draft"))}
+};
+async function saveDraft(flow){
+  const d={at:Date.now(),flow:flow||null,files:S.files.slice(0,30)};
+  ["url","id","n","dur","q","fmt","motion","grade","ai","bump","caps"].forEach(k=>{d[k]=S[k]});
+  await IDB.put(d);
+}
+async function restoreDraft(){
+  let d=null;try{d=await IDB.get()}catch(e){}
+  if(!d||typeof d!=="object"||!(Date.now()-d.at<2*864e5))return null;
+  const R=parseAirbnb(String(d.url||""));if(!R)return null;
+  const files=(Array.isArray(d.files)?d.files:[]).filter(f=>f instanceof Blob&&/^image\//.test(f.type)&&f.size>0&&f.size<=25*1024*1024).slice(0,30);
+  S.url=R.url;S.id=R.id||("lien-"+R.url.split("/").pop());S.files=files;S.rights=true;
+  S.dur=[15,30,45,60].includes(d.dur)?d.dur:30;S.q=["hd","fhd","4k"].includes(d.q)?d.q:"fhd";S.fmt=["v","s","h"].includes(d.fmt)?d.fmt:"v";
+  S.motion=["dynamic","drone","cinema","tour"].includes(d.motion)?d.motion:"dynamic";S.grade=["natural","warm","fresh","cinema","vivid","mono"].includes(d.grade)?d.grade:"natural";
+  S.ai=d.ai===true&&files.length>=2&&aiAvail();S.n=Math.max(2,Math.min(40,Math.trunc(+d.n)||12));S.bump=false;S.planSet=false;S.caps=d.caps!==false;
+  const f=d.flow&&typeof d.flow==="object"?d.flow:null;
+  return{flow:f?{video:f.video===true,before:Math.max(0,Math.min(1e6,Math.trunc(+f.before)||0)),grant:Math.max(0,Math.min(200,Math.trunc(+f.grant)||0)),ebook:f.ebook===true}:null};
+}
+const aiAvailPay=()=>!!(S.flags&&S.flags.pay===true);
 function payLater(){track("pay_blocked");openMd('<p class="kk">BIENTÔT</p><h2 style="margin-bottom:10px">Le paiement en ligne ouvre très bientôt</h2><p class="mut">Cliploc est en phase de lancement et le paiement par carte est en cours d\'activation. Ton compte est créé : dès que c\'est ouvert, tu retrouves ici ton projet et tes choix.</p><button class="btn big" data-v="closeMd">Compris</button>')}
+let _co=false;window.addEventListener("pageshow",()=>{_co=false});
+async function startCheckout(spec,flow){
+  if(_co)return;_co=true;
+  try{
+    try{await saveDraft(flow)}catch(e){}
+    const r=await CL.checkout(spec);
+    if(!r||typeof r.url!=="string"||!/^https:\/\/checkout\.stripe\.com\//.test(r.url))throw new Error("Le paiement n'a pas pu démarrer. Réessaie dans un instant.");
+    track("checkout_open",{k:spec.kind});
+    location.assign(r.url);
+  }catch(e){_co=false;const b=$("#payBtn");if(b)b.disabled=false;const er=$("#pErr");if(er&&document.body.dataset.s==="pay")er.textContent=e.message;else toast(e.message);}
+}
+/* Retour de Stripe : on attend que le webhook ait crédité le compte, puis on reprend là où on s'était arrêté. */
+async function afterPay(paid){
+  const rs=await restoreDraft();
+  if(!paid){if(rs){go("pay");toast("Paiement annulé : ton projet est conservé.")}return}
+  if(!CL.session()){S.back=rs?"pay":null;go("auth");toast("Reconnecte-toi pour retrouver ton achat.");return}
+  const fl=rs&&rs.flow,ok=p=>p&&(!fl||(p.credits>=fl.before+fl.grant&&(!fl.ebook||p.ebook===true)));
+  openMd('<p class="kk">PAIEMENT REÇU</p><h2 style="margin-bottom:10px">On active ton achat…</h2><p class="mut">Ça prend quelques secondes. Ne ferme pas cette page.</p>');
+  let done=false;
+  for(let i=0;i<30&&!done;i++){let p=null;try{p=await CL.profile()}catch(e){}if(ok(p)||(!fl&&p)){done=true;break}await new Promise(r=>setTimeout(r,2000))}
+  if(!done){openMd('<p class="kk">PAIEMENT REÇU</p><h2 style="margin-bottom:10px">Validation en cours</h2><p class="mut">Ton paiement est bien parti, mais la validation prend plus de temps que d\'habitude. Recharge cette page dans une minute : ton projet est conservé et tes crédits arriveront.</p><button class="btn big" data-v="closeMd">OK</button>');return}
+  await syncProfile();closeMd();track("paid_return");
+  if(rs&&fl&&fl.video){
+    S.cur=newCur();
+    try{await ensureJob();try{await IDB.del()}catch(e){}finish({k:"credit"})}
+    catch(e){S.cur=null;go("pay");const er=$("#pErr");if(er)er.textContent=e.message}
+    return}
+  try{await IDB.del()}catch(e){}
+  toast("Merci ! Ton achat est activé.");go("dash");
+}
 function syncPay(opts){const o=opts.find(x=>x.k===S.plan),t=ptotal(o);$("#payPz").innerHTML=(o.free&&!bumpOn(o))?"<b>0 €</b>":(bumpOn(o)?"<b>"+eur(t)+"</b>":pHTML(o.p));$("#payBtn").textContent=t===0?"Débloquer ma vidéo":"Payer "+eur(t)}
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const RENEW=30*864e5;
@@ -356,7 +418,8 @@ function buy(k){
   const pl=PLANS.find(x=>x.k===k);if(!pl||!pl.p)return;if(pl.m&&S.sub){toast("Tu as déjà cet abonnement.");return}
   if(!S.user){S.back=document.body.dataset.s;S.buyK=k;track("buy_login",{k:k});go("auth");return}
   track("buy_open",{k:k});
-  payLater();
+  if(!aiAvailPay()){payLater();return}
+  startCheckout(k==="agence"?{kind:"agence"}:{kind:"pack",plan:k},{video:false,before:S.credits,grant:pl.c,ebook:false});
 }
 function newCur(){return{id:Date.now(),listing:S.id,dur:S.dur,q:S.q,fmt:S.fmt,n:S.n,date:new Date().toLocaleDateString("fr-FR"),caps:S.caps,ai:!!S.ai,motion:S.motion,grade:S.grade,job:null}}
 function finish(o){track("pay_success",{plan:o.k});go("rd2")}
@@ -509,7 +572,8 @@ function renderEb(){
 function buyEbook(){
   if(!S.user){S.back="eb";track("ebook_login");go("auth");return}
   track("ebook_checkout");
-  payLater();
+  if(!aiAvailPay()){payLater();return}
+  startCheckout({kind:"ebook"},{video:false,before:S.credits,grant:0,ebook:true});
 }
 
 /* ---------- 8. mes vidéos ---------- */
@@ -652,7 +716,9 @@ $("#ctGo").onclick=()=>{const e=$("#ctE").value.trim(),m=$("#ctM").value.trim(),
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
   if(m.length<10){er.textContent="Écris un message d'au moins 10 caractères.";return}
   er.textContent="";const l=LS.get("vt_contact",[]);l.push({e:e,m:m.slice(0,1000),at:Date.now()});LS.set("vt_contact",l);track("contact_sent");$("#ctM").value="";toast("Message envoyé (maquette). On te répond par email.")};
-CL.restore().catch(()=>false).then(()=>{const ss=CL.session();if(ss){S.user={email:ss.m};hdr();return CL.sweep().catch(()=>{}).then(()=>syncProfile())}}).catch(()=>{});
+CL.restore().catch(()=>false).then(()=>{const ss=CL.session();if(ss){S.user={email:ss.m};hdr();return CL.sweep().catch(()=>{}).then(()=>syncProfile())}}).catch(()=>{}).then(()=>{
+  const q=new URLSearchParams(location.search),pd=q.get("paid")==="1",pc=q.get("pay")==="cancel";
+  if(pd||pc){try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}afterPay(pd)}});
 CL.flags().then(f=>{S.flags=f;const cs=document.body.dataset.s;renderPlans($("#plHome"));homeAi();if(cs==="cfg")renderCfg();if(cs==="pr")renderPr()}).catch(()=>{});
 faq();trustBox();loadReal();renderPlans($("#plHome"));homeStyles();homeAi();hdr();nav();
 const h0=(location.hash||"#lp").slice(1);go(h0==="lp"||SCR.indexOf(h0)<0?"lp":(NEED[h0]?"lp":h0),{nopush:true});

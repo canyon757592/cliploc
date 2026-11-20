@@ -87,7 +87,7 @@
   }
   async function flags() {
     const res = await call("/rest/v1/rpc/public_flags", {});
-    return res.ok && res.j && typeof res.j === "object" ? { ai: res.j.ai === true } : { ai: false };
+    return res.ok && res.j && typeof res.j === "object" ? { ai: res.j.ai === true, pay: res.j.pay === true } : { ai: false, pay: false };
   }
 
   const RPC_MSG = {
@@ -164,5 +164,18 @@
     return { clips: out, refunded };
   }
 
-  window.CL = { session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
+  /* Paiement : le serveur calcule le prix et renvoie l'adresse de la page de paiement Stripe. */
+  async function checkout(spec) {
+    const t = await token(); if (!t) throw new Error("Ta session a expiré. Reconnecte-toi.");
+    let r; try { r = await fetch(URL_ + "/functions/v1/create-checkout", { method: "POST", headers: hdr(t), body: JSON.stringify(spec), cache: "no-store" }) }
+    catch (e) { throw new Error("Pas de connexion. Réessaie dans un instant.") }
+    let j = null; try { j = await r.json() } catch (e) {}
+    if (!r.ok) {
+      const e = j && j.error;
+      throw new Error(e === "payments_unavailable" ? "Le paiement en ligne n'est pas encore ouvert." : e === "already_owned" ? "Tu as déjà la formation Airbnb." : e === "already_subscribed" ? "Tu as déjà cet abonnement." : "Le paiement n'a pas pu démarrer. Réessaie dans un instant.");
+    }
+    return j;
+  }
+
+  window.CL = { checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
 })();
