@@ -188,5 +188,18 @@
     return j.url;
   }
 
-  window.CL = { portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
+  /* Formation (PDF) : fichier privé. Le serveur ne le donne qu'aux comptes qui l'ont payée (règle d'accès sur le stockage). */
+  async function ebook() {
+    const tok = await token();
+    if (!tok) return { ok: false, error: "Connecte-toi pour télécharger la formation." };
+    let r;
+    try { r = await fetch(URL_ + "/storage/v1/object/authenticated/ebook/formation-cliploc.pdf", { headers: { apikey: KEY, Authorization: "Bearer " + tok }, cache: "no-store" }) }
+    catch (e) { return { ok: false, error: "Pas de connexion. Vérifie ton réseau et réessaie." } }
+    if (r.status >= 400 && r.status < 500) return { ok: false, error: "La formation n'est pas disponible sur ce compte." };
+    if (!r.ok) return { ok: false, error: "Téléchargement impossible pour le moment. Réessaie dans un instant." };
+    let b; try { b = await r.blob() } catch (e) { b = null }
+    if (!b || !b.size) return { ok: false, error: "Téléchargement impossible pour le moment. Réessaie dans un instant." };
+    return { ok: true, blob: new Blob([b], { type: "application/pdf" }) };
+  }
+  window.CL = { ebook, portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
 })();
