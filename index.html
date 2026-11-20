@@ -169,6 +169,7 @@ footer nav button{background:none;border:0;color:var(--mut);padding:0}
 .inp{width:100%;background:#0D0B17;border:1px solid var(--ln);border-radius:14px;color:var(--ink);font:inherit;padding:15px 16px}
 .inp:focus{outline:2px solid var(--g)}select.inp{appearance:auto}
 .inp+.inp,.fld+.fld{margin-top:10px}
+.phb{margin-top:16px;padding:14px;border:1px dashed var(--ln);border-radius:14px;background:rgba(255,255,255,.03)}.phs{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.phs i{width:48px;height:48px;border-radius:8px;background-size:cover;background-position:center}.phs em{align-self:center;font-style:normal;color:var(--mut);font-size:.8rem}
 .tog{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 2px}
 .tog b{font-size:.95rem}.tog small{display:block;color:var(--mut);font-weight:500}
 .sw{position:relative;width:52px;height:30px;border-radius:99px;background:#2a2640;border:0;flex:none;transition:background .2s}
@@ -622,6 +623,19 @@ const SC=[
 ];
 let _u=0;
 const scn=i=>{const s=SC[i%SC.length],k="g"+(++_u);return '<div class="b" style="background:'+s.bg+'"><svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+s.s.replace(/@@/g,k)+'</svg></div>'};
+/* ---------- montage réel (navigateur) ---------- */
+let _rm=null;const rmod=()=>_rm||(_rm=import("./render.js"));
+function sceneBlob(i){return new Promise((ok,ko)=>{const sc=SC[i%SC.length];
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1600" viewBox="0 0 100 160" preserveAspectRatio="xMidYMid slice">'+sc.s.replace(/@@/g,"r"+i)+'</svg>';
+  const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=1000;c.height=1600;c.getContext("2d").drawImage(im,0,0,1000,1600);c.toBlob(b=>b?ok(b):ko(new Error("img")),"image/png")};im.onerror=()=>ko(new Error("img"));
+  im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)})}
+async function realPhotos(){if(S.files.length>=2)return{list:S.files,caps:S.files.map((_,i)=>CAPS[(i+1)%CAPS.length]),demo:false};
+  const q=[1,0,2,3,4,5],l=[];for(const k of q)l.push(await sceneBlob(k));return{list:l,caps:q.map(k=>SCAP[k]),demo:true}}
+function photoBox(){const n=S.files.length;
+  return '<div class="phb"><b>Tes photos</b><small class="mut">Ajoute les photos de l\'annonce (2 minimum, 30 maximum). Sans photos, on te montre une vidéo d\'exemple.</small>'+
+  '<label class="btn gh" style="height:48px;margin-top:10px;cursor:pointer;display:flex;align-items:center;justify-content:center">'+(n?n+' photo'+(n>1?'s':'')+' ajoutée'+(n>1?'s':'')+' · modifier':'Ajouter mes photos')+'<input type="file" id="phIn" accept="image/*" multiple hidden></label>'+
+  (n?'<div class="phs">'+S.files.slice(0,12).map((f,i)=>'<i data-i="'+i+'" style="background-image:url('+URL.createObjectURL(f)+')"></i>').join("")+(n>12?'<em>+'+(n-12)+'</em>':'')+'</div>':'')+
+  '<label class="tog" style="padding:12px 0 0;gap:10px;justify-content:flex-start;align-items:flex-start"><input type="checkbox" id="phRt" '+(S.rights?"checked":"")+' style="margin-top:3px"><span style="font-size:.82rem;line-height:1.45" class="mut">Je confirme avoir le droit d\'utiliser ces photos (je suis le propriétaire, le gestionnaire du logement ou j\'ai son accord).</span></label></div>'}
 const CAPS=["Bienvenue","Le séjour","Piscine privée","La cuisine","La chambre","Vue dégagée","La terrasse","La salle de bain","Le coin repas","Réservez vos dates"];
 
 /* ---------- lecteur de vidéo (maquette) ---------- */
@@ -645,7 +659,7 @@ const SCAP=["Le séjour","Piscine privée","La chambre","La cuisine","Vue dégag
 const mkPhotos=n=>Array.from({length:n},(_,k)=>{const q=[1,0,2,3,4,5][k%6];return{s:q,c:SCAP[q]}});
 
 /* ---------- état ---------- */
-const S={url:"",id:"",n:12,dur:30,q:"fhd",fmt:"v",music:"Chill estival",lang:"Français",caps:true,plan:"unit",cs:0,
+const S={files:[],rights:false,blobUrl:"",url:"",id:"",n:12,dur:30,q:"fhd",fmt:"v",music:"Chill estival",lang:"Français",caps:true,plan:"unit",cs:0,
   user:LS.get("vt_user",null),videos:LS.get("vt_videos",[]),credits:LS.get("vt_credits",0),sub:LS.get("vt_sub",false)};
 const save=()=>{LS.set("vt_user",S.user);LS.set("vt_videos",S.videos);LS.set("vt_credits",S.credits);LS.set("vt_sub",S.sub);LS.set("vt_ledger",S.ledger.slice(-60));LS.set("vt_ctot",S.credTotal);LS.set("vt_renew",S.renew);try{hdr()}catch(e){}};
 const base=()=>DUR.find(d=>d.s===S.dur).p+QUA.find(q=>q.k===S.q).x;
@@ -774,14 +788,14 @@ function renderCfg(){
   let h='<div class="dt">'+dots+'<span>ÉTAPE '+(step+1)+'/'+total+'</span></div><div class="pb"><i style="width:'+((step+1)/total*100)+'%"></i></div>';
   if(step===0){
     h+='<p class="kk">DURÉE</p><h2>Quelle durée pour ta vidéo ?</h2>'+foundHtml()+'<p class="sub">Plus la vidéo est longue, plus chaque pièce est détaillée.</p><div class="gd" id="gd">'+
-    DUR.map(d=>'<button class="tile'+(d.s===S.dur?" on":"")+'" data-d="'+d.s+'"><u>✓</u><span class="big">'+d.s+'<small>S</small></span><span class="ds">'+d.d+'</span>'+(d.tg?'<span class="tg">'+d.tg+'</span>':'')+'</button>').join("")+'</div>';
+    DUR.map(d=>'<button class="tile'+(d.s===S.dur?" on":"")+'" data-d="'+d.s+'"><u>✓</u><span class="big">'+d.s+'<small>S</small></span><span class="ds">'+d.d+'</span>'+(d.tg?'<span class="tg">'+d.tg+'</span>':'')+'</button>').join("")+'</div>'+photoBox();
   }else if(step===1){
     h+='<p class="kk">QUALITÉ</p><h2>Quelle qualité d\'image ?</h2><p class="sub">Tu pourras télécharger la vidéo en MP4.</p><div class="gd c3" id="gd">'+
     QUA.map(q=>'<button class="tile'+(q.k===S.q?" on":"")+'" data-q="'+q.k+'" style="min-height:104px"><u>✓</u><span class="big" style="font-size:1.8rem">'+q.l+'<small>'+q.r+'</small></span><span class="ds">'+q.d+'</span>'+(q.tg?'<span class="tg">'+q.tg+'</span>':'')+'</button>').join("")+'</div>';
   }else{
     h+='<p class="kk">STYLE</p><h2>Dernier réglage</h2><p class="sub">Tu pourras tout retoucher après le montage.</p>'+
     '<div class="row3"><div><label>Format</label><div class="seg" id="sgF"><button data-f="v" class="'+(S.fmt==="v"?"on":"")+'">Vertical (Reels, TikTok)</button><button data-f="s" class="'+(S.fmt==="s"?"on":"")+'">Carré (Instagram)</button><button data-f="h" class="'+(S.fmt==="h"?"on":"")+'">Large (YouTube)</button></div></div>'+
-    '<div><label>Musique</label><select class="inp" id="sMu">'+["Chill estival","Lounge doux","Pop lumineuse","Sans musique"].map(m=>'<option'+(m===S.music?" selected":"")+'>'+m+'</option>').join("")+'</select></div>'+
+    '<div><label>Musique</label><select class="inp" id="sMu" disabled><option>Bientôt disponible</option></select></div>'+
     '<div><label>Langue des textes</label><select class="inp" id="sLa">'+["Français","English","Español","Deutsch"].map(m=>'<option'+(m===S.lang?" selected":"")+'>'+m+'</option>').join("")+'</select></div></div>'+
     '<div class="tog"><div><b>Texte sur chaque photo</b><small>Rédigé à partir des pièces de l\'annonce.</small></div><button class="sw" id="sCap" role="switch" aria-checked="'+S.caps+'" aria-label="Textes sur les photos"></button></div>';
   }
@@ -793,8 +807,10 @@ function renderCfg(){
   $$("#sgF button").forEach(b=>b.onclick=()=>{S.fmt=b.dataset.f;renderCfg()});
   const mu=$("#sMu");if(mu)mu.onchange=()=>{S.music=mu.value};const la=$("#sLa");if(la)la.onchange=()=>{S.lang=la.value};
   const sc=$("#sCap");if(sc)sc.onclick=()=>{S.caps=!S.caps;sc.setAttribute("aria-checked",S.caps)};
+  const pi=$("#phIn");if(pi)pi.onchange=()=>{const a=[...pi.files].filter(f=>/^image\//.test(f.type)).slice(0,30);S.files=a;track("photos_added",{n:a.length});renderCfg()};
+  const pr=$("#phRt");if(pr)pr.onchange=()=>{S.rights=pr.checked};
   const bk=$("#cfgBack");if(bk)bk.onclick=()=>{S.cs--;renderCfg();window.scrollTo(0,0)};
-  $("#cfgNext").onclick=()=>{if(S.cs<total-1){S.cs++;renderCfg();window.scrollTo(0,0)}else{track("cfg_done",{dur:S.dur,q:S.q,fmt:S.fmt});S.cs=0;go("mk")}};
+  $("#cfgNext").onclick=()=>{if(S.cs===0&&S.files.length===1){toast("Ajoute au moins 2 photos (ou retire-la).");return}if(S.cs===0&&S.files.length>=2&&!S.rights){toast("Coche la case pour confirmer tes droits sur les photos.");return}if(S.cs<total-1){S.cs++;renderCfg();window.scrollTo(0,0)}else{track("cfg_done",{dur:S.dur,q:S.q,fmt:S.fmt});S.cs=0;go("mk")}};
 }
 
 /* ---------- 3. animation de montage ---------- */
@@ -902,25 +918,40 @@ function finish(o){track("pay_success",{plan:o.k});S.cur={id:Date.now(),listing:
 
 /* ---------- 6. montage en cours ---------- */
 function runRd(){
-  const L=["Montage des plans","Textes et transitions","Mixage de la musique","Export "+QUA.find(q=>q.k===S.q).l+" "+S.dur+" s"];
+  const L=["Préparation des photos","Montage des plans","Textes et transitions","Export "+QUA.find(q=>q.k===S.q).l+" "+S.dur+" s"];
   $("#rL").innerHTML=L.map(x=>'<li><span class="ic"></span>'+x+'</li>').join("");
-  const li=$$("#rL li"),C=364.4,TOT=7600,st=Date.now();
-  function f(){const p=Math.min(1,(Date.now()-st)/TOT);$("#rC").style.strokeDashoffset=C*(1-p);$("#rP").textContent=Math.round(p*100)+"%";
-    const k=Math.min(L.length-1,Math.floor(p*L.length));li.forEach((e,j)=>{e.className=j<k?"d":(j===k?"a":"")});$("#rT").textContent=L[k];
-    if(p<1)later(f,60);else{li.forEach(e=>e.className="d");S.videos.unshift(S.cur);save();track("render_done");later(()=>go("done"),400)}}
-  f();
+  const li=$$("#rL li"),C=364.4;let cancelled=false;
+  const set=p=>{$("#rC").style.strokeDashoffset=C*(1-p);$("#rP").textContent=Math.round(p*100)+"%";const k=Math.min(L.length-1,Math.floor(p*L.length));li.forEach((e,j)=>{e.className=j<k?"d":(j===k?"a":"")});$("#rT").textContent=L[k]};
+  set(0);const keep=()=>{if(document.body.dataset.s!=="rd2")cancelled=true};
+  (async()=>{
+    try{
+      const M=await rmod(),cap=await M.canRender(S.q,S.fmt);
+      if(!cap.ok)throw new Error(cap.reason);
+      const ph=await realPhotos();
+      const blob=await M.renderVideo({photos:ph.list,captions:S.caps?ph.caps:[],seconds:S.dur,quality:S.q,fmt:S.fmt,onProgress:p=>{keep();set(p)}});
+      if(cancelled)return;
+      if(S.blobUrl)URL.revokeObjectURL(S.blobUrl);S.blobUrl=URL.createObjectURL(blob);S.blobSize=blob.size;S.cur.demo=ph.demo;
+      li.forEach(e=>e.className="d");set(1);S.videos.unshift(S.cur);save();track("render_done",{demo:ph.demo,mb:Math.round(blob.size/1e5)/10});later(()=>go("done"),400)
+    }catch(e){
+      track("render_error",{m:String(e&&e.message||e).slice(0,80)});
+      $("#rT").textContent="Le montage a échoué";
+      $("#rL").innerHTML='<li style="list-style:none;color:var(--mut);line-height:1.5">'+String(e&&e.message||"Erreur inconnue").replace(/</g,"&lt;")+'<br><br><button class="btn" id="rRetry">Réessayer</button> <button class="btn gh" id="rQ">Choisir une qualité plus basse</button></li>';
+      const r=$("#rRetry");if(r)r.onclick=()=>go("rd2");const q=$("#rQ");if(q)q.onclick=()=>{if(S.q==="4k")S.q="fhd";else S.q="hd";go("rd2")}
+    }
+  })();
 }
 
 /* ---------- 7. terminé ---------- */
 let stars=0;
 function renderDone(){
   const c=S.cur;stars=0;
-  $("#doneCard").innerHTML='<p class="kk">C\'EST FAIT</p><h2>Ta vidéo est prête</h2><p class="mut">'+c.dur+' s · '+QUA.find(q=>q.k===c.q).l+' · sans filigrane</p><div class="phw" style="margin:18px 0"><div class="ph"><div id="dnPh" style="position:absolute;inset:0"></div><div class="nt"></div></div></div>'+
+  $("#doneCard").innerHTML='<p class="kk">C\'EST FAIT</p><h2>Ta vidéo est prête</h2><p class="mut">'+c.dur+' s · '+QUA.find(q=>q.k===c.q).l+' · sans filigrane'+(c.demo?' · vidéo d\'exemple':'')+'</p><div class="phw" style="margin:18px 0"><div class="ph"><div id="dnPh" style="position:absolute;inset:0"></div><div class="nt"></div></div></div>'+
   '<button class="btn big" id="dl" style="margin-top:0">Télécharger la vidéo (MP4)</button><button class="btn gh big" id="shr" style="margin-top:10px;height:52px">Copier le lien de partage</button>'+
   nextSteps()+'<div style="margin-top:26px;border-top:1px solid var(--ln);padding-top:20px"><p class="kk">TON AVIS</p><b>Tu es satisfait du résultat ?</b><div class="stars" id="st">'+[1,2,3,4,5].map(n=>'<button data-n="'+n+'" aria-label="'+n+' étoiles">★</button>').join("")+'</div><textarea class="inp" id="rvT" placeholder="Dis-nous ce que tu en penses (facultatif)"></textarea><button class="btn gh big" id="rvB" style="height:50px">Envoyer mon avis</button></div>'+
   '<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap"><button class="btn" id="nv">Créer une autre vidéo</button><button class="btn gh" id="mv">Mes vidéos</button></div>';
-  if(doneP)doneP.stop();doneP=Player($("#dnPh"),mkPhotos(c.n>8?8:c.n),2.4).start();
-  $("#dl").onclick=()=>{track("download");toast("Maquette : le téléchargement sera branché plus tard.")};
+  if(doneP)doneP.stop();
+  if(S.blobUrl){$("#dnPh").innerHTML='<video src="'+S.blobUrl+'" controls playsinline loop muted autoplay style="width:100%;height:100%;object-fit:cover;background:#000"></video>'}else doneP=Player($("#dnPh"),mkPhotos(c.n>8?8:c.n),2.4).start();
+  $("#dl").onclick=()=>{if(!S.blobUrl){toast("Ta vidéo n'est plus en mémoire : relance le montage depuis Mes vidéos.");return}track("download");const a=document.createElement("a");a.href=S.blobUrl;a.download="cliploc-"+c.listing+"-"+c.dur+"s.mp4";document.body.appendChild(a);a.click();a.remove()};
   $("#shr").onclick=()=>toast("Maquette : lien de partage à venir.");
   $$("#st button").forEach(b=>b.onclick=()=>{stars=+b.dataset.n;$$("#st button").forEach((x,i)=>x.classList.toggle("on",i<stars))});
   $("#rvB").onclick=()=>{if(!stars){toast("Choisis une note.");return}const l=LS.get("vt_reviews_pending",[]);l.push({stars:stars,text:$("#rvT").value.slice(0,500),at:Date.now()});LS.set("vt_reviews_pending",l);track("review",{stars:stars});toast("Merci ! Ton avis sera publié après vérification.")};
