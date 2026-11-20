@@ -14,9 +14,9 @@
   const keep = s => { sess = s; try { s ? localStorage.setItem(SK, JSON.stringify(s)) : localStorage.removeItem(SK) } catch (e) {} };
   const hdr = tok => ({ apikey: KEY, Authorization: "Bearer " + (tok || KEY), "Content-Type": "application/json" });
 
-  async function call(path, body, tok, method) {
+  async function call(path, body, tok, method, extra) {
     let r;
-    try { r = await fetch(URL_ + path, { method: method || "POST", headers: hdr(tok), body: body === undefined ? undefined : JSON.stringify(body), cache: "no-store" }) }
+    try { r = await fetch(URL_ + path, { method: method || "POST", headers: Object.assign(hdr(tok), extra || {}), body: body === undefined ? undefined : JSON.stringify(body), cache: "no-store" }) }
     catch (e) { return { ok: false, status: 0, j: { msg: "network" } } }
     let j = null; try { j = await r.json() } catch (e) { j = null }
     return { ok: r.ok, status: r.status, j };
@@ -216,5 +216,65 @@
     for (const [re, msg] of E) if (re.test(m)) return { ok: false, error: msg };
     return { ok: false, error: "Envoi impossible pour le moment. Réessaie plus tard." };
   }
-  window.CL = { reviews, submitReview, ebook, portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
+
+  /* Infos personnelles (toutes facultatives) et photo de profil : visibles et modifiables uniquement par le propriétaire du compte
+     (règles d'accès côté base : table profile_details, stockage privé « avatars »). */
+  const DK = ["username", "first_name", "last_name", "phone", "company", "addr1", "zip", "city", "country", "avatar_path"];
+  const UID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const DET_MSG = [
+    [/pd_username_uq|duplicate key/i, "Ce nom d'utilisateur est déjà pris. Choisis-en un autre."],
+    [/pd_username/, "Nom d'utilisateur invalide : 3 à 30 caractères, lettres minuscules, chiffres, point, tiret ou tiret bas."],
+    [/pd_phone/, "Numéro de téléphone invalide (chiffres, espaces, +, points, parenthèses et tirets uniquement)."],
+    [/pd_first/, "Prénom invalide (60 caractères au maximum, sans < ni >)."],
+    [/pd_last/, "Nom invalide (60 caractères au maximum, sans < ni >)."],
+    [/pd_company/, "Société invalide (80 caractères au maximum, sans < ni >)."],
+    [/pd_addr1/, "Adresse invalide (120 caractères au maximum, sans < ni >)."],
+    [/pd_zip/, "Code postal invalide (12 caractères au maximum)."],
+    [/pd_city/, "Ville invalide (60 caractères au maximum, sans < ni >)."],
+    [/pd_country/, "Pays invalide (60 caractères au maximum, sans < ni >)."],
+    [/JWT|expired|401/, "Ta session a expiré. Reconnecte-toi."],
+    [/network/, "Pas de connexion. Vérifie ton réseau et réessaie."]
+  ];
+  async function details() {
+    const t = await token(); if (!t) return null;
+    const res = await call("/rest/v1/profile_details?select=" + DK.join(",") + "&limit=1", undefined, t, "GET");
+    if (!(res.ok && Array.isArray(res.j))) return null;      // null = erreur de lecture (différent de « aucune fiche » = {})
+    return res.j[0] || {};
+  }
+  async function saveDetails(d) {
+    const t = await token();
+    if (!t || !sess || !UID.test(String(sess.u || ""))) return { ok: false, error: "Ta session a expiré. Reconnecte-toi." };
+    const row = { user_id: sess.u };
+    DK.forEach(k => { if (d && k in d) row[k] = d[k] === "" || d[k] == null ? null : String(d[k]) });
+    const res = await call("/rest/v1/profile_details?on_conflict=user_id", row, t, "POST", { Prefer: "resolution=merge-duplicates,return=minimal" });
+    if (res.ok) return { ok: true };
+    const m = JSON.stringify(res.j || {}) + " " + res.status;
+    for (const [re, msg] of DET_MSG) if (re.test(m)) return { ok: false, error: msg };
+    return { ok: false, error: "Enregistrement impossible pour le moment. Réessaie dans un instant." };
+  }
+  async function avatarGet() {
+    const t = await token(); if (!t || !sess || !UID.test(String(sess.u || ""))) return null;
+    let r; try { r = await fetch(URL_ + "/storage/v1/object/authenticated/avatars/" + sess.u + "/avatar.jpg", { headers: { apikey: KEY, Authorization: "Bearer " + t }, cache: "no-store" }) } catch (e) { return null }
+    if (!r.ok) return null;
+    let b; try { b = await r.blob() } catch (e) { return null }
+    return b && b.size ? new Blob([b], { type: "image/jpeg" }) : null;
+  }
+  async function avatarSet(blob) {
+    const t = await token();
+    if (!t || !sess || !UID.test(String(sess.u || ""))) return { ok: false, error: "Ta session a expiré. Reconnecte-toi." };
+    if (!blob || blob.size < 100 || blob.size > 300000) return { ok: false, error: "Photo trop lourde. Choisis-en une autre." };
+    let r;
+    try { r = await fetch(URL_ + "/storage/v1/object/avatars/" + sess.u + "/avatar.jpg", { method: "POST", headers: { apikey: KEY, Authorization: "Bearer " + t, "Content-Type": "image/jpeg", "x-upsert": "true" }, body: blob, cache: "no-store" }) }
+    catch (e) { return { ok: false, error: "Pas de connexion. Vérifie ton réseau et réessaie." } }
+    if (!r.ok) return { ok: false, error: "Envoi de la photo impossible pour le moment. Réessaie dans un instant." };
+    return saveDetails({ avatar_path: sess.u + "/avatar.jpg" });
+  }
+  async function avatarDel() {
+    const t = await token();
+    if (!t || !sess || !UID.test(String(sess.u || ""))) return { ok: false, error: "Ta session a expiré. Reconnecte-toi." };
+    try { await fetch(URL_ + "/storage/v1/object/avatars/" + sess.u + "/avatar.jpg", { method: "DELETE", headers: { apikey: KEY, Authorization: "Bearer " + t }, cache: "no-store" }) }
+    catch (e) { return { ok: false, error: "Pas de connexion. Vérifie ton réseau et réessaie." } }
+    return saveDetails({ avatar_path: null });
+  }
+  window.CL = { details, saveDetails, avatarGet, avatarSet, avatarDel, reviews, submitReview, ebook, portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
 })();

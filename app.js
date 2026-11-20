@@ -95,7 +95,7 @@ const mkPhotos=n=>Array.from({length:n},(_,k)=>{const q=[1,0,2,3,4,5][k%6];retur
 
 /* ---------- état ---------- */
 const S={motion:"dynamic",grade:"natural",thumb:"",files:[],rights:false,blobUrl:"",url:"",id:"",n:12,dur:30,q:"fhd",fmt:"v",music:"Chill estival",lang:"Français",caps:true,plan:"unit",cs:0,
-  user:null,videos:LS.get("vt_videos",[]),credits:0,sub:false,flags:{ai:false}};
+  user:null,videos:LS.get("vt_videos",[]),credits:0,sub:false,flags:{ai:false},pf:{},avUrl:"",dtab:"ov"};
 function cleanState(){
   const num=(v,d)=>Number.isFinite(+v)?Math.max(0,Math.min(1e6,Math.trunc(+v))):d;
   if(S.user&&!(typeof S.user.email==="string"&&/^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']{2,}$/.test(S.user.email)&&S.user.email.length<255))S.user=null;
@@ -131,7 +131,7 @@ function go(id,opt){
   window.scrollTo({top:0,behavior:"auto"});
   if(!opt.nopush){try{history.pushState({s:id},"","#"+id)}catch(e){}}
   hdr();
-  const f={an:runAn,cfg:()=>renderCfg(),mk:runMk,gate:renderGate,pay:renderPay,rd2:runRd,done:renderDone,dash:renderDash,pr:renderPr,ex:gallery,eb:renderEb,auth:()=>renderAuth("signup")}[id];
+  const f={an:runAn,cfg:()=>renderCfg(),mk:runMk,gate:renderGate,pay:renderPay,rd2:runRd,done:renderDone,dash:()=>{S.dtab="ov";renderDash()},pr:renderPr,ex:gallery,eb:renderEb,auth:()=>renderAuth("signup")}[id];
   if(f)f();
   if(id==="lp"){if(heroP)heroP.stop();heroP=Player($("#heroPh"),heroPhotos||mkPhotos(6),2.4).start()}
   if(id!=="lp"&&heroP){heroP.stop()}
@@ -141,7 +141,7 @@ function jump(id){if(document.body.dataset.s!=="lp"){go("lp");setTimeout(()=>{co
 function focusBar(){if(document.body.dataset.s!=="lp")go("lp");setTimeout(()=>{window.scrollTo({top:0,behavior:"smooth"});const i=$("#url");if(i)i.focus({preventScroll:true})},80)}
 function hdr(){
   const h=$("#hr");
-  if(S.user){h.innerHTML='<button class="btn gh s" data-v="go" data-a="dash">Mes vidéos'+(S.credits>0?'<span class="cb">'+S.credits+'</span>':'')+'</button><button class="btn s" data-v="logout" title="Se déconnecter">'+esc(S.user.email.charAt(0).toUpperCase())+'</button>'}
+  if(S.user){h.innerHTML='<button class="hdac" data-v="go" data-a="dash" aria-label="Mon compte">'+avHtml(34)+'<span class="hdn">'+esc(dispName()||"Mon compte")+'</span>'+(S.credits>0?'<span class="cb">'+S.credits+'</span>':'')+'</button>'}
   else{h.innerHTML='<button class="btn gh s" data-v="go" data-a="auth">Se connecter</button>'}
 }
 function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{t.hidden=true},2600)}
@@ -584,34 +584,97 @@ function buyEbook(){
 /* ---------- 8. mes vidéos ---------- */
 function rvHtml(){return '<p class="kk">TON AVIS</p><b>Tu es satisfait du résultat ?</b><div class="stars rvs">'+[1,2,3,4,5].map(n=>'<button type="button" data-n="'+n+'" aria-label="'+n+' étoiles">★</button>').join("")+'</div><input class="inp rvn" maxlength="40" autocomplete="given-name" placeholder="Ton prénom et l\'initiale de ton nom (ex. Julie M.)"><textarea class="inp rvt" maxlength="500" placeholder="Ton avis, en quelques phrases (20 caractères minimum)"></textarea><p class="mut sm" style="margin:2px 0 10px">Ton avis est affiché avec ce nom après vérification. Seuls les clients qui ont terminé une vidéo peuvent en laisser un.</p><button type="button" class="btn gh big rvb" style="height:50px">Envoyer mon avis</button>'}
 function rvBind(root){if(!root)return;let stars=0;const q=s=>root.querySelector(s);
+  {const n0=q(".rvn"),p=S.pf||{};if(n0&&!n0.value&&p.first_name)n0.value=(p.first_name+(p.last_name?" "+p.last_name.charAt(0).toUpperCase()+".":"")).slice(0,40)}
   $$(".rvs button",root).forEach(b=>b.onclick=()=>{stars=+b.dataset.n;$$(".rvs button",root).forEach((x,i)=>x.classList.toggle("on",i<stars))});
   q(".rvb").onclick=async()=>{const b=q(".rvb"),n=q(".rvn").value.trim(),t=q(".rvt").value.trim();
     if(!stars){toast("Choisis une note.");return}if(n.length<2){toast("Indique ton prénom.");return}if(t.length<20){toast("Ton avis doit faire au moins 20 caractères.");return}
     b.disabled=true;const r=await CL.submitReview(stars,t,n);b.disabled=false;if(!r.ok){toast(r.error);return}
     track("review",{stars:stars});root.innerHTML='<p class="kk">TON AVIS</p><b>Merci !</b><p class="mut sm" style="margin-top:6px">Ton avis sera publié après vérification.</p>'}}
-function renderDash0(){
+/* ---------- Mon compte : profil, photo, crédits, vidéos ---------- */
+const AC_TABS=[["ov","Vue d'ensemble"],["pf","Mes infos"],["vd","Mes vidéos"],["eb","Formation"],["mb","Mon message"]];
+const PFK=["first_name","last_name","username","phone","company","addr1","zip","city","country"];
+const PFL={first_name:"Prénom",last_name:"Nom",username:"Nom d'utilisateur",phone:"Téléphone",company:"Société ou conciergerie",addr1:"Adresse",zip:"Code postal",city:"Ville",country:"Pays"};
+const PFM={first_name:60,last_name:60,username:30,phone:20,company:80,addr1:120,zip:12,city:60,country:60};
+function dispName(){const p=S.pf||{};return String(p.first_name||p.username||(S.user&&S.user.email?S.user.email.split("@")[0]:"")||"").slice(0,40)}
+function fullName(){const p=S.pf||{};return String([p.first_name,p.last_name].filter(Boolean).join(" ")||p.username||(S.user&&S.user.email?S.user.email.split("@")[0]:"")||"")}
+function avHtml(px){const f=Math.round(px*.42),ini=esc((dispName()||"?").charAt(0).toUpperCase());
+  return S.avUrl?'<img class="avi" src="'+S.avUrl+'" alt="" width="'+px+'" height="'+px+'">':'<span class="avi" style="width:'+px+'px;height:'+px+'px;font-size:'+f+'px" aria-hidden="true">'+ini+'</span>'}
+function pfPct(){const p=S.pf||{};return Math.round([p.avatar_path,p.first_name,p.last_name,p.username,p.phone,p.city].filter(Boolean).length/6*100)}
+function pfCheck(d){
+  if(d.username&&!/^[a-z0-9_.-]{3,30}$/.test(d.username))return "Nom d'utilisateur : 3 à 30 caractères, lettres minuscules, chiffres, point, tiret ou tiret bas.";
+  if(d.phone&&!/^\+?[0-9 .()-]{6,20}$/.test(d.phone))return "Numéro de téléphone invalide (chiffres, espaces, + et tirets).";
+  for(const k of PFK){if(d[k].length>PFM[k])return PFL[k]+" : "+PFM[k]+" caractères au maximum.";if(/[<>\u0000-\u001f]/.test(d[k]))return PFL[k]+" : les caractères < et > ne sont pas acceptés."}
+  return ""}
+async function avBlob(file){
+  if(!/^image\//i.test(file.type||"")&&!/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name||""))throw new Error("type");
+  if(file.size>12e6)throw new Error("big");
+  let bmp;try{bmp=await createImageBitmap(file,{imageOrientation:"from-image"})}catch(e){bmp=await createImageBitmap(file)}
+  const c=document.createElement("canvas");c.width=c.height=256;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,256,256);
+  const m=Math.min(bmp.width,bmp.height);x.drawImage(bmp,(bmp.width-m)/2,(bmp.height-m)/2,m,m,0,0,256,256);if(bmp.close)bmp.close();
+  const b=await new Promise(r=>c.toBlob(r,"image/jpeg",.86));if(!b)throw new Error("enc");return b}
+async function loadDetails(){
+  let d=null;try{d=await CL.details()}catch(e){}
+  if(!d)return;
+  S.pf=d;
+  if(d.avatar_path&&!S.avUrl){let b=null;try{b=await CL.avatarGet()}catch(e){}if(b)S.avUrl=URL.createObjectURL(b)}
+  if(!d.avatar_path&&S.avUrl){try{URL.revokeObjectURL(S.avUrl)}catch(e){}S.avUrl=""}
+  hdr();if(document.body.dataset.s==="dash")renderDash();
+}
+function setTab(k){if(!AC_TABS.some(t=>t[0]===k))k="ov";S.dtab=k;
+  $$(".acb").forEach(b=>{const on=b.dataset.t===k;b.classList.toggle("on",on);b.setAttribute("aria-current",on?"page":"false")});
+  $$(".acpn").forEach(x=>{x.hidden=x.id!=="ac_"+k})}
+function renderDash(){
   if(!S.user){go("auth");return}
-  const v=S.videos,c=S.credits,tot=Math.max(S.credTotal,c),pct=tot?Math.round(c/tot*100):0;
-  const renew=S.sub&&S.renew?new Date(S.renew).toLocaleDateString("fr-FR",{day:"numeric",month:"long"}):"";
+  const p=S.pf||{},v=S.videos,c=S.credits,tot=Math.max(S.credTotal,c),pct=tot?Math.round(c/tot*100):0;
   const dt=t=>new Date(t).toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
-  const led=S.ledger.slice().reverse();
-  $("#dashBox").innerHTML=
-   '<div class="crd"><p class="kk">MON COMPTE</p><h2>Mes crédits</h2><div class="bal2"><b>'+c+'</b><span>crédit'+(c>1?"s":"")+' restant'+(c>1?"s":"")+(rank()>0?" ce mois-ci":"")+'</span></div><p class="mut sm" style="margin-top:6px">Ta formule : <b>'+TNAME[rank()]+'</b>'+(rank()<3?' · 4K '+(rank()>=2?'débloquée':'verrouillée')+' · '+(rank()>=1?'tous les styles':'styles Dynamique et Visite'):' · tout est débloqué')+'</p>'+
+  const led=S.ledger.slice().reverse(),pp=pfPct(),hasAv=!!(S.avUrl||p.avatar_path);
+  const side='<aside class="acs"><div class="crd acp">'+avHtml(88)+'<b class="acnm">'+esc(fullName())+'</b>'+(p.username?'<span class="acun">@'+esc(p.username)+'</span>':'')+'<span class="acem">'+esc(S.user.email)+'</span><div class="acbd"><span class="pill">'+TNAME[rank()]+'</span><span class="pill">'+c+' crédit'+(c>1?"s":"")+'</span></div></div>'+
+    '<nav class="acn" aria-label="Mon compte">'+AC_TABS.map(t=>'<button type="button" class="acb" data-t="'+t[0]+'">'+t[1]+'</button>').join("")+'</nav><button type="button" class="lk acout" data-v="logout">Se déconnecter</button></aside>';
+  const ov='<div class="crd"><p class="kk">'+(dispName()?'Bonjour '+esc(dispName()):'Mon compte')+'</p><h2>Mes crédits</h2><div class="bal2"><b>'+c+'</b><span>crédit'+(c>1?"s":"")+' restant'+(c>1?"s":"")+(rank()>0?" ce mois-ci":"")+'</span></div><p class="mut sm" style="margin-top:6px">Ta formule : <b>'+TNAME[rank()]+'</b>'+(rank()<3?' · 4K '+(rank()>=2?'débloquée':'verrouillée')+' · '+(rank()>=1?'tous les styles':'styles Dynamique et Visite'):' · tout est débloqué')+'</p>'+
    (S.credTotal>0?'<div class="pb" style="margin:12px 0 6px"><i style="width:'+pct+'%"></i></div><p class="mut sm">'+(tot-c)+' utilisé'+((tot-c)>1?"s":"")+' sur '+tot+'</p>':'<p class="mut sm" style="margin-top:8px">Tu n\'as pas encore de crédits. Choisis une formule : tu en reçois chaque mois et tu arrêtes quand tu veux.</p>')+
    (rank()>0?'<div class="subc"><b>Abonnement '+TNAME[rank()]+' · actif</b><span>'+PLANS[rank()].c+' crédits par mois, renouvelés chaque mois. Les crédits non utilisés sont conservés.</span><div class="subb"><button class="btn dng" id="subC">Résilier mon abonnement</button><button class="lk" id="subX">Gérer mon abonnement</button></div><small class="mut">Tu gardes ton abonnement et tes crédits jusqu\'à la fin du mois déjà payé. Rien n\'est repris ensuite.</small></div>':'')+
-   '<div class="nxb" style="margin-top:14px"><button class="btn" id="dBuyP">Voir les formules</button>'+'</div>'+
+   '<div class="nxb" style="margin-top:14px"><button class="btn" id="dBuyP">Voir les formules</button></div>'+
    '<p class="note">1 crédit = 15 s en HD. Le nombre de crédits d\'une vidéo est affiché avant de payer. Tu reçois un email quand il t\'en reste 2.</p></div>'+
-   '<div class="crd" style="margin-top:14px"><p class="kk">MES VIDÉOS</p>'+
+   (pp<100?'<div class="crd acnx"><b>Ton profil est complet à '+pp+' %</b><div class="pb" style="margin:10px 0 8px"><i style="width:'+pp+'%"></i></div><p class="mut sm">Ajoute ta photo et tes coordonnées pour personnaliser ton compte.</p><button type="button" class="btn gh s" id="ovPf" style="margin-top:10px">Compléter mon profil</button></div>':'')+
+   (led.length?'<div class="crd"><p class="kk">HISTORIQUE</p>'+led.slice(0,12).map(e=>'<div class="lg2"><span>'+esc(e.l)+'<small>'+dt(e.at)+'</small></span><b class="'+(e.d>0?"pos":e.d<0?"neg":"")+'">'+(e.d>0?"+"+e.d:e.d<0?e.d:"—")+'</b></div>').join("")+'</div>':'');
+  const inp=(k,extra)=>'<label'+(extra&&extra.full?' class="full"':'')+'><span>'+PFL[k]+(extra&&extra.opt?' <small>(facultatif)</small>':'')+'</span><input class="inp" id="pf_'+k+'" name="'+k+'" maxlength="'+PFM[k]+'"'+(extra&&extra.attrs?' '+extra.attrs:'')+'></label>';
+  const pf='<div class="crd"><p class="kk">MES INFOS</p><h2>Mon profil</h2><div class="pfph"><div id="pfAv">'+avHtml(96)+'</div><div class="pfbt"><div><button type="button" class="btn gh s" id="pfPick">'+(hasAv?'Changer la photo':'Ajouter une photo')+'</button>'+(hasAv?' <button type="button" class="lk" id="pfDel">Retirer</button>':'')+'</div><input type="file" id="pfFile" accept="image/*" hidden><p class="mut sm">Photo recadrée en carré. Elle reste privée : seul ton compte peut la voir.</p></div></div>'+
+   '<form id="pfForm" novalidate><div class="pff">'+inp("first_name",{attrs:'autocomplete="given-name"'})+inp("last_name",{attrs:'autocomplete="family-name"'})+inp("username",{attrs:'autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="ex. julie.m"',full:true,opt:true})+
+   '<label class="full"><span>Adresse email</span><input class="inp" id="pf_email" type="email" disabled></label>'+
+   inp("phone",{attrs:'type="tel" inputmode="tel" autocomplete="tel" placeholder="ex. 06 12 34 56 78"',full:true,opt:true})+inp("company",{attrs:'autocomplete="organization"',full:true,opt:true})+inp("addr1",{attrs:'autocomplete="street-address"',full:true,opt:true})+inp("zip",{attrs:'autocomplete="postal-code" inputmode="text"',opt:true})+inp("city",{attrs:'autocomplete="address-level2"',opt:true})+inp("country",{attrs:'autocomplete="country-name"',full:true,opt:true})+
+   '</div><p class="pfe" id="pfErr" role="alert"></p><button type="submit" class="btn" id="pfSave" style="margin-top:6px">Enregistrer</button></form>'+
+   '<p class="note" style="margin-top:14px">Tous les champs sont facultatifs. Ces informations servent à personnaliser ton compte : elles restent privées, ne sont jamais affichées publiquement et ne sont pas utilisées pour t\'envoyer de la publicité. Pour changer ton adresse email, écris-nous depuis la page Contact.</p></div>';
+  const vd='<div class="crd"><p class="kk">MES VIDÉOS</p>'+
    (v.length?'<div class="vl">'+v.map(x=>'<div class="vi"><div class="th">'+scn(0)+'</div><div style="flex:1"><b>Annonce '+esc(x.listing)+'</b><small>'+(+x.dur||0)+' s · '+esc((QUA.find(q=>q.k===x.q)||QUA[0]).l)+' · '+esc(x.date)+'</small></div><button class="btn gh s" data-v="toast" data-a="Maquette : téléchargement à venir.">Télécharger</button></div>').join("")+'</div>':'<div class="empty">Aucune vidéo pour l\'instant.<br><br><button class="btn" data-v="focus">Créer ma première vidéo</button></div>')+'</div>'+
-   (led.length?'<div class="crd" style="margin-top:14px"><p class="kk">HISTORIQUE</p>'+led.slice(0,12).map(e=>'<div class="lg2"><span>'+esc(e.l)+'<small>'+dt(e.at)+'</small></span><b class="'+(e.d>0?"pos":e.d<0?"neg":"")+'">'+(e.d>0?"+"+e.d:e.d<0?e.d:"—")+'</b></div>').join("")+'</div>':'')+
-   '<div class="crd" style="margin-top:14px"><p class="kk">MON MESSAGE POUR LES PROPRIÉTAIRES</p><div id="mbBox"></div></div>';
+   (v.length?'<div class="crd rvw">'+rvHtml()+'</div>':'');
+  const eb=S.ebook?'<div class="crd"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" data-v="dl">Télécharger</button></div></div>':'<div class="crd"><p class="kk">FORMATION</p><b>Formation Airbnb · guide PDF</b><p class="mut sm" style="margin-top:6px">Un guide pour proposer ta vidéo à des propriétaires et remplir ton calendrier.</p><div style="margin-top:12px"><button class="btn gh s" data-v="go" data-a="eb">Découvrir la formation</button></div></div>';
+  const mb='<div class="crd"><p class="kk">MON MESSAGE POUR LES PROPRIÉTAIRES</p><div id="mbBox"></div></div>';
+  $("#dashBox").innerHTML=side+'<div class="acm"><section class="acpn" id="ac_ov">'+ov+'</section><section class="acpn" id="ac_pf" hidden>'+pf+'</section><section class="acpn" id="ac_vd" hidden>'+vd+'</section><section class="acpn" id="ac_eb" hidden>'+eb+'</section><section class="acpn" id="ac_mb" hidden>'+mb+'</section></div>';
+  PFK.forEach(k=>{$("#pf_"+k).value=p[k]||""});$("#pf_email").value=S.user.email;
   msgBuilder($("#mbBox"));
+  $$(".acb").forEach(b=>b.onclick=()=>{setTab(b.dataset.t);if(window.matchMedia("(max-width:899px)").matches){const m=$(".acm");if(m)m.scrollIntoView({block:"start",behavior:"smooth"})}});
+  const op=$("#ovPf");if(op)op.onclick=()=>setTab("pf");
   $("#dBuyP").onclick=()=>prGo("packs");
   const sx=$("#subX");if(sx)sx.onclick=async()=>{sx.disabled=true;await openPortal();sx.disabled=false};
   const sc=$("#subC");if(sc)sc.onclick=async()=>{sc.disabled=true;sc.textContent="Ouverture…";await openPortal("cancel");sc.disabled=false;sc.textContent="Résilier mon abonnement"};
+  if(v.length)rvBind($("#ac_vd .rvw"));
+  $("#pfPick").onclick=()=>$("#pfFile").click();
+  $("#pfFile").onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
+    const pk=$("#pfPick");pk.disabled=true;pk.textContent="Envoi…";
+    try{const blob=await avBlob(f);const r=await CL.avatarSet(blob);if(!r.ok){toast(r.error);pk.disabled=false;pk.textContent=hasAv?"Changer la photo":"Ajouter une photo";return}
+      if(S.avUrl){try{URL.revokeObjectURL(S.avUrl)}catch(x){}}S.avUrl=URL.createObjectURL(blob);S.pf=Object.assign({},S.pf,{avatar_path:"1"});track("avatar_set");toast("Photo mise à jour.");hdr();renderDash();setTab("pf")}
+    catch(err){pk.disabled=false;pk.textContent=hasAv?"Changer la photo":"Ajouter une photo";toast(err&&err.message==="big"?"Cette image est trop lourde (12 Mo maximum).":"Cette image n'a pas pu être lue. Essaie avec un JPEG ou un PNG.")}};
+  const pd=$("#pfDel");if(pd)pd.onclick=async()=>{pd.disabled=true;const r=await CL.avatarDel();if(!r.ok){pd.disabled=false;toast(r.error);return}
+    if(S.avUrl){try{URL.revokeObjectURL(S.avUrl)}catch(x){}}S.avUrl="";S.pf=Object.assign({},S.pf,{avatar_path:null});toast("Photo retirée.");hdr();renderDash();setTab("pf")};
+  $("#pfForm").onsubmit=async e=>{e.preventDefault();const er=$("#pfErr"),b=$("#pfSave");er.textContent="";
+    const d={};for(const k of PFK){let x=($("#pf_"+k).value||"").trim().replace(/\s+/g," ");if(k==="username")x=x.toLowerCase().replace(/^@/,"");d[k]=x}
+    const bad=pfCheck(d);if(bad){er.textContent=bad;return}
+    b.disabled=true;const t0=b.textContent;b.textContent="Enregistrement…";
+    const r=await CL.saveDetails(d);b.disabled=false;b.textContent=t0;
+    if(!r.ok){er.textContent=r.error;return}
+    S.pf=Object.assign({},S.pf,Object.fromEntries(PFK.map(k=>[k,d[k]||null])));track("profile_save");toast("Profil enregistré.");hdr();renderDash();setTab("pf")};
+  setTab(S.dtab);
 }
-
-function renderDash(){renderDash0();if(S.user&&S.videos.length){$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd rvw" style="margin-top:14px">'+rvHtml()+'</div>');rvBind($("#dashBox .rvw"))}if(S.user&&S.ebook)$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd" style="margin-top:14px"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" data-v="dl">Télécharger</button></div></div>')}
 
 /* ---------- tarifs ---------- */
 function planCard(p){
@@ -682,8 +745,9 @@ async function syncProfile(){
   const used=l.reduce((a,e)=>a+((e.reason==="video_start"||e.reason==="video_refund")?-e.delta:0),0);
   S.credTotal=S.credits+Math.max(0,used);
   hdr();if(document.body.dataset.s==="dash")renderDash();
+  loadDetails().catch(()=>{});
 }
-function logout(){CL.signOut();S.user=null;S.credits=0;S.sub=false;S.tiers={essentiel:false,pro:false};S.ebook=false;S.ledger=[];S.credTotal=0;S.cur=null;save();hdr();toast("Tu es déconnecté.");go("lp")}
+function logout(){CL.signOut();if(S.avUrl){try{URL.revokeObjectURL(S.avUrl)}catch(e){}}S.pf={};S.avUrl="";S.dtab="ov";S.user=null;S.credits=0;S.sub=false;S.tiers={essentiel:false,pro:false};S.ebook=false;S.ledger=[];S.credTotal=0;S.cur=null;save();hdr();toast("Tu es déconnecté.");go("lp")}
 
 /* ---------- pages légales ---------- */
 const PAGES={

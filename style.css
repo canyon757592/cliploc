@@ -527,3 +527,42 @@ body{background:var(--bg)}
 @media(prefers-reduced-motion:reduce){.mqt{animation:none;width:auto;flex-wrap:wrap;justify-content:center}.mq ul[aria-hidden]{display:none}.mq li{padding:4px 16px}}
 
 .rvw .inp{display:block;width:100%;margin:10px 0}.rvw textarea.inp{min-height:96px}
+
+/* logo : l'icône de la marque devant le nom */
+.logo i{display:block!important;width:30px!important;height:30px!important;border-radius:8px!important;background:url(favicon.svg) center/cover no-repeat!important;box-shadow:none!important}
+.logo{gap:10px}
+
+/* ---------- Mon compte : colonne latérale + sections ---------- */
+.accw{max-width:1120px;margin:0 auto;padding:22px 18px 90px}
+.acg{display:grid;gap:16px}
+@media(min-width:900px){.acg{grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:start}.acs{position:sticky;top:96px}}
+.acs{display:grid;gap:12px;min-width:0}
+.acm{min-width:0}
+.acp{display:grid;justify-items:center;text-align:center;gap:4px;padding:22px 18px}
+.avi{border-radius:50%;object-fit:cover;display:inline-grid;place-items:center;background:var(--g);color:#fff;font-weight:800;flex:none;line-height:1}
+img.avi{background:var(--cd2)}
+.acnm{font-size:1.15rem;margin-top:8px;overflow-wrap:anywhere}
+.acun{color:var(--mut);font-size:.9rem}
+.acem{color:var(--mut);font-size:.82rem;overflow-wrap:anywhere}
+.acbd{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+.pill{background:var(--cd2);border:1px solid var(--ln);border-radius:99px;padding:3px 10px;font-size:.78rem;font-weight:700}
+.acn{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.acn::-webkit-scrollbar{display:none}
+@media(min-width:900px){.acn{display:grid;gap:4px;overflow:visible}}
+.acb{white-space:nowrap;background:var(--cd);border:1px solid var(--ln);border-radius:12px;padding:11px 14px;font:700 .92rem "Plus Jakarta Sans",system-ui,sans-serif;text-align:left;color:var(--ink);cursor:pointer}
+.acb:hover{background:var(--cd2)}
+.acb.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.acout{justify-self:center;background:none;border:0;color:var(--mut);text-decoration:underline;font:600 .88rem "Plus Jakarta Sans",system-ui,sans-serif;padding:6px;cursor:pointer}
+.acpn{display:grid;gap:14px}.acpn[hidden]{display:none}
+.pfph{display:flex;align-items:center;gap:18px;margin:14px 0 22px;flex-wrap:wrap}
+.pfbt{display:grid;gap:6px;min-width:0;flex:1 1 220px}.pfbt .lk{background:none;border:0;color:var(--mut);text-decoration:underline;font:600 .88rem "Plus Jakarta Sans",system-ui,sans-serif;cursor:pointer;margin-left:6px}
+.pff{display:grid;gap:14px}
+@media(min-width:640px){.pff{grid-template-columns:1fr 1fr}.pff .full{grid-column:1/-1}}
+.pff label{display:grid;gap:6px;font-weight:700;font-size:.85rem;min-width:0}
+.pff label small{font-weight:500;color:var(--mut)}
+.pff .inp{margin:0}.pff .inp:disabled{opacity:.6;cursor:not-allowed}
+.pfe{color:#D92D20;font-weight:700;min-height:1.3em;margin:12px 0 0}
+/* en-tête : avatar */
+.hdac{display:flex;align-items:center;gap:8px;background:var(--cd);border:1px solid var(--ln);border-radius:999px;padding:3px 12px 3px 3px;font:700 .88rem "Plus Jakarta Sans",system-ui,sans-serif;color:var(--ink);cursor:pointer}
+.hdac:hover{background:var(--cd2)}.hdac .cb{margin-left:0}
+.hdn{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:560px){.hdn{display:none}.hdac{padding:3px}.hdac .cb{margin-right:6px}}
