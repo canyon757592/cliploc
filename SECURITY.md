@@ -15,7 +15,7 @@
 
 ## À faire avant l'ouverture au public
 - Supabase Auth : Site URL = `https://cliploc.com`, Redirect URLs = `https://cliploc.com/**` (garder `https://cliploc.pages.dev/**` le temps de la transition), et SMTP personnalisé via Resend (domaine `cliploc.com` vérifié, expéditeur `contact@cliploc.com`, hôte `smtp.resend.com`, port 465, utilisateur `resend`, mot de passe = clé API Resend créée par le propriétaire) : l'envoi intégré est limité à quelques emails par heure.
-- Supprimer dans le tableau de bord Supabase les fonctions neutralisées `diag-tmp` et `ebook-seed` (elles répondent 410, il ne reste que le ménage).
+- Fait : `diag-tmp` et `ebook-seed` supprimées ; anciens déploiements Cloudflare (qui contenaient le PDF) supprimés ; code de test retiré de `app_config` ; saisie de codes promo désactivée dans le paiement (pour rouvrir : `allow_promotion_codes` dans `create-checkout`).
 - Supabase Auth : activer la protection contre les mots de passe compromis, longueur minimale 10, confirmation de l'email, captcha (Cloudflare Turnstile).
 - Passer le dépôt GitHub en privé, activer la détection de secrets.
 - Mentions légales, CGV, politique de confidentialité, retirer `noindex`.
