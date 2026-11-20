@@ -1,1 +1,36 @@
-{"hero":[],"videos":[]}
+{
+ "hero": [
+  "examples/hero1.jpg",
+  "examples/hero2.jpg",
+  "examples/hero3.jpg",
+  "examples/hero4.jpg",
+  "examples/hero5.jpg",
+  "examples/hero6.jpg"
+ ],
+ "videos": [
+  {
+   "title": "Villa avec piscine à débordement",
+   "meta": "30 S · FULL HD",
+   "src": "examples/villa_piscine.mp4",
+   "poster": "examples/villa_piscine.jpg"
+  },
+  {
+   "title": "Appartement en hauteur",
+   "meta": "30 S · FULL HD",
+   "src": "examples/appart_skyline.mp4",
+   "poster": "examples/appart_skyline.jpg"
+  },
+  {
+   "title": "Villa vue sur la ville, style cinéma",
+   "meta": "15 S · FULL HD",
+   "src": "examples/villa_cinema.mp4",
+   "poster": "examples/villa_cinema.jpg"
+  },
+  {
+   "title": "Appartement, visite pièce par pièce",
+   "meta": "30 S · HD",
+   "src": "examples/appart_visite.mp4",
+   "poster": "examples/appart_visite.jpg"
+  }
+ ]
+}
