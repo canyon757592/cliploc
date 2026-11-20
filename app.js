@@ -5,7 +5,15 @@ const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}
 
 /* ---------- suivi d'entonnoir (à brancher plus tard sur la base) ---------- */
 const EV=[];window.__events=EV;
-function track(n,p){EV.push({n:n,p:p||{},t:Date.now()});try{console.debug("[track]",n,p||"")}catch(e){}}
+/* Mesure d'audience anonyme : seule l'étape atteinte est envoyée, avec un identifiant aléatoire propre à la visite.
+   Rien n'est envoyé en local, ni si le navigateur demande « Ne pas suivre ». */
+const SB_URL="https://jfvzharrtvltotolfruz.supabase.co",SB_KEY="sb_publishable_q23wdg3QdKuxTfJX7y-CAQ_2vpP5K-U";
+const FUNNEL={view_lp:"landing",link_pasted:"link_pasted",analysis_done:"analysis",cfg_done:"config",montage_done:"montage",gate_view:"gate",signup:"signup",pay_view:"pay_view",pay_success:"paid",render_done:"render",download:"download"};
+const SENT=new Set();
+const SID=(()=>{let s=null;try{s=sessionStorage.getItem("vt_sid")}catch(e){}if(!s||!/^[a-z0-9]{12,32}$/.test(s)){const a=new Uint8Array(16);crypto.getRandomValues(a);s=Array.from(a,x=>(x%36).toString(36)).join("");try{sessionStorage.setItem("vt_sid",s)}catch(e){}}return s})();
+const noTrack=()=>/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)||navigator.doNotTrack==="1"||window.doNotTrack==="1"||navigator.globalPrivacyControl===true;
+function sendStep(step){if(!step||SENT.has(step)||noTrack())return;SENT.add(step);try{fetch(SB_URL+"/rest/v1/rpc/log_funnel_event",{method:"POST",headers:{"Content-Type":"application/json",apikey:SB_KEY},body:JSON.stringify({p_session:SID,p_step:step}),keepalive:true}).catch(()=>{})}catch(e){}}
+function track(n,p){EV.push({n:n,p:p||{},t:Date.now()});sendStep(FUNNEL[n]);try{console.debug("[track]",n,p||"")}catch(e){}}
 
 /* ---------- prix ---------- */
 const END=new Date("2026-11-30T23:59:59+01:00").getTime(),BFR=.4;
@@ -531,7 +539,7 @@ function logout(){S.user=null;save();hdr();toast("Tu es déconnecté.");go("lp")
 /* ---------- pages légales ---------- */
 const PAGES={
  mentions:["Mentions légales","<p>Éditeur : [nom ou raison sociale] · SIRET : [à compléter] · Adresse : [à compléter] · Contact : [email].</p><p>Hébergeur : [à compléter].</p><p>Cliploc n'est affilié ni à Airbnb, ni aux propriétaires des annonces.</p>"],
- privacy:["Confidentialité","<h3>Données collectées</h3><p>Adresse email, lien d'annonce, choix de vidéo, historique d'achats. Pas de données de santé.</p><h3>Photos</h3><p>Les photos des annonces ne sont utilisées que pour générer ta vidéo, puis supprimées après un délai à définir.</p><h3>Tes droits</h3><p>Accès, rectification, suppression : écris-nous. Page à compléter avant le lancement.</p>"],
+ privacy:["Confidentialité","<h3>Données collectées</h3><p>Adresse email, lien d'annonce, choix de vidéo, historique d'achats. Pas de données de santé.</p><h3>Photos</h3><p>Les photos des annonces ne sont utilisées que pour générer ta vidéo, puis supprimées après un délai à définir.</p><h3>Mesure d'audience</h3><p>Nous comptons, de façon anonyme, les étapes que franchissent les visiteurs (par exemple « a vu les tarifs »). Un identifiant aléatoire est gardé le temps de la visite, sans cookie ni lien avec ton email. Rien n'est envoyé si ton navigateur demande « Ne pas suivre ». Notre hébergeur voit ton adresse IP dans ses journaux techniques.</p><h3>Tes droits</h3><p>Accès, rectification, suppression : écris-nous. Page à compléter avant le lancement.</p>"],
  cgv:["Conditions générales de vente","<p>Page à rédiger avant le lancement : prix TTC, livraison numérique, droit de rétractation applicable aux contenus numériques, responsabilité de l'utilisateur sur les droits des photos.</p><h3>Droits sur les photos</h3><p>L'utilisateur confirme avoir l'accord du propriétaire des photos avant de lancer le montage.</p><h3>Fidélité de la vidéo</h3><p>La vidéo doit rester fidèle aux photos de l'annonce et au logement réel. L'utilisateur s'engage à ne pas la diffuser d'une manière qui tromperait les voyageurs sur le logement (pièces, équipements, état, surface, environnement).</p><h3>Animation IA (option bientôt disponible)</h3><p>L'option limite l'IA à un mouvement de caméra, avec des consignes interdisant d'ajouter, retirer ou modifier des éléments. Une IA peut cependant produire des erreurs : l'utilisateur doit regarder l'aperçu avant de payer et ne publier que si l'image est fidèle au logement. En cas d'écart visible, il refuse l'aperçu et ses crédits lui sont rendus.</p><p><i>Texte provisoire, à faire relire par un juriste avant l'ouverture au public.</i></p>"],
  contact:["Contact","<p>Écris-nous à [adresse email à compléter].</p>"]
 };
