@@ -74,7 +74,7 @@ const CAPS=["Bienvenue","Le séjour","Piscine privée","La cuisine","La chambre"
 /* ---------- lecteur de vidéo (maquette) ---------- */
 function Player(root,photos,dur,opt){
   let t=null,i=0,sl=[],bar,cap,self={},show_cap=false;
-  function build(){root.innerHTML="";sl=photos.map(p=>{const d=document.createElement("div");d.className="sl";d.innerHTML=scn(p.s);root.appendChild(d);return d});
+  function build(){root.innerHTML="";sl=photos.map(p=>{const d=document.createElement("div");d.className="sl";if(p.u){const b=document.createElement("div");b.className="b";b.style.backgroundImage='url("'+p.u+'")';b.style.backgroundSize="cover";b.style.backgroundPosition="center";d.appendChild(b)}else d.innerHTML=scn(p.s);root.appendChild(d);return d});
     const sh=document.createElement("div");sh.className="vsh";root.appendChild(sh);
     bar=document.createElement("div");bar.className="sts";photos.forEach(()=>{bar.appendChild(document.createElement("span")).appendChild(document.createElement("i"))});root.appendChild(bar);
     cap=document.createElement("div");cap.className="cp";root.appendChild(cap);
@@ -111,7 +111,7 @@ const lkb=n=>n>rank()?'<em class="lkb">🔒 '+TSHORT[n]+'</em>':'';
 function lacks(r){const o=[];if((MINM[S.motion]||0)>r)o.push("le style "+MOT.find(m=>m[0]===S.motion)[1]);if((MINC[S.grade]||0)>r)o.push("la couleur "+COL.find(c=>c[0]===S.grade)[1]);if((MINQ[S.q]||0)>r)o.push("la qualité "+QUA.find(q=>q.k===S.q).l);if(S.ai&&MINAI>r)o.push("l'Animation IA");return o}
 const crl=n=>n+" crédit"+(n>1?"s":"");
 const hashOf=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
-let timers=[],heroP=null,gbP=null,doneP=null,gpP=null;
+let heroPhotos=null,timers=[],heroP=null,gbP=null,doneP=null,gpP=null;
 const later=(fn,ms)=>{const t=setTimeout(fn,ms);timers.push(t);return t};
 const clearAll=()=>{timers.forEach(clearTimeout);timers=[]};
 
@@ -131,7 +131,7 @@ function go(id,opt){
   hdr();
   const f={an:runAn,cfg:()=>renderCfg(),mk:runMk,gate:renderGate,pay:renderPay,rd2:runRd,done:renderDone,dash:renderDash,pr:renderPr,ex:gallery,eb:renderEb,auth:()=>renderAuth("signup")}[id];
   if(f)f();
-  if(id==="lp"){if(heroP)heroP.stop();heroP=Player($("#heroPh"),mkPhotos(6),2.4).start()}
+  if(id==="lp"){if(heroP)heroP.stop();heroP=Player($("#heroPh"),heroPhotos||mkPhotos(6),2.4).start()}
   if(id!=="lp"&&heroP){heroP.stop()}
 }
 window.addEventListener("popstate",e=>{const id=(location.hash||"#lp").slice(1);go(SCR.indexOf(id)>=0?id:"lp",{nopush:true})});
@@ -433,7 +433,20 @@ function pick(k){S.want=k;toast("Colle ton lien : tu paieras ce plan à la derni
 
 /* ---------- exemples ---------- */
 const GAL=[["Villa avec piscine","30 S · FULL HD",[1,4,0,2]],["Appartement en ville","15 S · HD",[0,3,5,2]],["Maison de vacances","45 S · FULL HD",[4,1,2,3]],["Studio cosy","15 S · HD",[2,5,0]],["Gîte avec terrasse","30 S · FULL HD",[4,3,1,5]],["Loft design","60 S · 4K",[3,0,5,2,4]]];
+let REAL={hero:[],videos:[]};
+function loadReal(){return fetch("examples/manifest.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(m=>{
+  if(!m)return;
+  const ok=u=>typeof u==="string"&&/^examples\/[A-Za-z0-9_.-]+$/.test(u);
+  REAL.hero=(Array.isArray(m.hero)?m.hero:[]).filter(ok);
+  REAL.videos=(Array.isArray(m.videos)?m.videos:[]).filter(v=>v&&ok(v.src)&&ok(v.poster)).slice(0,12);
+  if(REAL.hero.length>=3){heroPhotos=REAL.hero.map(u=>({u:u,c:""}));if(heroP){heroP.stop();heroP=Player($("#heroPh"),heroPhotos,2.4).start()}}
+  if(!$("#ex").hidden)gallery();
+}).catch(()=>{})}
 function gallery(){
+  if(REAL.videos.length){
+    $("#galBox").innerHTML=REAL.videos.map(v=>'<div class="gc"><div class="ph"><video src="'+v.src+'" poster="'+v.poster+'" muted loop playsinline preload="none" controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video></div><b>'+esc(v.title||"")+'</b><small>'+esc(v.meta||"")+'</small><button class="btn gh s" data-v="focus">Faire la mienne</button></div>').join("");
+    return;
+  }
   $("#galBox").innerHTML=GAL.map((g,i)=>'<div class="gc"><div class="ph"><div id="gx'+i+'" style="position:absolute;inset:0"></div></div><b>'+g[0]+'</b><small>'+g[1]+'</small><button class="btn gh s" data-v="focus">Faire la mienne</button></div>').join("");
   GAL.forEach((g,i)=>{exP.push(Player($("#gx"+i),g[2].map(q=>({s:q,c:SCAP[q]})),2+((i%3)*.3)).start())});
 }
@@ -574,7 +587,7 @@ $("#ctGo").onclick=()=>{const e=$("#ctE").value.trim(),m=$("#ctM").value.trim(),
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
   if(m.length<10){er.textContent="Écris un message d'au moins 10 caractères.";return}
   er.textContent="";const l=LS.get("vt_contact",[]);l.push({e:e,m:m.slice(0,1000),at:Date.now()});LS.set("vt_contact",l);track("contact_sent");$("#ctM").value="";toast("Message envoyé (maquette). On te répond par email.")};
-faq();trustBox();renderPlans($("#plHome"));homeStyles();hdr();nav();
+faq();trustBox();loadReal();renderPlans($("#plHome"));homeStyles();hdr();nav();
 const h0=(location.hash||"#lp").slice(1);go(h0==="lp"||SCR.indexOf(h0)<0?"lp":(NEED[h0]?"lp":h0),{nopush:true});
 track("view_lp");
 })();
