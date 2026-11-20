@@ -357,7 +357,7 @@ body[data-s=an] .bf,body[data-s=cfg] .bf,body[data-s=mk] .bf{display:none!import
       <div>
         <p class="kk">Annonce Airbnb → vidéo</p>
         <h1>Ton annonce Airbnb, <span>en vidéo.</span></h1>
-        <p class="lead">Colle le lien. On récupère les photos, on monte une vidéo verticale avec textes et musique. Tu choisis la durée et la qualité.</p>
+        <p class="lead">Colle le lien. On récupère les photos, on monte une vidéo verticale avec des mouvements et des transitions. Tu choisis la durée, la qualité et le format.</p>
         <div class="finder">
           <div class="bar" id="bar" role="search">
             <label class="fl">
@@ -376,7 +376,7 @@ body[data-s=an] .bf,body[data-s=cfg] .bf,body[data-s=mk] .bf{display:none!import
       <div class="phw">
         <div class="stk a">📱 INSTAGRAM · TIKTOK</div>
         <div class="ph"><div id="heroPh" style="position:absolute;inset:0"></div><div class="nt"></div></div>
-        <div class="stk b">✨ TEXTES + MUSIQUE</div>
+        <div class="stk b">✨ STYLE REEL</div>
       </div>
     </div>
   </div>
@@ -385,7 +385,7 @@ body[data-s=an] .bf,body[data-s=cfg] .bf,body[data-s=mk] .bf{display:none!import
     <div class="hrow vis"><p class="kk">Comment ça marche</p><h2>3 gestes, une vidéo</h2><p>Pas de logiciel de montage, pas de compétences. Tout part d'un lien.</p></div>
     <div class="stp">
       <div class="cd vis"><div class="nm">1</div><h3>Colle le lien</h3><p>Copie l'adresse de l'annonce Airbnb, colle-la dans la barre. On récupère les photos.</p></div>
-      <div class="cd vis"><div class="nm">2</div><h3>Choisis durée et qualité</h3><p>De 15 à 60 secondes, de la HD à la 4K, avec la musique et la langue des textes.</p></div>
+      <div class="cd vis"><div class="nm">2</div><h3>Choisis durée et qualité</h3><p>De 15 à 60 secondes, de la HD à la 4K, avec le format de ton choix (vertical, carré ou large).</p></div>
       <div class="cd vis"><div class="nm">3</div><h3>Reçois ta vidéo</h3><p>Le montage est lancé après ton paiement. Tu télécharges le fichier, sans filigrane.</p></div>
     </div>
   </div></div>
@@ -447,12 +447,12 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
 <!-- ============ EXEMPLES ============ -->
 <section class="scr" id="ex" hidden>
   <div class="w" style="padding-bottom:60px">
-    <div class="pgh"><p class="kk">Exemples</p><h2>À quoi ressemblent tes vidéos</h2><p class="mut" style="margin-top:10px;max-width:36em">Voici des rendus d'illustration, en format vertical, avec textes et transitions. Les tiens seront faits avec les vraies photos de l'annonce.</p></div>
+    <div class="pgh"><p class="kk">Exemples</p><h2>À quoi ressemblent tes vidéos</h2><p class="mut" style="margin-top:10px;max-width:36em">Voici des rendus d'illustration, en format vertical, avec mouvements et transitions. Les tiens seront faits avec les vraies photos de l'annonce.</p></div>
     <div class="gal" id="galBox"></div>
     <div class="opx">
       <div class="cd"><h3>Durée</h3><p>15, 30, 45 ou 60 secondes selon la place que tu veux donner à chaque pièce.</p></div>
       <div class="cd"><h3>Qualité</h3><p>HD pour les réseaux, Full HD pour la plupart des usages, 4K pour une diffusion soignée.</p></div>
-      <div class="cd"><h3>Style</h3><p>Musique, langue des textes et sous-titres : tu règles tout avant de payer.</p></div>
+      <div class="cd"><h3>Style</h3><p>Vertical, carré ou large : le format est adapté sans bordure.</p></div>
     </div>
     <div style="margin-top:26px;text-align:center"><button class="btn big" onclick="V.focus()">Créer ma vidéo</button></div>
   </div>
@@ -607,7 +607,7 @@ const eur=n=>r2(n).toFixed(2).replace(".",",").replace(",00","")+" €";
 const sale=b=>bfOn()?r2(b*(1-BFR)):b;
 const pHTML=b=>bfOn()?"<s>"+eur(b)+"</s><b>"+eur(sale(b))+"</b>":"<b>"+eur(b)+"</b>";
 const PLANS=[
- {k:"unit",n:"Une vidéo",d:"Tu paies seulement la vidéo que tu crées.",p:null,f:["Durée de 15 à 60 s","HD, Full HD ou 4K","Sans filigrane","Textes et musique au choix"]},
+ {k:"unit",n:"Une vidéo",d:"Tu paies seulement la vidéo que tu crées.",p:null,f:["Durée de 15 à 60 s","HD, Full HD ou 4K","Sans filigrane","Vertical, carré ou large, sans bordure"]},
  {k:"pack",n:"Pack 10 vidéos",d:"10 vidéos à utiliser quand tu veux.",p:79,u:"10 vidéos",c:10,f:["10 vidéos, toutes durées","Jusqu'en Full HD (la 4K compte pour 2)","Sans filigrane","Elles n'expirent pas"],hot:true,bd:"LE PLUS CHOISI"},
  {k:"agence",n:"Abonnement Agence",d:"40 vidéos chaque mois, arrêt à tout moment.",p:149,u:"/ mois",c:40,m:true,f:["40 vidéos par mois, renouvelées chaque mois","Toutes durées, jusqu'en Full HD","Historique de tous tes projets","Tu arrêtes quand tu veux"]}
 ];
@@ -632,7 +632,7 @@ function sceneBlob(i){return new Promise((ok,ko)=>{const sc=SC[i%SC.length];
 async function realPhotos(){if(S.files.length>=2)return{list:S.files,caps:S.files.map((_,i)=>CAPS[(i+1)%CAPS.length]),demo:false};
   const q=[1,0,2,3,4,5],l=[];for(const k of q)l.push(await sceneBlob(k));return{list:l,caps:q.map(k=>SCAP[k]),demo:true}}
 function photoBox(){const n=S.files.length;
-  return '<div class="phb"><b>Tes photos</b><small class="mut">Ajoute les photos de l\'annonce (2 minimum, 30 maximum). Sans photos, on te montre une vidéo d\'exemple.</small>'+
+  return '<div class="phb"><b>Tes photos</b><small class="mut">Ajoute les photos du logement (2 minimum, 30 maximum). Pour '+S.dur+' s, vise '+Math.ceil(S.dur/2.5)+' photos ou plus : plus il y en a, plus la vidéo est rythmée. Sans photos, on te montre une vidéo d\'exemple.</small>'+
   '<label class="btn gh" style="height:48px;margin-top:10px;cursor:pointer;display:flex;align-items:center;justify-content:center">'+(n?n+' photo'+(n>1?'s':'')+' ajoutée'+(n>1?'s':'')+' · modifier':'Ajouter mes photos')+'<input type="file" id="phIn" accept="image/*" multiple hidden></label>'+
   (n?'<div class="phs">'+S.files.slice(0,12).map((f,i)=>'<i data-i="'+i+'" style="background-image:url('+URL.createObjectURL(f)+')"></i>').join("")+(n>12?'<em>+'+(n-12)+'</em>':'')+'</div>':'')+
   '<label class="tog" style="padding:12px 0 0;gap:10px;justify-content:flex-start;align-items:flex-start"><input type="checkbox" id="phRt" '+(S.rights?"checked":"")+' style="margin-top:3px"><span style="font-size:.82rem;line-height:1.45" class="mut">Je confirme avoir le droit d\'utiliser ces photos (je suis le propriétaire, le gestionnaire du logement ou j\'ai son accord).</span></label></div>'}
@@ -640,12 +640,12 @@ const CAPS=["Bienvenue","Le séjour","Piscine privée","La cuisine","La chambre"
 
 /* ---------- lecteur de vidéo (maquette) ---------- */
 function Player(root,photos,dur,opt){
-  let t=null,i=0,sl=[],bar,cap,self={},show_cap=true;
+  let t=null,i=0,sl=[],bar,cap,self={},show_cap=false;
   function build(){root.innerHTML="";sl=photos.map(p=>{const d=document.createElement("div");d.className="sl";d.innerHTML=scn(p.s);root.appendChild(d);return d});
     const sh=document.createElement("div");sh.className="vsh";root.appendChild(sh);
     bar=document.createElement("div");bar.className="sts";photos.forEach(()=>{bar.appendChild(document.createElement("span")).appendChild(document.createElement("i"))});root.appendChild(bar);
     cap=document.createElement("div");cap.className="cp";root.appendChild(cap);
-    if(opt&&opt.ui){const u=document.createElement("div");u.className="vu";u.innerHTML='<div class="vt">0:'+String(S.dur).padStart(2,"0")+'</div><div class="vr"><span>♥</span><span>💬</span><span>➤</span></div><div class="vb"><i></i><b>@ton_logement</b><small>♪ '+S.music+'</small></div>';root.appendChild(u)}else{const m=document.createElement("div");m.className="vm";m.innerHTML="<i></i><span>Visite en vidéo</span>";root.appendChild(m)}}
+    if(opt&&opt.ui){const u=document.createElement("div");u.className="vu";u.innerHTML='<div class="vt">0:'+String(S.dur).padStart(2,"0")+'</div><div class="vr"><span>♥</span><span>💬</span><span>➤</span></div><div class="vb"><i></i><b>@ton_logement</b></div>';root.appendChild(u)}else{const m=document.createElement("div");m.className="vm";m.innerHTML="<i></i><span>Visite en vidéo</span>";root.appendChild(m)}}
   function show(k){i=k%photos.length;sl.forEach((s,j)=>s.classList.toggle("on",j===i));
     $$("span",bar).forEach((sp,j)=>{sp.className=j<i?"d":"";sp.style.setProperty("--du",dur+"s")});
     const c=$$("span",bar)[i];c.classList.remove("r");void c.offsetWidth;c.classList.add("r");
@@ -740,15 +740,15 @@ function demo(){const i=$("#url");i.value="https://www.airbnb.fr/rooms/123456789
 function runAn(){
   track("analysis_start");
   const rd=$("#rd");rd.innerHTML="";const rg=$("#rg"),cons=$("#cons");cons.innerHTML="";
-  const lines=[["> ouverture de l'annonce "+S.id,"ok"],["> annonce trouvée","ok"],["> "+S.n+" photos récupérées","ok"],["> tri par pièce","ok"],["> rédaction des textes","cur"]];
-  const stages=["Lecture de l'annonce",S.n+" photos trouvées","Tri par pièce","Rédaction des textes"];
+  const lines=[["> ouverture de l'annonce "+S.id,"ok"],["> annonce trouvée","ok"],["> "+S.n+" photos récupérées","ok"],["> tri des photos","ok"],["> choix du rythme","cur"]];
+  const stages=["Lecture de l'annonce",S.n+" photos trouvées","Tri des photos","Choix du rythme"];
   const pos=[[8,38],[70,14],[78,60],[44,78],[14,70],[56,40],[30,12]];
   stages.forEach((s,k)=>{later(()=>{rg.textContent=s;const d=document.createElement("div");d.className=lines[k][1]==="cur"?"":"ok";d.textContent=lines[k][0]+(k<3?" ✓":"");cons.appendChild(d);cons.scrollTop=1e4;
     if(k>=1)pos.slice((k-1)*2,(k-1)*2+3).forEach((p,j)=>later(()=>{const el=document.createElement("div");el.className="pt";el.style.cssText="left:"+p[0]+"%;top:"+p[1]+"%;background:"+SC[(k+j)%6].bg;rd.appendChild(el)},j*140))},k*1150)});
   later(()=>{track("analysis_done");go("cfg")},4900);
 }
 
-function foundHtml(){return '<div class="found"><div class="fth">'+[1,0,2,3,4].map(i=>'<div class="ft">'+scn(i)+'</div>').join("")+'</div><p><b>✓ '+S.n+' photos trouvées</b><br><span class="mut">Triées par pièce, prêtes pour le montage.</span></p></div>'}
+function foundHtml(){return '<div class="found"><div class="fth">'+[1,0,2,3,4].map(i=>'<div class="ft">'+scn(i)+'</div>').join("")+'</div><p><b>✓ '+S.n+' photos trouvées</b><br><span class="mut">Prêtes pour le montage.</span></p></div>'}
 function gateBullets(){return '<ul class="gl"><li>Sans filigrane, prête à publier</li><li>Tu ne paies qu\'après avoir vérifié ton récapitulatif</li><li>Remboursé automatiquement si le montage échoue</li></ul>'}
 function payExtras(opts){
   const u=opts.find(o=>o.k==="unit"),pk=opts.find(o=>o.k==="pack");let h="";
@@ -794,10 +794,7 @@ function renderCfg(){
     QUA.map(q=>'<button class="tile'+(q.k===S.q?" on":"")+'" data-q="'+q.k+'" style="min-height:104px"><u>✓</u><span class="big" style="font-size:1.8rem">'+q.l+'<small>'+q.r+'</small></span><span class="ds">'+q.d+'</span>'+(q.tg?'<span class="tg">'+q.tg+'</span>':'')+'</button>').join("")+'</div>';
   }else{
     h+='<p class="kk">STYLE</p><h2>Dernier réglage</h2><p class="sub">Tu pourras tout retoucher après le montage.</p>'+
-    '<div class="row3"><div><label>Format</label><div class="seg" id="sgF"><button data-f="v" class="'+(S.fmt==="v"?"on":"")+'">Vertical (Reels, TikTok)</button><button data-f="s" class="'+(S.fmt==="s"?"on":"")+'">Carré (Instagram)</button><button data-f="h" class="'+(S.fmt==="h"?"on":"")+'">Large (YouTube)</button></div></div>'+
-    '<div><label>Musique</label><select class="inp" id="sMu" disabled><option>Bientôt disponible</option></select></div>'+
-    '<div><label>Langue des textes</label><select class="inp" id="sLa">'+["Français","English","Español","Deutsch"].map(m=>'<option'+(m===S.lang?" selected":"")+'>'+m+'</option>').join("")+'</select></div></div>'+
-    '<div class="tog"><div><b>Texte sur chaque photo</b><small>Rédigé à partir des pièces de l\'annonce.</small></div><button class="sw" id="sCap" role="switch" aria-checked="'+S.caps+'" aria-label="Textes sur les photos"></button></div>';
+    '<div><label>Format</label><div class="seg" id="sgF"><button data-f="v" class="'+(S.fmt==="v"?"on":"")+'">Vertical · Reels, TikTok</button><button data-f="s" class="'+(S.fmt==="s"?"on":"")+'">Carré · Instagram</button><button data-f="h" class="'+(S.fmt==="h"?"on":"")+'">Large · YouTube</button></div></div><p class="mut" style="font-size:.86rem;margin-top:12px">La vidéo remplit tout l\'écran dans le format choisi, sans bande noire. Les photos sont recadrées au centre.</p>';
   }
   if(step>0)h+='<p style="margin-top:12px"><button class="lk mut" id="cfgBack">← Retour</button></p>';
   $("#cfgCard").innerHTML=h;
@@ -805,8 +802,6 @@ function renderCfg(){
   $("#cfgNext").textContent=step<total-1?"Continuer":"Lancer le montage";
   $$("#gd .tile").forEach(t=>t.onclick=()=>{if(t.dataset.d){S.dur=+t.dataset.d;track("cfg_duration",{s:S.dur})}else{S.q=t.dataset.q;track("cfg_quality",{q:S.q})}renderCfg()});
   $$("#sgF button").forEach(b=>b.onclick=()=>{S.fmt=b.dataset.f;renderCfg()});
-  const mu=$("#sMu");if(mu)mu.onchange=()=>{S.music=mu.value};const la=$("#sLa");if(la)la.onchange=()=>{S.lang=la.value};
-  const sc=$("#sCap");if(sc)sc.onclick=()=>{S.caps=!S.caps;sc.setAttribute("aria-checked",S.caps)};
   const pi=$("#phIn");if(pi)pi.onchange=()=>{const a=[...pi.files].filter(f=>/^image\//.test(f.type)).slice(0,30);S.files=a;track("photos_added",{n:a.length});renderCfg()};
   const pr=$("#phRt");if(pr)pr.onchange=()=>{S.rights=pr.checked};
   const bk=$("#cfgBack");if(bk)bk.onclick=()=>{S.cs--;renderCfg();window.scrollTo(0,0)};
@@ -816,7 +811,7 @@ function renderCfg(){
 /* ---------- 3. animation de montage ---------- */
 function runMk(){
   track("montage_start");
-  const L=["Tri des photos","Rythme et transitions","Musique : "+S.music,"Export "+QUA.find(q=>q.k===S.q).l];
+  const L=["Tri des photos","Rythme et transitions","Cadrage plein écran","Export "+QUA.find(q=>q.k===S.q).l];
   const fs=$("#fs");fs.innerHTML="";const nF=7;for(let i=0;i<nF;i++){const d=document.createElement("div");d.style.background=SC[i%6].bg;fs.appendChild(d)}
   $("#mkL").innerHTML=L.map(x=>'<li><span class="ic"></span>'+x+'</li>').join("");
   const li=$$("#mkL li"),C=364.4,TOT=6400;let st=Date.now();
@@ -867,7 +862,7 @@ function paySel(){
   return (bfOn()?'<p class="gbf">🔥 Black Friday −40 % appliqué, jusqu\'au 30 novembre</p>':'')+
   '<div class="pcfg"><label class="kk" style="display:block;margin-bottom:6px">DURÉE</label><div class="seg" id="pD">'+DUR.map(d=>'<button data-d="'+d.s+'" class="'+(d.s===S.dur?"on":"")+'">'+d.s+' s<small>'+eur(sale(d.p+qx))+'</small></button>').join("")+'</div>'+
   '<label class="kk" style="display:block;margin:12px 0 6px">QUALITÉ</label><div class="seg" id="pQ">'+QUA.map(q=>'<button data-q="'+q.k+'" class="'+(q.k===S.q?"on":"")+'">'+q.l+'<small>'+(q.x?"+"+eur(sale(q.x)):"inclus")+'</small></button>').join("")+'</div>'+
-  '<p class="mut sm" style="margin-top:8px">'+S.n+' photos · format '+({v:"vertical",s:"carré",h:"large"}[S.fmt])+' · musique « '+esc(S.music)+' »</p></div>';
+  '<p class="mut sm" style="margin-top:8px">'+S.n+' photos · format '+({v:"vertical",s:"carré",h:"large"}[S.fmt])+'</p></div>';
 }
 function optHtml(o){
   const u=sale(base()),save=o.per?Math.round((1-o.per/u)*100):0;
@@ -918,7 +913,7 @@ function finish(o){track("pay_success",{plan:o.k});S.cur={id:Date.now(),listing:
 
 /* ---------- 6. montage en cours ---------- */
 function runRd(){
-  const L=["Préparation des photos","Montage des plans","Textes et transitions","Export "+QUA.find(q=>q.k===S.q).l+" "+S.dur+" s"];
+  const L=["Préparation des photos","Montage des plans","Mouvements et transitions","Export "+QUA.find(q=>q.k===S.q).l+" "+S.dur+" s"];
   $("#rL").innerHTML=L.map(x=>'<li><span class="ic"></span>'+x+'</li>').join("");
   const li=$$("#rL li"),C=364.4;let cancelled=false;
   const set=p=>{$("#rC").style.strokeDashoffset=C*(1-p);$("#rP").textContent=Math.round(p*100)+"%";const k=Math.min(L.length-1,Math.floor(p*L.length));li.forEach((e,j)=>{e.className=j<k?"d":(j===k?"a":"")});$("#rT").textContent=L[k]};
@@ -928,7 +923,7 @@ function runRd(){
       const M=await rmod(),cap=await M.canRender(S.q,S.fmt);
       if(!cap.ok)throw new Error(cap.reason);
       const ph=await realPhotos();
-      const blob=await M.renderVideo({photos:ph.list,captions:S.caps?ph.caps:[],seconds:S.dur,quality:S.q,fmt:S.fmt,onProgress:p=>{keep();set(p)}});
+      const blob=await M.renderVideo({photos:ph.list,seconds:S.dur,quality:S.q,fmt:S.fmt,onProgress:p=>{keep();set(p)}});
       if(cancelled)return;
       if(S.blobUrl)URL.revokeObjectURL(S.blobUrl);S.blobUrl=URL.createObjectURL(blob);S.blobSize=blob.size;S.cur.demo=ph.demo;
       li.forEach(e=>e.className="d");set(1);S.videos.unshift(S.cur);save();track("render_done",{demo:ph.demo,mb:Math.round(blob.size/1e5)/10});later(()=>go("done"),400)
@@ -950,7 +945,8 @@ function renderDone(){
   nextSteps()+'<div style="margin-top:26px;border-top:1px solid var(--ln);padding-top:20px"><p class="kk">TON AVIS</p><b>Tu es satisfait du résultat ?</b><div class="stars" id="st">'+[1,2,3,4,5].map(n=>'<button data-n="'+n+'" aria-label="'+n+' étoiles">★</button>').join("")+'</div><textarea class="inp" id="rvT" placeholder="Dis-nous ce que tu en penses (facultatif)"></textarea><button class="btn gh big" id="rvB" style="height:50px">Envoyer mon avis</button></div>'+
   '<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap"><button class="btn" id="nv">Créer une autre vidéo</button><button class="btn gh" id="mv">Mes vidéos</button></div>';
   if(doneP)doneP.stop();
-  if(S.blobUrl){$("#dnPh").innerHTML='<video src="'+S.blobUrl+'" controls playsinline loop muted autoplay style="width:100%;height:100%;object-fit:cover;background:#000"></video>'}else doneP=Player($("#dnPh"),mkPhotos(c.n>8?8:c.n),2.4).start();
+  if(S.blobUrl&&c.fmt!=="v"){const w=$("#dnPh").closest(".phw");if(w)w.innerHTML='<video src="'+S.blobUrl+'" controls playsinline loop muted autoplay style="width:100%;aspect-ratio:'+(c.fmt==="s"?"1/1":"16/9")+';border-radius:14px;background:#000;object-fit:cover"></video>'}
+  else if(S.blobUrl){$("#dnPh").innerHTML='<video src="'+S.blobUrl+'" controls playsinline loop muted autoplay style="width:100%;height:100%;object-fit:cover;background:#000"></video>'}else doneP=Player($("#dnPh"),mkPhotos(c.n>8?8:c.n),2.4).start();
   $("#dl").onclick=()=>{if(!S.blobUrl){toast("Ta vidéo n'est plus en mémoire : relance le montage depuis Mes vidéos.");return}track("download");const a=document.createElement("a");a.href=S.blobUrl;a.download="cliploc-"+c.listing+"-"+c.dur+"s.mp4";document.body.appendChild(a);a.click();a.remove()};
   $("#shr").onclick=()=>toast("Maquette : lien de partage à venir.");
   $$("#st button").forEach(b=>b.onclick=()=>{stars=+b.dataset.n;$$("#st button").forEach((x,i)=>x.classList.toggle("on",i<stars))});

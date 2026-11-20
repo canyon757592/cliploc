@@ -53,66 +53,65 @@ async function toBitmap(src, maxSide) {
   return small;
 }
 
-/* dessine une photo en « cover » avec un léger zoom/déplacement (effet Ken Burns) */
-function drawPhoto(ctx, img, W, H, p, idx) {
-  const zoomIn = idx % 2 === 0;
-  const z = 1.04 + 0.1 * (zoomIn ? p : 1 - p);
+/* Mouvements de caméra : chaque plan zoome / glisse un peu, toujours en plein cadre (jamais de bordure). */
+const MOVES = [
+  { z0: 1.00, z1: 1.16, x0: -.3, x1: .3, y0: 0, y1: 0 },
+  { z0: 1.16, z1: 1.00, x0: .3, x1: -.2, y0: -.4, y1: .2 },
+  { z0: 1.10, z1: 1.10, x0: -1, x1: 1, y0: 0, y1: 0 },
+  { z0: 1.12, z1: 1.12, x0: 1, x1: -1, y0: .2, y1: -.2 },
+  { z0: 1.00, z1: 1.20, x0: 0, x1: 0, y0: .8, y1: -.4 },
+  { z0: 1.18, z1: 1.02, x0: -.5, x1: .5, y0: -.8, y1: .6 }
+];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+function drawShot(ctx, img, W, H, p, idx, ox = 0, oy = 0, extra = 1) {
+  const m = MOVES[idx % MOVES.length], e = ease(clamp(p, 0, 1));
+  const z = (m.z0 + (m.z1 - m.z0) * e) * extra;
   const s = Math.max(W / img.width, H / img.height) * z;
   const dw = img.width * s, dh = img.height * s;
-  const dir = idx % 4 < 2 ? 1 : -1;
-  const ox = (W - dw) / 2 + dir * (dw - W) * 0.5 * (p - 0.5) * 0.8;
-  const oy = (H - dh) / 2;
-  ctx.drawImage(img, ox, oy, dw, dh);
+  const px = m.x0 + (m.x1 - m.x0) * e, py = m.y0 + (m.y1 - m.y0) * e;
+  const x = (W - dw) / 2 + px * (dw - W) / 2 + ox;
+  const y = (H - dh) / 2 + py * (dh - H) / 2 + oy;
+  ctx.drawImage(img, x, y, dw, dh);
 }
 
-function drawCaption(ctx, text, W, H, a, fontFamily) {
-  if (!text || a <= 0) return;
-  const size = Math.round(Math.min(W, H) * 0.055);
-  ctx.save();
-  ctx.globalAlpha = a;
-  ctx.font = `700 ${size}px ${fontFamily}`;
-  const tw = ctx.measureText(text).width, padX = size * 0.9, ph = size * 1.9;
-  const bw = Math.min(tw + padX * 2, W * 0.9), x = (W - bw) / 2, y = H * 0.84 - ph / 2 + (1 - a) * size * 0.6;
-  ctx.fillStyle = "rgba(10,8,14,.55)";
-  const r = ph / 2;
-  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + bw, y, x + bw, y + ph, r); ctx.arcTo(x + bw, y + ph, x, y + ph, r); ctx.arcTo(x, y + ph, x, y, r); ctx.arcTo(x, y, x + bw, y, r); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText(text, W / 2, y + ph / 2 + size * 0.04, bw - padX);
-  ctx.restore();
+/* Combien de plans pour une durée donnée : des plans courts, comme dans un reel. */
+export function planShots(photoCount, seconds) {
+  const shot = clamp(seconds / photoCount, 1.6, 3.0);
+  const count = Math.max(2, Math.round(seconds / shot));
+  return { count, per: seconds / count };
 }
 
-export async function renderVideo({ photos, captions = [], seconds = 30, quality = "fhd", fmt = "v", onProgress = () => {}, signal }) {
+export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt = "v", onProgress = () => {}, signal }) {
   if (!photos || photos.length < 2) throw new Error("Il faut au moins 2 photos.");
   const cap = await canRender(quality, fmt);
   if (!cap.ok) throw new Error(cap.reason);
   const { w: W, h: H, bitrate, codec } = cap;
 
-  // nombre de photos montrées : environ 2,2 s chacune au minimum
-  const count = Math.max(2, Math.min(photos.length, Math.round(seconds / 2.2)));
-  const pick = Array.from({ length: count }, (_, i) => Math.round(i * (photos.length - 1) / Math.max(1, count - 1)));
-  const maxSide = Math.max(W, H) * 1.25;
-  const imgs = [];
-  for (let i = 0; i < pick.length; i++) {
-    imgs.push(await toBitmap(photos[pick[i]], maxSide));
-    onProgress(0.1 * (i + 1) / pick.length, "Préparation des photos");
+  const { count, per } = planShots(photos.length, seconds);
+  const order = Array.from({ length: count }, (_, i) => i % photos.length);   // on enchaîne les photos dans l'ordre, puis on reprend
+  const maxSide = Math.max(W, H) * 1.35;
+  const cache = new Map();
+  for (let i = 0; i < photos.length; i++) {
+    if (!order.includes(i)) continue;
+    cache.set(i, await toBitmap(photos[i], maxSide));
+    onProgress(0.1 * (cache.size) / new Set(order).size, "Préparation des photos");
     if (signal && signal.aborted) throw new Error("Annulé");
   }
-  const caps = pick.map(i => captions[i] || "");
+  const imgs = order.map(i => cache.get(i));
 
   const canvas = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(W, H) : Object.assign(document.createElement("canvas"), { width: W, height: H });
   const ctx = canvas.getContext("2d", { alpha: false });
-  const family = '"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
   const target = new ArrayBufferTarget();
   const muxer = new Muxer({ target, video: { codec: "avc", width: W, height: H }, fastStart: "in-memory" });
   let encError = null;
-  const enc = new VideoEncoder({
-    output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
-    error: e => { encError = e; }
-  });
+  const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { encError = e; } });
   enc.configure({ codec, width: W, height: H, bitrate, framerate: FPS, latencyMode: "quality" });
 
-  const total = Math.round(seconds * FPS), per = seconds / count, xf = Math.min(0.7, per * 0.3);
+  const xf = Math.min(0.35, per * 0.25);               // durée des transitions
+  const pOf = (k, t) => clamp((t - (k * per - xf)) / (per + xf), 0, 1);   // avancement du mouvement du plan k
+  const total = Math.round(seconds * FPS);
   for (let f = 0; f < total; f++) {
     if (signal && signal.aborted) { enc.close(); throw new Error("Annulé"); }
     if (encError) throw encError;
@@ -120,22 +119,27 @@ export async function renderVideo({ photos, captions = [], seconds = 30, quality
     const i = Math.min(count - 1, Math.floor(t / per));
     const local = t - i * per;
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
-    drawPhoto(ctx, imgs[i], W, H, ease(Math.min(1, local / per)), i);
-    if (i < count - 1 && local > per - xf) {
-      ctx.globalAlpha = ease((local - (per - xf)) / xf);
-      drawPhoto(ctx, imgs[i + 1], W, H, 0, i + 1);
-      ctx.globalAlpha = 1;
+    const inT = i < count - 1 && local > per - xf;
+    if (!inT) {
+      drawShot(ctx, imgs[i], W, H, pOf(i, t), i);
+    } else {
+      const u = ease((local - (per - xf)) / xf), kind = i % 4;
+      if (kind === 0) {                                  // fondu enchaîné
+        drawShot(ctx, imgs[i], W, H, pOf(i, t), i);
+        ctx.globalAlpha = u; drawShot(ctx, imgs[i + 1], W, H, pOf(i + 1, t), i + 1); ctx.globalAlpha = 1;
+      } else if (kind === 1) {                           // glissement horizontal
+        drawShot(ctx, imgs[i], W, H, pOf(i, t), i, -u * W, 0);
+        drawShot(ctx, imgs[i + 1], W, H, pOf(i + 1, t), i + 1, (1 - u) * W, 0);
+      } else if (kind === 2) {                           // zoom : la photo suivante arrive de près
+        drawShot(ctx, imgs[i], W, H, pOf(i, t), i);
+        ctx.globalAlpha = u; drawShot(ctx, imgs[i + 1], W, H, pOf(i + 1, t), i + 1, 0, 0, 1 + (1 - u) * 0.25); ctx.globalAlpha = 1;
+      } else {                                           // glissement vertical
+        drawShot(ctx, imgs[i], W, H, pOf(i, t), i, 0, -u * H);
+        drawShot(ctx, imgs[i + 1], W, H, pOf(i + 1, t), i + 1, 0, (1 - u) * H);
+      }
     }
-    // dégradé bas pour la lisibilité du texte
-    const g = ctx.createLinearGradient(0, H * 0.6, 0, H);
-    g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,.38)");
-    ctx.fillStyle = g; ctx.fillRect(0, H * 0.6, W, H * 0.4);
-    // texte : apparaît 0,4 s après le début de chaque photo
-    const ct = local - 0.4, dur = Math.min(per - 0.9, 2.4);
-    const a = ct < 0 ? 0 : ct < 0.3 ? ct / 0.3 : ct > dur - 0.3 ? Math.max(0, (dur - ct) / 0.3) : 1;
-    drawCaption(ctx, caps[i], W, H, a, family);
-    // fondu d'ouverture et de fermeture
-    const fade = Math.max(t < 0.3 ? 1 - t / 0.3 : 0, t > seconds - 0.4 ? (t - (seconds - 0.4)) / 0.4 : 0);
+    // ouverture et fermeture en fondu rapide
+    const fade = Math.max(t < 0.25 ? 1 - t / 0.25 : 0, t > seconds - 0.4 ? (t - (seconds - 0.4)) / 0.4 : 0);
     if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${Math.min(1, fade)})`; ctx.fillRect(0, 0, W, H); }
 
     const frame = new VideoFrame(canvas, { timestamp: Math.round(f * 1e6 / FPS), duration: Math.round(1e6 / FPS) });
@@ -148,7 +152,7 @@ export async function renderVideo({ photos, captions = [], seconds = 30, quality
   enc.close();
   if (encError) throw encError;
   muxer.finalize();
-  imgs.forEach(b => b.close && b.close());
+  cache.forEach(b => b.close && b.close());
   onProgress(1, "Terminé");
   return new Blob([target.buffer], { type: "video/mp4" });
 }
