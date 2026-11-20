@@ -3,6 +3,7 @@
   "examples/hero1.jpg",
   "examples/hero2.jpg",
   "examples/hero3.jpg",
+  "examples/hero7.jpg",
   "examples/hero4.jpg",
   "examples/hero5.jpg",
   "examples/hero6.jpg"
@@ -27,10 +28,16 @@
    "poster": "examples/villa_cinema.jpg"
   },
   {
-   "title": "Appartement, visite pièce par pièce",
-   "meta": "30 S · HD",
+   "title": "Appartement 2 chambres, visite complète",
+   "meta": "45 S · HD",
    "src": "examples/appart_visite.mp4",
    "poster": "examples/appart_visite.jpg"
+  },
+  {
+   "title": "Appartement de nuit, style cinéma",
+   "meta": "15 S · FULL HD",
+   "src": "examples/appart_nuit.mp4",
+   "poster": "examples/appart_nuit.jpg"
   }
  ]
 }
