@@ -10,19 +10,20 @@ function track(n,p){EV.push({n:n,p:p||{},t:Date.now()});try{console.debug("[trac
 /* ---------- prix ---------- */
 const END=new Date("2026-11-30T23:59:59+01:00").getTime(),BFR=.4;
 const bfOn=()=>Date.now()<END;
-const DUR=[{s:15,p:4,d:"Un teaser percutant pour les réseaux."},{s:30,p:8,d:"Le format idéal pour une annonce.",tg:"POPULAIRE"},{s:45,p:12,d:"Plus de pièces, plus de détails."},{s:60,p:16,d:"La visite complète du logement."}];
-const QUA=[{k:"hd",l:"HD",r:"720p",x:0,d:"Léger, parfait pour les stories."},{k:"fhd",l:"Full HD",r:"1080p",x:4,d:"Le standard Instagram et TikTok.",tg:"CONSEILLÉ"},{k:"4k",l:"4K",r:"2160p",x:12,d:"Netteté maximale, grands écrans."}];
+const DUR=[{s:15,p:5,d:"Un teaser percutant pour les réseaux."},{s:30,p:10,d:"Le format idéal pour une annonce.",tg:"POPULAIRE"},{s:45,p:15,d:"Plus de pièces, plus de détails."},{s:60,p:20,d:"La visite complète du logement."}];
+const QUA=[{k:"hd",l:"HD",r:"720p",x:0,d:"Léger, parfait pour les stories."},{k:"fhd",l:"Full HD",r:"1080p",x:5,d:"Le standard Instagram et TikTok.",tg:"CONSEILLÉ"},{k:"4k",l:"4K",r:"2160p",x:15,d:"Netteté maximale, grands écrans."}];
 const r2=n=>Math.round(n*100)/100;
 const eur=n=>r2(n).toFixed(2).replace(".",",").replace(",00","")+" €";
 const sale=b=>bfOn()?r2(b*(1-BFR)):b;
 const pHTML=b=>bfOn()?"<s>"+eur(b)+"</s><b>"+eur(sale(b))+"</b>":"<b>"+eur(b)+"</b>";
 const PLANS=[
  {k:"unit",r:0,n:"Une vidéo",d:"Tu paies seulement la vidéo que tu crées.",p:null,f:["Durée de 15 à 60 s","HD et Full HD (pas de 4K)","Styles Dynamique et Visite","3 couleurs : Naturel, Chaleureux, Frais","Sans filigrane, sans bordure","-Formation Airbnb non incluse"]},
- {k:"essentiel",r:1,n:"Pack Essentiel",d:"12 crédits, sans abonnement.",p:39,u:"une fois",c:12,per:3.25,f:["12 crédits qui n'expirent pas","Les 4 styles : Drone et Cinéma inclus","Les 6 couleurs","HD et Full HD (pas de 4K)","-Formation Airbnb non incluse"]},
- {k:"pro",r:2,n:"Pack Pro",d:"40 crédits + la formation offerte.",p:99,u:"une fois",c:40,per:2.48,ebook:true,f:["40 crédits qui n'expirent pas","Les 4 styles et les 6 couleurs","4K débloquée","Formation Airbnb offerte (PDF de 44 pages)"],hot:true,bd:"LE PLUS CHOISI"},
- {k:"agence",r:3,n:"Abonnement Agence",d:"120 crédits chaque mois, arrêt à tout moment.",p:149,u:"/ mois",c:120,per:1.24,m:true,ebook:true,f:["120 crédits chaque mois","Tout est débloqué : styles, couleurs, 4K","Formation Airbnb offerte","Historique de tous tes projets","Tu arrêtes quand tu veux"],bd:"MEILLEUR PRIX"}
+ {k:"essentiel",r:1,n:"Pack Essentiel",d:"12 crédits, sans abonnement.",p:49,u:"une fois",c:12,f:["12 crédits qui n'expirent pas","Les 4 styles : Drone et Cinéma inclus","Les 6 couleurs","HD et Full HD (pas de 4K)","-Formation Airbnb non incluse"]},
+ {k:"pro",r:2,n:"Pack Pro",d:"40 crédits + la formation offerte.",p:129,u:"une fois",c:40,ebook:true,f:["40 crédits qui n'expirent pas","Les 4 styles et les 6 couleurs","4K débloquée","Formation Airbnb offerte (PDF de 44 pages)"],hot:true,bd:"LE PLUS CHOISI"},
+ {k:"agence",r:3,n:"Abonnement Agence",d:"120 crédits chaque mois, arrêt à tout moment.",p:199,u:"/ mois",c:120,m:true,ebook:true,f:["120 crédits chaque mois","Tout est débloqué : styles, couleurs, 4K","Formation Airbnb offerte","Historique de tous tes projets","Tu arrêtes quand tu veux"],bd:"MEILLEUR PRIX"}
 ];
 
+PLANS.forEach(p=>{if(p.c)p.per=p.p/p.c});
 /* ---------- décors (illustrations) ---------- */
 const SC=[
  {bg:"linear-gradient(180deg,#EFE6D8,#D8C9B4)",s:`<defs><linearGradient id="w@@" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0E7DA"/><stop offset="1" stop-color="#D8C9B4"/></linearGradient><linearGradient id="f@@" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#AB835B"/><stop offset="1" stop-color="#76573A"/></linearGradient><linearGradient id="s@@" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A9893"/><stop offset="1" stop-color="#4F6D68"/></linearGradient><filter id="b@@"><feGaussianBlur stdDeviation="1.5"/></filter></defs><rect width="100" height="160" fill="url(#w@@)"/><rect y="108" width="100" height="52" fill="url(#f@@)"/><path d="M0 120H100M0 134H100M0 150H100M30 108L10 160M60 108L56 160M90 108L104 160" stroke="#5E4429" stroke-opacity=".3" stroke-width=".4"/><rect x="14" y="30" width="22" height="30" fill="#FBF8F1"/><rect x="16" y="32" width="18" height="26" fill="#D3A27F"/><circle cx="25" cy="42" r="5" fill="#EBD0A5"/><rect x="56" y="20" width="34" height="58" fill="#FBF6EA"/><rect x="58.5" y="22.5" width="29" height="53" fill="#BBD9EA"/><rect x="58.5" y="50" width="29" height="25.500" fill="#7FA77A" filter="url(#b@@)"/><path d="M73 22V76M58 48H88" stroke="#FBF6EA" stroke-width="1.6"/><polygon points="56,78 90,78 100,132 36,132" fill="#FFF3D0" opacity=".26" filter="url(#b@@)"/><ellipse cx="38" cy="134" rx="36" ry="8" fill="#D8C5A6"/><ellipse cx="34" cy="106" rx="31" ry="3" fill="#000" opacity=".28" filter="url(#b@@)"/><rect x="8" y="74" width="52" height="20" rx="7" fill="url(#s@@)"/><rect x="4" y="88" width="60" height="18" rx="6" fill="#5C7C76"/><rect x="2" y="82" width="9" height="24" rx="4" fill="#52726C"/><rect x="57" y="82" width="9" height="24" rx="4" fill="#52726C"/><rect x="13" y="78" width="14" height="12" rx="4" fill="#E2B35E"/><rect x="40" y="79" width="14" height="11" rx="4" fill="#F1EBDF"/><rect x="24" y="120" width="32" height="3" rx="1" fill="#3F2D1F"/><rect x="26" y="123" width="2" height="7" fill="#3F2D1F"/><rect x="52" y="123" width="2" height="7" fill="#3F2D1F"/><rect x="36" y="113" width="6" height="7" rx="2" fill="#F2EBDD"/><rect x="88" y="94" width="9" height="14" rx="2" fill="#CDBBA2"/><g filter="url(#b@@)" opacity=".95"><ellipse cx="92" cy="84" rx="7" ry="11" fill="#4B7752"/><ellipse cx="86" cy="88" rx="5" ry="8" fill="#5C8A62"/></g>`},
@@ -40,9 +41,13 @@ const COL=[["natural","Naturel","contrast(1.03) saturate(1.05)"],["warm","Chaleu
 function thumbHtml(f){const st=f?' style="filter:'+f+'"':"";
   if(S.files.length){if(!S.thumb||S.thumbN!==S.files[0]){if(S.thumb)URL.revokeObjectURL(S.thumb);S.thumb=URL.createObjectURL(S.files[0]);S.thumbN=S.files[0]}return '<i class="th"'+(f?' style="filter:'+f+';':' style="')+'background-image:url('+S.thumb+')"></i>'}
   return '<i class="th"'+st+'>'+scn(1)+'</i>'}
+function aiBox(){
+  const c=S.dur/15*AIC;
+  return '<label style="margin-top:18px">Animation IA</label><button type="button" class="aib'+(S.ai?" on":"")+'" id="stAI"'+(AI_ON?'':' disabled')+'><b>Photos animées par IA</b>'+(AI_ON?lkb(MINAI):'<em class="lkb">Bientôt</em>')+'<span>Chaque photo devient un court plan animé. L\'IA ne fait que bouger la caméra, et tu valides l\'aperçu avant de payer. +'+c+' crédits pour '+S.dur+' s.</span></button>';
+}
 function styleBox(){
   return '<div class="sty"><label>Mouvement de caméra</label><div class="stg m" id="stM">'+MOT.map(m=>'<button type="button" data-m="'+m[0]+'" class="'+(S.motion===m[0]?"on":"")+'"><b>'+m[1]+'</b>'+lkb(MINM[m[0]])+'<span>'+m[2]+'</span></button>').join("")+'</div>'+
-  '<label style="margin-top:18px">Couleurs</label><div class="stg c" id="stC">'+COL.map(c=>'<button type="button" data-c="'+c[0]+'" class="'+(S.grade===c[0]?"on":"")+'">'+thumbHtml(c[2])+'<b>'+c[1]+'</b>'+lkb(MINC[c[0]])+'</button>').join("")+'</div>'+(need()>rank()?'<p class="lknote">🔒 Ce choix demande le '+TMIN[need()]+' ou mieux. Tu le verras à l\'étape paiement, ou change de style pour rester sur une vidéo à l\'unité.</p>':'')+'</div>'}
+  '<label style="margin-top:18px">Couleurs</label><div class="stg c" id="stC">'+COL.map(c=>'<button type="button" data-c="'+c[0]+'" class="'+(S.grade===c[0]?"on":"")+'">'+thumbHtml(c[2])+'<b>'+c[1]+'</b>'+lkb(MINC[c[0]])+'</button>').join("")+'</div>'+aiBox()+(need()>rank()?'<p class="lknote">🔒 Ce choix demande le '+TMIN[need()]+' ou mieux. Tu le verras à l\'étape paiement, ou change de style pour rester sur une vidéo à l\'unité.</p>':'')+'</div>'}
 /* ---------- montage réel (navigateur) ---------- */
 let _rm=null;const rmod=()=>_rm||(_rm=import("./render.js"));
 function sceneBlob(i){return new Promise((ok,ko)=>{const sc=SC[i%SC.length];
@@ -89,13 +94,13 @@ function cleanState(){
 }
 const save=()=>{LS.set("vt_tiers",S.tiers);LS.set("vt_user",S.user);LS.set("vt_videos",S.videos);LS.set("vt_credits",S.credits);LS.set("vt_sub",S.sub);LS.set("vt_ledger",S.ledger.slice(-60));LS.set("vt_ctot",S.credTotal);LS.set("vt_renew",S.renew);try{hdr()}catch(e){}};
 const base=()=>DUR.find(d=>d.s===S.dur).p+QUA.find(q=>q.k===S.q).x;
-const UNITP=4,cr=()=>base()/UNITP;
+const UNITP=5,AIC=3,MINAI=2,AI_ON=false,cr=()=>base()/UNITP+(S.ai?S.dur/15*AIC:0);
 const MINM={dynamic:0,tour:0,drone:1,cinema:1},MINC={natural:0,warm:0,fresh:0,cinema:1,vivid:1,mono:1},MINQ={hd:0,fhd:0,"4k":2};
 const TNAME=["Une vidéo","Pack Essentiel","Pack Pro","Abonnement Agence"],TMIN=["","Pack Essentiel","Pack Pro","Abonnement Agence"],TSHORT=["","Essentiel","Pro","Agence"];
-const need=()=>Math.max(MINM[S.motion]||0,MINC[S.grade]||0,MINQ[S.q]||0);
+const need=()=>Math.max(MINM[S.motion]||0,MINC[S.grade]||0,MINQ[S.q]||0,S.ai?MINAI:0);
 const rank=()=>S.sub?3:(S.tiers&&S.tiers.pro)?2:(S.tiers&&S.tiers.essentiel)?1:0;
 const lkb=n=>n>rank()?'<em class="lkb">🔒 '+TSHORT[n]+'</em>':'';
-function lacks(r){const o=[];if((MINM[S.motion]||0)>r)o.push("le style "+MOT.find(m=>m[0]===S.motion)[1]);if((MINC[S.grade]||0)>r)o.push("la couleur "+COL.find(c=>c[0]===S.grade)[1]);if((MINQ[S.q]||0)>r)o.push("la qualité "+QUA.find(q=>q.k===S.q).l);return o}
+function lacks(r){const o=[];if((MINM[S.motion]||0)>r)o.push("le style "+MOT.find(m=>m[0]===S.motion)[1]);if((MINC[S.grade]||0)>r)o.push("la couleur "+COL.find(c=>c[0]===S.grade)[1]);if((MINQ[S.q]||0)>r)o.push("la qualité "+QUA.find(q=>q.k===S.q).l);if(S.ai&&MINAI>r)o.push("l'Animation IA");return o}
 const crl=n=>n+" crédit"+(n>1?"s":"");
 const hashOf=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
 let timers=[],heroP=null,gbP=null,doneP=null,gpP=null;
@@ -238,6 +243,7 @@ function renderCfg(){
   $$("#sgF button").forEach(b=>b.onclick=()=>{S.fmt=b.dataset.f;renderCfg()});
   $$("#stM button").forEach(b=>b.onclick=()=>{S.motion=b.dataset.m;track("cfg_motion",{m:S.motion});renderCfg()});
   $$("#stC button").forEach(b=>b.onclick=()=>{S.grade=b.dataset.c;track("cfg_grade",{c:S.grade});renderCfg()});
+  const ai=$("#stAI");if(ai&&AI_ON)ai.onclick=()=>{S.ai=!S.ai;track("cfg_ai",{on:S.ai});renderCfg()};
   const pi=$("#phIn");if(pi)pi.onchange=()=>{const all=[...pi.files],a=all.filter(f=>/^image\/(jpeg|png|webp|heic|heif|avif)$/i.test(f.type)&&f.size>0&&f.size<=25*1024*1024).slice(0,30);if(a.length<all.length)toast("Certains fichiers ont été ignorés : photos JPEG, PNG, WebP ou HEIC de 25 Mo maximum.");S.files=a;track("photos_added",{n:a.length});renderCfg()};
   const pr=$("#phRt");if(pr)pr.onchange=()=>{S.rights=pr.checked};
   const bk=$("#cfgBack");if(bk)bk.onclick=()=>{S.cs--;renderCfg();window.scrollTo(0,0)};
@@ -311,7 +317,7 @@ function renderPay(){
   const opts=payCfg(),ok=opts.filter(o=>!o.off);if(!S.planSet&&ok[0]&&ok[0].k==="credit")S.plan="credit";if(!ok.some(o=>o.k===S.plan))S.plan=(ok.find(o=>o.k==="unit")||ok.find(o=>o.k==="pro")||ok[0]).k;
   let h='<div class="dt"><i class="on"></i><i class="on"></i><i class="on"></i><span>PAIEMENT</span></div><div class="pb"><i style="width:100%"></i></div><p class="kk">DERNIÈRE ÉTAPE</p><h2>Choisis ta formule</h2><p class="sub">Ta vidéo coûte '+crl(cr())+' (1 crédit = 15 s en HD). Paie à l\'unité, prends un pack ou un abonnement. Dans tous les cas, elle est livrée sans filigrane.</p>'+paySel()+(need()>0?'<p class="lknote" style="margin-top:12px">🔒 Tu as choisi '+lacks(0).join(", ")+' : il faut un pack. <button class="lk" id="pEdit">Changer mon style</button></p>':'')+
   opts.map(optHtml).join("")+
-  payExtras(opts)+'<label class="ck"><input type="checkbox" id="pOk"><span>Je confirme avoir l\'accord du propriétaire pour utiliser les photos de cette annonce dans une vidéo.</span></label><div class="errm" id="pErr"></div><div class="sec2">🔒 Paiement sécurisé par Stripe · Facture envoyée par email</div>';
+  payExtras(opts)+'<label class="ck"><input type="checkbox" id="pOk"><span>Je confirme avoir l\'accord du propriétaire pour utiliser les photos de cette annonce, et je m\'engage à ne pas présenter le logement autrement qu\'il est.</span></label><div class="errm" id="pErr"></div><div class="sec2">🔒 Paiement sécurisé par Stripe · Facture envoyée par email</div>';
   $("#payCard").innerHTML=h;
   syncPay(opts);
   $$("#pD button").forEach(b=>b.onclick=()=>{S.dur=+b.dataset.d;track("pay_dur",{s:S.dur});renderPay()});
@@ -477,14 +483,19 @@ function planCard(p){
   '<div class="pr">'+(unit?'<em>dès</em>':'')+(bfOn()?'<s>'+eur(unit?UNITP:p.p)+'</s>':'')+eur(sale(unit?UNITP:p.p))+' <small>'+(unit?"/ vidéo":p.u)+'</small></div><p class="pv">'+per+'</p>'+
   '<ul>'+ft+'</ul><button class="btn'+(p.hot?"":" gh")+'" data-v="'+(unit?"focus":"buy")+'" data-a="'+p.k+'">'+(unit?"Créer ma vidéo":(p.m?"M'abonner":"Acheter le pack"))+'</button></div>';
 }
+function homeStyles(){
+  const m=$("#hsM"),c=$("#hsC");if(!m||!c)return;
+  m.innerHTML=MOT.map(x=>'<div class="hsc vis"><b>'+esc(x[1])+'</b>'+(MINM[x[0]]?'<em class="lkb">Dès le Pack '+TSHORT[MINM[x[0]]]+'</em>':'<em class="lkb ok">Inclus partout</em>')+'<p>'+esc(x[2])+'</p></div>').join("");
+  c.innerHTML=COL.map(x=>'<div class="hcc">'+thumbHtml(x[2])+'<b>'+esc(x[1])+'</b></div>').join("");
+}
 function renderPlans(el){el.innerHTML=PLANS.map(planCard).join("")}
 function cmpTable(){
   const Y='<span class="yes">✓</span>',N='<span class="nop">–</span>';
-  const rows=[["Prix d\'un crédit",PLANS.map(p=>eur(sale(p.k==="unit"?UNITP:p.per)))],["Crédits inclus",["—","12","40","120 / mois"]],["Styles Dynamique et Visite",[Y,Y,Y,Y]],["Styles Drone et Cinéma",[N,Y,Y,Y]],["Couleurs",["3","6","6","6"]],["HD et Full HD",[Y,Y,Y,Y]],["4K",[N,N,Y,Y]],["Formation Airbnb",[N,N,"Offerte","Offerte"]],["Historique des projets",[N,N,Y,Y]]];
+  const rows=[["Prix d\'un crédit",PLANS.map(p=>eur(sale(p.k==="unit"?UNITP:p.per)))],["Crédits inclus",["—","12","40","120 / mois"]],["Styles Dynamique et Visite",[Y,Y,Y,Y]],["Styles Drone et Cinéma",[N,Y,Y,Y]],["Couleurs",["3","6","6","6"]],["HD et Full HD",[Y,Y,Y,Y]],["4K",[N,N,Y,Y]],["Animation IA (bientôt)",[N,N,Y,Y]],["Formation Airbnb",[N,N,"Offerte","Offerte"]],["Historique des projets",[N,N,Y,Y]]];
   return '<div class="crd mx" style="margin-top:18px"><p class="kk" style="padding:10px 10px 0">Comparer les formules</p><div class="scx"><table class="tbl cmp"><thead><tr><th></th>'+PLANS.map(p=>'<th>'+(p.k==="unit"?"Unité":p.n.replace("Pack ","").replace("Abonnement ",""))+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr><th>'+r[0]+'</th>'+r[1].map(x=>'<td>'+x+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></div>';
 }
 function credBox(){
-  return '<div class="crd" style="margin-top:18px"><p class="kk">Comment marchent les crédits</p><p class="mut sm" style="margin:6px 0 10px">Chaque vidéo coûte un nombre de crédits selon sa durée et sa qualité. Le prix exact est affiché avant de payer.</p><div class="scx"><table class="tbl cmp"><thead><tr><th></th>'+QUA.map(q=>'<th>'+q.l+'</th>').join("")+'</tr></thead><tbody>'+DUR.map(d=>'<tr><th>'+d.s+' s</th>'+QUA.map(q=>'<td><b>'+((d.p+q.x)/UNITP)+'</b></td>').join("")+'</tr>').join("")+'</tbody></table></div><ul class="gl" style="margin-top:12px"><li>Le solde s\'affiche en haut du site, à côté de « Mes vidéos ».</li><li>Les crédits d\'un pack n\'expirent pas. Ceux de l\'abonnement sont renouvelés chaque mois.</li><li>Tu reçois un email quand il t\'en reste 2.</li></ul></div>';
+  return '<div class="crd" style="margin-top:18px"><p class="kk">Comment marchent les crédits</p><p class="mut sm" style="margin:6px 0 10px">Chaque vidéo coûte un nombre de crédits selon sa durée et sa qualité. Le prix exact est affiché avant de payer.</p><div class="scx"><table class="tbl cmp"><thead><tr><th></th>'+QUA.map(q=>'<th>'+q.l+'</th>').join("")+'</tr></thead><tbody>'+DUR.map(d=>'<tr><th>'+d.s+' s</th>'+QUA.map(q=>'<td><b>'+((d.p+q.x)/UNITP)+'</b></td>').join("")+'</tr>').join("")+'</tbody></table></div><ul class="gl" style="margin-top:12px"><li>Le solde s\'affiche en haut du site, à côté de « Mes vidéos ».</li><li>L\'option Animation IA (bientôt) ajoute '+AIC+' crédits par tranche de 15 s.</li><li>Les crédits d\'un pack n\'expirent pas. Ceux de l\'abonnement sont renouvelés chaque mois.</li><li>Tu reçois un email quand il t\'en reste 2.</li></ul></div>';
 }
 function renderPr(){
   const m=S.prMode==="packs"?"packs":"unit";
@@ -520,7 +531,7 @@ function logout(){S.user=null;save();hdr();toast("Tu es déconnecté.");go("lp")
 const PAGES={
  mentions:["Mentions légales","<p>Éditeur : [nom ou raison sociale] · SIRET : [à compléter] · Adresse : [à compléter] · Contact : [email].</p><p>Hébergeur : [à compléter].</p><p>Cliploc n'est affilié ni à Airbnb, ni aux propriétaires des annonces.</p>"],
  privacy:["Confidentialité","<h3>Données collectées</h3><p>Adresse email, lien d'annonce, choix de vidéo, historique d'achats. Pas de données de santé.</p><h3>Photos</h3><p>Les photos des annonces ne sont utilisées que pour générer ta vidéo, puis supprimées après un délai à définir.</p><h3>Tes droits</h3><p>Accès, rectification, suppression : écris-nous. Page à compléter avant le lancement.</p>"],
- cgv:["Conditions générales de vente","<p>Page à rédiger avant le lancement : prix TTC, livraison numérique, droit de rétractation applicable aux contenus numériques, responsabilité de l'utilisateur sur les droits des photos.</p><h3>Droits sur les photos</h3><p>L'utilisateur confirme avoir l'accord du propriétaire des photos avant de lancer le montage.</p>"],
+ cgv:["Conditions générales de vente","<p>Page à rédiger avant le lancement : prix TTC, livraison numérique, droit de rétractation applicable aux contenus numériques, responsabilité de l'utilisateur sur les droits des photos.</p><h3>Droits sur les photos</h3><p>L'utilisateur confirme avoir l'accord du propriétaire des photos avant de lancer le montage.</p><h3>Fidélité de la vidéo</h3><p>La vidéo doit rester fidèle aux photos de l'annonce et au logement réel. L'utilisateur s'engage à ne pas la diffuser d'une manière qui tromperait les voyageurs sur le logement (pièces, équipements, état, surface, environnement).</p><h3>Animation IA (option bientôt disponible)</h3><p>L'option limite l'IA à un mouvement de caméra, avec des consignes interdisant d'ajouter, retirer ou modifier des éléments. Une IA peut cependant produire des erreurs : l'utilisateur doit regarder l'aperçu avant de payer et ne publier que si l'image est fidèle au logement. En cas d'écart visible, il refuse l'aperçu et ses crédits lui sont rendus.</p><p><i>Texte provisoire, à faire relire par un juriste avant l'ouverture au public.</i></p>"],
  contact:["Contact","<p>Écris-nous à [adresse email à compléter].</p>"]
 };
 function page(k){const p=PAGES[k];$("#pgBox").innerHTML='<p class="kk">Informations</p><h2>'+p[0]+'</h2><div style="margin-top:16px">'+p[1]+'</div>';go("pg")}
@@ -554,7 +565,7 @@ $("#ctGo").onclick=()=>{const e=$("#ctE").value.trim(),m=$("#ctM").value.trim(),
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
   if(m.length<10){er.textContent="Écris un message d'au moins 10 caractères.";return}
   er.textContent="";const l=LS.get("vt_contact",[]);l.push({e:e,m:m.slice(0,1000),at:Date.now()});LS.set("vt_contact",l);track("contact_sent");$("#ctM").value="";toast("Message envoyé (maquette). On te répond par email.")};
-faq();trustBox();renderPlans($("#plHome"));hdr();nav();
+faq();trustBox();renderPlans($("#plHome"));homeStyles();hdr();nav();
 const h0=(location.hash||"#lp").slice(1);go(h0==="lp"||SCR.indexOf(h0)<0?"lp":(NEED[h0]?"lp":h0),{nopush:true});
 track("view_lp");
 })();
