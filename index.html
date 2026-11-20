@@ -752,7 +752,7 @@ function foundHtml(){return '<div class="found"><div class="fth">'+[1,0,2,3,4].m
 function gateBullets(){return '<ul class="gl"><li>Sans filigrane, prête à publier</li><li>Tu ne paies qu\'après avoir vérifié ton récapitulatif</li><li>Remboursé automatiquement si le montage échoue</li></ul>'}
 function payExtras(opts){
   const u=opts.find(o=>o.k==="unit"),pk=opts.find(o=>o.k==="pack");let h="";
-    if(!S.ebook)h+='<label class="bump"><input type="checkbox" id="pBump"'+(S.bump?" checked":"")+'><span><b>Ajoute la Formation Airbnb</b> pour <b>9 €</b> <s>'+eur(EB_PRICE)+'</s><small>Guide PDF : trouver des hôtes, écrire le message, fixer ton prix.</small></span></label>';
+    if(!S.ebook)h+='<label class="bump"><input type="checkbox" id="pBump"'+(S.bump?" checked":"")+'><span><b>Ajoute la Formation Airbnb</b> pour <b>9 €</b> <s>'+eur(EB_PRICE)+'</s><small>Guide PDF de 44 pages : trouver des clients, écrire les messages, fixer ton prix.</small></span></label>';
   return h;
 }
 const ptotal=o=>(o.free?0:sale(o.p))+(S.bump&&!S.ebook?9:0);
@@ -983,23 +983,24 @@ function gallery(){
 }
 
 /* ---------- formation (ebook) ---------- */
-const CHAP=[["Comprendre le marché","Pourquoi une annonce avec vidéo se remarque, et ce que les hôtes attendent."],["Trouver des hôtes à contacter","Où les chercher, comment les qualifier, sans spammer."],["Écrire le premier message","Une structure simple et des modèles à adapter."],["Fixer ton prix","Comment calculer ton tarif et présenter ton offre."],["Obtenir l'accord sur les photos","Droit à l'image, accord du propriétaire, bonnes pratiques."],["Livrer et relancer","Envoyer la vidéo, demander un retour, proposer la suite."],["Organiser ton activité","Facturation et suivi. Informations générales, à valider avec un professionnel."],["Checklist de lancement en 7 jours","Un plan jour par jour pour envoyer tes premiers messages."]];
+const CHAP=[["Le business en dix minutes","Ce que tu vends, à qui, et combien il te reste à la fin."],["Tes clients","Six profils, ce qu'ils veulent, et par qui commencer."],["Se mettre en règle","Micro-entreprise, factures, droit sur les photos, prospection autorisée."],["Ton offre et tes prix","Trois offres, calcul de marge avec les vrais tarifs."],["Ta vitrine","Trois vidéos d'exemple, profil Instagram, WhatsApp Business."],["Dix méthodes pour trouver des clients","Entourage, Facebook, Instagram, LinkedIn, partenaires, terrain…"],["Quatorze messages à copier","Premier contact, relances, devis, livraison, avis."],["Le déroulé d'une vente","Sept étapes, de la démo au paiement et à la recommandation."],["Répondre aux objections","Dix objections courantes et comment y répondre."],["Faire grandir ton activité","Packs, abonnements, objectifs mensuels."],["T'organiser et suivre tes chiffres","Semaine type, feuille de suivi, entonnoir."],["Livrer comme un pro","Checklist, formats, conseils de publication."],["Les erreurs à éviter","Douze erreurs et quoi faire à la place."],["Plan d'action sur 30 jours","Un calendrier jour par jour."]];
+function dlEb(){track("ebook_download");const a=document.createElement("a");a.href="formation-cliploc.pdf";a.download="Cliploc-La-formation.pdf";document.body.appendChild(a);a.click();a.remove()}
 const EB_PRICE=29;
 S.ebook=LS.get("vt_ebook",false);
 function renderEb(){
   $("#chBox").innerHTML=CHAP.map((c,i)=>'<div class="ch"><b class="n">'+String(i+1).padStart(2,"0")+'</b><div><b>'+c[0]+'</b><span>'+c[1]+'</span></div></div>').join("");
   $("#ebBuy").innerHTML='<div class="pz">'+(bfOn()?'<s>'+eur(EB_PRICE)+'</s>':'')+'<b>'+eur(sale(EB_PRICE))+'</b><span class="mut sm">TTC · paiement unique</span></div>'+
-   '<ul><li>Guide PDF à télécharger</li><li>Modèles de messages et grille de prix</li><li>Checklist de lancement</li></ul>'+
+   '<ul><li>Guide PDF de 44 pages, 14 chapitres, 12 schémas</li><li>14 messages à copier et calculs de marge</li><li>Plan d\'action sur 30 jours et modèles (devis, autorisation photo)</li></ul>'+
    (S.ebook?'<button class="btn big" id="ebDl">Télécharger le PDF</button>':'<button class="btn big" id="ebGo">Obtenir la formation</button>');
   const g=$("#ebGo");if(g)g.onclick=buyEbook;
-  const d=$("#ebDl");if(d)d.onclick=()=>toast("Téléchargement du PDF (maquette).");
+  const d=$("#ebDl");if(d)d.onclick=dlEb;
   track("view_ebook");
 }
 function buyEbook(){
   if(!S.user){S.back="eb";track("ebook_login");go("auth");return}
   track("ebook_checkout");
   openMd('<p class="kk">PAIEMENT (SIMULATION)</p><h3 style="margin:4px 0">Formation Airbnb</h3><p class="mut">'+eur(sale(EB_PRICE))+' TTC</p><button class="btn big" id="ebPay" style="margin-top:12px">Simuler un paiement réussi</button><button class="btn gh" style="margin-top:8px;width:100%" onclick="V.closeMd()">Annuler</button>');
-  $("#ebPay").onclick=()=>{S.ebook=true;LS.set("vt_ebook",true);closeMd();track("ebook_paid");toast("Paiement validé. Ta formation est disponible.");renderEb()};
+  $("#ebPay").onclick=()=>{S.ebook=true;LS.set("vt_ebook",true);closeMd();track("ebook_paid");toast("Paiement validé. Le téléchargement du PDF démarre.");renderEb();dlEb()};
 }
 
 /* ---------- 8. mes vidéos ---------- */
@@ -1024,7 +1025,7 @@ function renderDash0(){
   const sx=$("#subX");if(sx)sx.onclick=()=>{openMd('<p class="kk">ABONNEMENT AGENCE</p><h2 style="margin-bottom:10px">Arrêter l\'abonnement ?</h2><p class="mut">Tes vidéos restantes restent utilisables jusqu\'au '+renew+'. Ensuite, plus de renouvellement.</p><button class="btn big" id="subOk">Oui, arrêter</button><p class="lg"><button class="lk" onclick="V.closeMd()">Garder mon abonnement</button></p>');$("#subOk").onclick=()=>{S.sub=false;save();closeMd();track("sub_cancel");toast("Abonnement arrêté. Tes vidéos restantes sont conservées.");renderDash()}};
 }
 
-function renderDash(){renderDash0();if(S.user&&S.ebook)$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd" style="margin-top:14px"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" onclick="V.toast(\'Téléchargement du PDF (maquette).\')">Télécharger</button></div></div>')}
+function renderDash(){renderDash0();if(S.user&&S.ebook)$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd" style="margin-top:14px"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" onclick="V.dl()">Télécharger</button></div></div>')}
 
 /* ---------- tarifs ---------- */
 function planCard(p){
@@ -1091,7 +1092,7 @@ function trustBox(){
 }
 if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("v");io.unobserve(e.target)}}),{threshold:.1});$$(".vis").forEach(el=>io.observe(el))}else{$$(".vis").forEach(el=>el.classList.add("v"))}
 
-window.V={nav:navGo,pr:prGo,pick:pick,go:go,jump:jump,focus:focusBar,start:start,demo:demo,copy:copy,page:page,logout:logout,closeMd:closeMd,toast:toast,buyEbook:buyEbook,buy:buy};
+window.V={nav:navGo,pr:prGo,pick:pick,go:go,jump:jump,focus:focusBar,start:start,demo:demo,copy:copy,page:page,logout:logout,closeMd:closeMd,toast:toast,buyEbook:buyEbook,buy:buy,dl:dlEb};
 $("#ctGo").onclick=()=>{const e=$("#ctE").value.trim(),m=$("#ctM").value.trim(),er=$("#ctErr");
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
   if(m.length<10){er.textContent="Écris un message d'au moins 10 caractères.";return}
