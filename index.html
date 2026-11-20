@@ -218,7 +218,9 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
     <div class="pgh"><p class="kk">Contact</p><h2>Une question ?</h2><p class="mut" style="margin-top:10px">Écris-nous, on répond par email. La réponse à ta question est peut-être plus bas.</p></div>
     <div class="crd" style="margin-top:18px"><p class="kk">Nous écrire</p>
       <div class="fld"><input class="inp" id="ctE" type="email" inputmode="email" autocomplete="email" placeholder="Ton email"></div>
-      <div class="fld"><textarea class="inp" id="ctM" placeholder="Ton message"></textarea></div>
+      <div class="fld"><textarea class="inp" id="ctM" maxlength="2000" placeholder="Ton message"></textarea></div>
+      <div class="hpw" aria-hidden="true"><label>Ne pas remplir <input id="ctW" type="text" tabindex="-1" autocomplete="off"></label></div>
+      <p class="mut sm" style="margin:2px 0 0">Ton email et ton message servent uniquement à te répondre.</p>
       <div class="errm" id="ctErr"></div><button class="btn big" id="ctGo" type="button" style="margin-top:6px">Envoyer</button></div>
     <div class="hlp"><b>Ton lien ne passe pas ?</b>
       <p class="mut sm" style="margin:6px 0 0">Dans l'appli Airbnb, ouvre l'annonce, touche « Partager » puis « Copier le lien ». Ces formats sont acceptés :</p>
@@ -313,7 +315,7 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
 <footer>
   <span class="logo" style="justify-content:center;font-size:1.2rem"><i></i>Cliploc</span>
   <nav><button data-v="page" data-a="mentions">Mentions légales</button><button data-v="page" data-a="privacy">Confidentialité</button><button data-v="page" data-a="cgv">CGV</button><button data-v="page" data-a="contact">Contact</button></nav>
-  <div>© Cliploc · maquette non contractuelle · non affilié à Airbnb</div>
+  <div>© Cliploc · non affilié à Airbnb</div>
 </footer>
 
 <div class="md" id="md" hidden data-v="mdbg"><div class="box" id="mdBox"></div></div>

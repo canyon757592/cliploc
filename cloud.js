@@ -312,5 +312,14 @@
       subscription_active: "Ton abonnement est encore actif et n'a pas pu être arrêté automatiquement : ton compte n'a pas été supprimé. Écris-nous et on l'arrête puis on supprime ton compte. Si tu as déjà résilié, tu pourras le supprimer quand l'abonnement sera terminé." };
     return { ok: false, error: E[j && j.error] || "La suppression n'a pas pu aboutir. Réessaie dans un instant ou écris-nous." };
   }
-  window.CL = { recover, setPassword, deleteAccount, isRecovery: () => recovery, linkError: () => linkErr, details, saveDetails, avatarGet, avatarSet, avatarDel, reviews, submitReview, ebook, portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
+  /* Formulaire de contact : message envoyé par une fonction serveur (limite par visiteur, piège à robots). */
+  async function contact(email, message, trap) {
+    let r; try { r = await fetch(URL_ + "/functions/v1/contact", { method: "POST", headers: hdr(), body: JSON.stringify({ email, message, website: trap || "" }), cache: "no-store" }) }
+    catch (e) { return { ok: false, error: "Pas de connexion. Vérifie ton réseau et réessaie." } }
+    let j = null; try { j = await r.json() } catch (e) {}
+    if (r.ok && j && j.ok === true) return { ok: true };
+    const E = { invalid_request: "Vérifie ton email et ton message (10 caractères minimum).", rate_limited: "Tu as déjà envoyé plusieurs messages. Réessaie un peu plus tard.", contact_unavailable: "Le message n'a pas pu être envoyé pour le moment. Réessaie un peu plus tard." };
+    return { ok: false, error: E[j && j.error] || "Le message n'a pas pu être envoyé pour le moment. Réessaie un peu plus tard." };
+  }
+  window.CL = { contact, recover, setPassword, deleteAccount, isRecovery: () => recovery, linkError: () => linkErr, details, saveDetails, avatarGet, avatarSet, avatarDel, reviews, submitReview, ebook, portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
 })();
