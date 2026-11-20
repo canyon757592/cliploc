@@ -24,4 +24,4 @@
 - Supabase Auth : activer la protection contre les mots de passe compromis, longueur minimale 10, captcha à l'inscription (Cloudflare Turnstile). La confirmation de l'email est désactivée volontairement pour ne pas perdre de clients : un captcha devient donc d'autant plus utile contre les inscriptions automatiques.
 - Passer le dépôt GitHub en privé, activer la détection de secrets.
 - Contact : créer le secret `RESEND_API_KEY` (clé Resend « Sending access » limitée au domaine `cliploc.com`) et rediriger `contact@cliploc.com` vers la boîte du propriétaire (Cloudflare Email Routing).
-- Mentions légales, CGV, politique de confidentialité, retirer `noindex`.
+- Mentions légales, CGV, politique de confidentialité à compléter (nom, SIRET, adresse). Fait : `noindex` retiré le 20/11/2026 (seule l'adresse de test `cliploc.pages.dev` reste hors Google).
