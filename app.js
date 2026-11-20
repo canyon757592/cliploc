@@ -141,7 +141,7 @@ function jump(id){if(document.body.dataset.s!=="lp"){go("lp");setTimeout(()=>{co
 function focusBar(){if(document.body.dataset.s!=="lp")go("lp");setTimeout(()=>{window.scrollTo({top:0,behavior:"smooth"});const i=$("#url");if(i)i.focus({preventScroll:true})},80)}
 function hdr(){
   const h=$("#hr");
-  if(S.user){h.innerHTML='<button class="hdac" data-v="go" data-a="dash" aria-label="Mon compte">'+avHtml(34)+'<span class="hdn">'+esc(dispName()||"Mon compte")+'</span>'+(S.credits>0?'<span class="cb">'+S.credits+'</span>':'')+'</button>'}
+  if(S.user){h.innerHTML='<button class="hdac" data-v="go" data-a="dash" title="Mon compte">'+avHtml(34)+'<span class="vh">Mon compte : </span><span class="hdn">'+esc(dispName()||"Mon compte")+'</span>'+(S.credits>0?'<span class="cb">'+S.credits+'</span>':'')+'</button>'}
   else{h.innerHTML='<button class="btn gh s" data-v="go" data-a="auth">Se connecter</button>'}
 }
 function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>{t.hidden=true},2600)}
@@ -213,7 +213,7 @@ function msgText(){
   return "Bonjour [Prénom du propriétaire],\n\nJ'ai vu votre annonce « [nom du logement] » et j'ai préparé une courte vidéo verticale à partir de vos photos, pour vos réseaux et vos annonces : [lien de la vidéo]\n\nSi elle vous plaît, je vous la livre en haute qualité, sans filigrane, pour "+S.price+" €.\n\nBelle journée,\n"+n;
 }
 function msgBuilder(el){
-  el.innerHTML='<div class="row3"><div><label>Ton prénom</label><input class="inp" id="mbN" placeholder="Ex : Léa" maxlength="30" value="'+esc(S.name)+'"></div><div><label>Ton prix (€)</label><input class="inp" id="mbP" inputmode="numeric" maxlength="4" value="'+esc(S.price)+'"></div></div><textarea class="inp" id="mbT" style="min-height:210px;margin-top:10px"></textarea><button class="btn big" id="mbC" type="button" style="height:50px;margin-top:10px">Copier le message</button><p class="note">Tu peux modifier le texte : il est copié tel quel. Ton prénom et ton prix sont gardés pour la prochaine fois.</p>';
+  el.innerHTML='<div class="row3"><div><label for="mbN">Ton prénom</label><input class="inp" id="mbN" placeholder="Ex : Léa" maxlength="30" value="'+esc(S.name)+'"></div><div><label for="mbP">Ton prix (€)</label><input class="inp" id="mbP" inputmode="numeric" maxlength="4" value="'+esc(S.price)+'"></div></div><textarea class="inp" id="mbT" aria-label="Message à envoyer" style="min-height:210px;margin-top:10px"></textarea><button class="btn big" id="mbC" type="button" style="height:50px;margin-top:10px">Copier le message</button><p class="note">Tu peux modifier le texte : il est copié tel quel. Ton prénom et ton prix sont gardés pour la prochaine fois.</p>';
   const t=$("#mbT"),n=$("#mbN"),pr=$("#mbP");let edited=false;
   const fill=()=>{if(!edited)t.value=msgText()};
   n.oninput=()=>{S.name=n.value.trim().slice(0,30);LS.set("vt_name",S.name);fill()};
@@ -622,7 +622,8 @@ async function loadDetails(){
 }
 function setTab(k){if(!AC_TABS.some(t=>t[0]===k))k="ov";S.dtab=k;
   $$(".acb").forEach(b=>{const on=b.dataset.t===k;b.classList.toggle("on",on);b.setAttribute("aria-current",on?"page":"false")});
-  $$(".acpn").forEach(x=>{x.hidden=x.id!=="ac_"+k})}
+  $$(".acpn").forEach(x=>{x.hidden=x.id!=="ac_"+k});
+  const h=$("#acH");if(h)h.textContent="Mon compte : "+AC_TABS.find(t=>t[0]===k)[1]}
 function renderDash(){
   if(!S.user){go("auth");return}
   const p=S.pf||{},v=S.videos,c=S.credits,tot=Math.max(S.credTotal,c),pct=tot?Math.round(c/tot*100):0;
@@ -651,7 +652,7 @@ function renderDash(){
    (v.length?'<div class="crd rvw">'+rvHtml()+'</div>':'');
   const eb=S.ebook?'<div class="crd"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" data-v="dl">Télécharger</button></div></div>':'<div class="crd"><p class="kk">FORMATION</p><b>Formation Airbnb · guide PDF</b><p class="mut sm" style="margin-top:6px">Un guide pour proposer ta vidéo à des propriétaires et remplir ton calendrier.</p><div style="margin-top:12px"><button class="btn gh s" data-v="go" data-a="eb">Découvrir la formation</button></div></div>';
   const mb='<div class="crd"><p class="kk">MON MESSAGE POUR LES PROPRIÉTAIRES</p><div id="mbBox"></div></div>';
-  $("#dashBox").innerHTML=side+'<div class="acm"><section class="acpn" id="ac_ov">'+ov+'</section><section class="acpn" id="ac_pf" hidden>'+pf+'</section><section class="acpn" id="ac_vd" hidden>'+vd+'</section><section class="acpn" id="ac_eb" hidden>'+eb+'</section><section class="acpn" id="ac_mb" hidden>'+mb+'</section></div>';
+  $("#dashBox").innerHTML=side+'<div class="acm"><h1 class="vh" id="acH">Mon compte</h1><section class="acpn" id="ac_ov">'+ov+'</section><section class="acpn" id="ac_pf" hidden>'+pf+'</section><section class="acpn" id="ac_vd" hidden>'+vd+'</section><section class="acpn" id="ac_eb" hidden>'+eb+'</section><section class="acpn" id="ac_mb" hidden>'+mb+'</section></div>';
   PFK.forEach(k=>{$("#pf_"+k).value=p[k]||""});$("#pf_email").value=S.user.email;
   msgBuilder($("#mbBox"));
   $$(".acb").forEach(b=>b.onclick=()=>{setTab(b.dataset.t);if(window.matchMedia("(max-width:899px)").matches){const m=$(".acm");if(m)m.scrollIntoView({block:"start",behavior:"smooth"})}});
@@ -721,10 +722,10 @@ function renderPlans(el){el.classList.add("p3");el.innerHTML=PLANS.slice(1).map(
 function cmpTable(){
   const Y='<span class="yes">✓</span>',N='<span class="nop">–</span>';
   const rows=[["Prix d\'un crédit",PLANS.map(p=>p.reg?eur(p.per):"")],["Crédits chaque mois",["—","12","40","120"]],["Styles Dynamique et Visite",[Y,Y,Y,Y]],["Styles Drone et Cinéma",[N,Y,Y,Y]],["Couleurs",["3","6","6","6"]],["HD et Full HD",[Y,Y,Y,Y]],["4K",[N,N,Y,Y]],["Montage diaporama de tes photos",[Y,Y,Y,Y]],["Animation IA en option"+(aiAvail()?"":" (bientôt)"),[N,N,Y,Y]],["Formation Airbnb",[N,N,"Offerte","Offerte"]],["Historique des projets",[N,N,Y,Y]]];
-  return '<div class="crd mx" style="margin-top:18px"><p class="kk" style="padding:10px 10px 0">Comparer les formules</p><div class="scx"><table class="tbl cmp"><thead><tr><th></th>'+PLANS.slice(1).map(p=>'<th>'+p.n+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr><th>'+r[0]+'</th>'+r[1].slice(1).map(x=>'<td>'+x+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></div>';
+  return '<div class="crd mx" style="margin-top:18px"><p class="kk" style="padding:10px 10px 0">Comparer les formules</p><div class="scx" tabindex="0" role="region" aria-label="Comparatif des formules"><table class="tbl cmp"><thead><tr><th><span class="vh">Détail</span></th>'+PLANS.slice(1).map(p=>'<th>'+p.n+'</th>').join("")+'</tr></thead><tbody>'+rows.map(r=>'<tr><th>'+r[0]+'</th>'+r[1].slice(1).map(x=>'<td>'+x+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></div>';
 }
 function credBox(){
-  return '<div class="crd" style="margin-top:18px"><p class="kk">Comment marchent les crédits</p><p class="mut sm" style="margin:6px 0 10px">Chaque vidéo coûte un nombre de crédits selon sa durée et sa qualité. Le prix exact est affiché avant de payer.</p><div class="scx"><table class="tbl cmp"><thead><tr><th></th>'+QUA.map(q=>'<th>'+q.l+'</th>').join("")+'</tr></thead><tbody>'+DUR.map(d=>'<tr><th>'+d.s+' s</th>'+QUA.map(q=>'<td><b>'+((d.p+q.x)/UNITP)+'</b></td>').join("")+'</tr>').join("")+'</tbody></table></div><ul class="gl" style="margin-top:12px"><li>Le solde s\'affiche en haut du site, à côté de « Mes vidéos ».</li><li>L\'option Animation IA (formules Pro et Agence) ajoute '+AIC+' crédits par tranche de 15 s.</li><li>Les crédits non utilisés sont conservés. Chaque mois, ton abonnement t\'en ajoute de nouveaux.</li><li>Tu reçois un email quand il t\'en reste 2.</li></ul></div>';
+  return '<div class="crd" style="margin-top:18px"><p class="kk">Comment marchent les crédits</p><p class="mut sm" style="margin:6px 0 10px">Chaque vidéo coûte un nombre de crédits selon sa durée et sa qualité. Le prix exact est affiché avant de payer.</p><div class="scx" tabindex="0" role="region" aria-label="Crédits selon la durée et la qualité"><table class="tbl cmp"><thead><tr><th><span class="vh">Détail</span></th>'+QUA.map(q=>'<th>'+q.l+'</th>').join("")+'</tr></thead><tbody>'+DUR.map(d=>'<tr><th>'+d.s+' s</th>'+QUA.map(q=>'<td><b>'+((d.p+q.x)/UNITP)+'</b></td>').join("")+'</tr>').join("")+'</tbody></table></div><ul class="gl" style="margin-top:12px"><li>Le solde s\'affiche en haut du site, à côté de « Mes vidéos ».</li><li>L\'option Animation IA (formules Pro et Agence) ajoute '+AIC+' crédits par tranche de 15 s.</li><li>Les crédits non utilisés sont conservés. Chaque mois, ton abonnement t\'en ajoute de nouveaux.</li><li>Tu reçois un email quand il t\'en reste 2.</li></ul></div>';
 }
 function renderPr(){
   $("#prTg").innerHTML="";
@@ -816,7 +817,13 @@ if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.fo
 
 window.V={nav:navGo,pr:prGo,pick:pick,go:go,jump:jump,focus:focusBar,start:start,demo:demo,copy:copy,page:page,logout:logout,closeMd:closeMd,toast:toast,buyEbook:buyEbook,buy:buy,dl:dlEb};
 /* Clics : pas de gestionnaire inline (la politique de sécurité les interdit), liste blanche d'actions */
-const ACTS={focus:()=>V.focus(),closeMd:()=>V.closeMd(),toast:a=>V.toast(a),pr:a=>V.pr(a==="packs"?"packs":"unit"),page:a=>PAGES[a]&&V.page(a),nav:a=>V.nav(a),logout:()=>V.logout(),go:a=>SCR.includes(a)&&V.go(a),dl:()=>V.dl(),demo:()=>V.demo(),copy:()=>V.copy(),buy:a=>V.buy(a),ebuy:()=>V.buyEbook()};
+/* Accessibilité : chaque écran visible a un titre de niveau 1 (les titres d'écran sont des h2 mis en forme) */
+(()=>{let q=0;const vis=e=>!e.closest("[hidden]");const fix=()=>{q=0;const s=document.querySelector(".scr:not([hidden])");if(!s)return;
+  if([...s.querySelectorAll('h1,[role="heading"][aria-level="1"]')].some(vis))return;
+  const hs=[...s.querySelectorAll("h2,h3")].filter(vis),f=hs[0];if(!f)return;f.setAttribute("role","heading");f.setAttribute("aria-level","1");
+  if(!hs.some(x=>x!==f&&x.tagName==="H2"))hs.forEach(x=>{if(x.tagName==="H3")x.setAttribute("aria-level","2")})};
+  const m=document.querySelector("main");if(m)new MutationObserver(()=>{if(!q)q=requestAnimationFrame(fix)}).observe(m,{childList:true,subtree:true,attributes:true,attributeFilter:["hidden"]});fix()})();
+const ACTS={skip:()=>{const m=document.querySelector("main");if(m){m.setAttribute("tabindex","-1");m.focus()}},focus:()=>V.focus(),closeMd:()=>V.closeMd(),toast:a=>V.toast(a),pr:a=>V.pr(a==="packs"?"packs":"unit"),page:a=>PAGES[a]&&V.page(a),nav:a=>V.nav(a),logout:()=>V.logout(),go:a=>SCR.includes(a)&&V.go(a),dl:()=>V.dl(),demo:()=>V.demo(),copy:()=>V.copy(),buy:a=>V.buy(a),ebuy:()=>V.buyEbook()};
 document.addEventListener("click",e=>{
   const t=e.target.closest&&e.target.closest("[data-v]");if(!t)return;
   const n=t.dataset.v,a=t.dataset.a;

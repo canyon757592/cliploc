@@ -25,22 +25,28 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<link rel="stylesheet" href="style.css?v=1c10b163">
+<link rel="preload" href="fonts/plus-jakarta-sans-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/plus-jakarta-sans-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/plus-jakarta-sans-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://cliploc.com/#org","name":"Cliploc","url":"https://cliploc.com/","logo":"https://cliploc.com/icon-512.png","email":"contact@cliploc.com"},{"@type":"WebSite","@id":"https://cliploc.com/#site","url":"https://cliploc.com/","name":"Cliploc","inLanguage":"fr-FR","publisher":{"@id":"https://cliploc.com/#org"}}]}</script>
+<link rel="stylesheet" href="style.css?v=4bb4737d">
 </head>
 <body>
+<noscript><p style="margin:0;padding:14px 18px;background:#FFF7E6;color:#7a5200;text-align:center;font:600 15px/1.4 system-ui,sans-serif">Cliploc a besoin de JavaScript pour monter ta vidéo dans ton navigateur. Active-le dans les réglages de ton navigateur, puis recharge la page.</p></noscript>
 
-<div class="top">
-  <div class="bf" id="bf" hidden>
+<header class="top">
+  <button class="skip" type="button" data-v="skip">Aller au contenu</button>
+  <div class="bf" id="bf" role="region" aria-label="Offre de lancement">
     <b>Offre de lancement</b><span>prix réduits jusqu'au 30 novembre</span><span class="cdn mono" id="cdn">--</span>
     <button data-v="focus">J'en profite</button>
   </div>
-  <header class="hd">
-    <button class="logo" data-v="go" data-a="lp" aria-label="Accueil"><i></i>Cliploc</button>
+  <div class="hd">
+    <button class="logo" data-v="go" data-a="lp" aria-label="Cliploc, accueil"><i></i>Cliploc</button>
     <nav class="nv" id="nvD" aria-label="Navigation"></nav>
     <div class="hr" id="hr"></div>
-  </header>
+  </div>
   <nav class="tabs" id="tabs" aria-label="Menu"></nav>
-</div>
+</header>
 
 <main>
 <!-- ============ ACCUEIL ============ -->
@@ -51,7 +57,7 @@
         <p class="kk">Pour freelances, conciergeries et hôtes</p>
         <h1>Des vidéos d'annonce qui donnent envie de <span>réserver.</span></h1>
         <div class="finder">
-          <div class="bar" id="bar" role="search">
+          <div class="bar" id="bar" role="search" aria-label="Commencer ma vidéo">
             <label class="fl">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
               <input id="url" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Colle ici le lien Airbnb" aria-label="Lien de l'annonce Airbnb">
@@ -164,7 +170,7 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
   <div class="fin"><div class="w">
     <p class="kk">À toi de jouer</p><h2>Prêt à voir ta première vidéo ?</h2>
     <div class="finder" style="margin-inline:auto">
-      <div class="bar" role="search">
+      <div class="bar" role="search" aria-label="Commencer ma vidéo (bas de page)">
         <label class="fl"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
           <input type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Colle ici le lien Airbnb" aria-label="Lien de l'annonce Airbnb"></label>
         <button class="btn" type="button" data-v="start">Créer ma vidéo</button>
@@ -318,9 +324,9 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
 </footer>
 
 <div class="md" id="md" hidden data-v="mdbg"><div class="box" id="mdBox"></div></div>
-<div class="toast" id="toast" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="cloud.js?v=f8ef72bd"></script>
-<script src="app.js?v=dfe68c3d"></script>
+<script src="app.js?v=a34ce012"></script>
 </body>
 </html>
