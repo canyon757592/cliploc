@@ -201,5 +201,20 @@
     if (!b || !b.size) return { ok: false, error: "Téléchargement impossible pour le moment. Réessaie dans un instant." };
     return { ok: true, blob: new Blob([b], { type: "application/pdf" }) };
   }
-  window.CL = { ebook, portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
+  /* Avis clients : lecture des avis validés (public) et envoi d'un avis (compte avec une vidéo terminée). */
+  async function reviews() {
+    const res = await call("/rest/v1/rpc/public_reviews", {}, undefined, "POST");
+    if (!(res.ok && Array.isArray(res.j))) return [];
+    return res.j.slice(0, 12).map(x => ({ name: String(x.display_name || "").slice(0, 40), stars: Math.max(1, Math.min(5, Math.round(+x.stars || 5))), text: String(x.body || "").slice(0, 500) })).filter(x => x.name && x.text);
+  }
+  async function submitReview(stars, body, name) {
+    const t = await token(); if (!t) return { ok: false, error: "Connecte-toi pour laisser un avis." };
+    const res = await call("/rest/v1/rpc/submit_review", { p_stars: stars, p_body: body, p_name: name }, t, "POST");
+    if (res.ok) return { ok: true };
+    const m = JSON.stringify(res.j || {}) + " " + res.status;
+    const E = [[/no_finished_video/, "Termine d'abord une vidéo pour laisser un avis."], [/invalid_name/, "Indique ton prénom (2 à 40 caractères)."], [/invalid_body/, "Ton avis doit faire entre 20 et 500 caractères."], [/invalid_stars/, "Choisis une note de 1 à 5."], [/auth_required/, "Connecte-toi pour laisser un avis."], [/network/, "Pas de connexion. Réessaie."]];
+    for (const [re, msg] of E) if (re.test(m)) return { ok: false, error: msg };
+    return { ok: false, error: "Envoi impossible pour le moment. Réessaie plus tard." };
+  }
+  window.CL = { reviews, submitReview, ebook, portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
 })();

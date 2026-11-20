@@ -485,7 +485,7 @@ function runRd(){
       const blob=await M.renderVideo({photos:ph.list,seconds:c0.dur,quality:c0.q,fmt:c0.fmt,motion:c0.motion,grade:c0.grade,clips,onProgress:p=>{keep();set(ai?0.6+0.4*p:p)}});
       if(cancelled){bail();return}
       try{await CL.finishJob(job,true)}catch(e){}
-      if(S.blobUrl)URL.revokeObjectURL(S.blobUrl);S.blobUrl=URL.createObjectURL(blob);S.blobSize=blob.size;c0.demo=ph.demo;c0.ai=!!(clips&&clips.some(Boolean));
+      if(S.blobUrl)URL.revokeObjectURL(S.blobUrl);S.blobUrl=URL.createObjectURL(blob);S.blob=blob;S.blobSize=blob.size;c0.demo=ph.demo;c0.ai=!!(clips&&clips.some(Boolean));
       li.forEach(e=>e.className="d");set(1);S.videos.unshift(c0);save();track("render_done",{demo:ph.demo,mb:Math.round(blob.size/1e5)/10});later(()=>go("done"),400)
     }catch(e){
       const msg=String(e&&e.message||e);
@@ -504,16 +504,17 @@ let stars=0;
 function renderDone(){
   const c=S.cur;stars=0;
   $("#doneCard").innerHTML='<p class="kk">C\'EST FAIT</p><h2>Ta vidéo est prête</h2><p class="mut">'+c.dur+' s · '+QUA.find(q=>q.k===c.q).l+(c.ai?' · Animation IA':' · montage diaporama')+' · sans filigrane'+(c.demo?' · vidéo d\'exemple':'')+'</p><div class="phw" style="margin:18px 0"><div class="ph"><div id="dnPh" style="position:absolute;inset:0"></div><div class="nt"></div></div></div>'+
-  '<button class="btn big" id="dl" style="margin-top:0">Télécharger la vidéo (MP4)</button><button class="btn gh big" id="shr" style="margin-top:10px;height:52px">Copier le lien de partage</button>'+
-  nextSteps()+'<div style="margin-top:26px;border-top:1px solid var(--ln);padding-top:20px"><p class="kk">TON AVIS</p><b>Tu es satisfait du résultat ?</b><div class="stars" id="st">'+[1,2,3,4,5].map(n=>'<button data-n="'+n+'" aria-label="'+n+' étoiles">★</button>').join("")+'</div><textarea class="inp" id="rvT" placeholder="Dis-nous ce que tu en penses (facultatif)"></textarea><button class="btn gh big" id="rvB" style="height:50px">Envoyer mon avis</button></div>'+
+  '<button class="btn big" id="dl" style="margin-top:0">Télécharger la vidéo (MP4)</button><button class="btn gh big" id="shr" style="margin-top:10px;height:52px">Envoyer la vidéo (WhatsApp, SMS…)</button>'+
+  nextSteps()+'<div class="rvw" style="margin-top:26px;border-top:1px solid var(--ln);padding-top:20px">'+rvHtml()+'</div>'+
   '<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap"><button class="btn" id="nv">Créer une autre vidéo</button><button class="btn gh" id="mv">Mes vidéos</button></div>';
   if(doneP)doneP.stop();
   if(S.blobUrl&&c.fmt!=="v"){const w=$("#dnPh").closest(".phw");if(w)w.innerHTML='<video src="'+S.blobUrl+'" controls playsinline loop muted autoplay style="width:100%;aspect-ratio:'+(c.fmt==="s"?"1/1":"16/9")+';border-radius:14px;background:#000;object-fit:cover"></video>'}
   else if(S.blobUrl){$("#dnPh").innerHTML='<video src="'+S.blobUrl+'" controls playsinline loop muted autoplay style="width:100%;height:100%;object-fit:cover;background:#000"></video>'}else doneP=Player($("#dnPh"),mkPhotos(c.n>8?8:c.n),2.4).start();
   $("#dl").onclick=()=>{if(!S.blobUrl){toast("Ta vidéo n'est plus en mémoire : relance le montage depuis Mes vidéos.");return}track("download");const a=document.createElement("a");a.href=S.blobUrl;a.download="cliploc-"+c.listing+"-"+c.dur+"s.mp4";document.body.appendChild(a);a.click();a.remove()};
-  $("#shr").onclick=()=>toast("Maquette : lien de partage à venir.");
-  $$("#st button").forEach(b=>b.onclick=()=>{stars=+b.dataset.n;$$("#st button").forEach((x,i)=>x.classList.toggle("on",i<stars))});
-  $("#rvB").onclick=()=>{if(!stars){toast("Choisis une note.");return}const l=LS.get("vt_reviews_pending",[]);l.push({stars:stars,text:$("#rvT").value.slice(0,500),at:Date.now()});LS.set("vt_reviews_pending",l);track("review",{stars:stars});toast("Merci ! Ton avis sera publié après vérification.")};
+  $("#shr").onclick=async()=>{if(!S.blob){toast("Ta vidéo n'est plus en mémoire : relance le montage depuis Mes vidéos.");return}
+    try{const f=new File([S.blob],"video-cliploc.mp4",{type:"video/mp4"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Ma vidéo Cliploc"});track("share");return}}catch(e){if(e&&e.name==="AbortError")return}
+    toast("L'envoi direct n'est pas disponible ici : télécharge la vidéo, puis envoie-la par WhatsApp, SMS ou email.")};
+  rvBind($("#doneCard .rvw"));
   msgBuilder($("#mbBox"));
   const bg=$("#balGo");if(bg)bg.onclick=()=>go("dash");
   const np=$("#nxPk");if(np)np.onclick=()=>{track("next_pack");prGo("packs")};
@@ -581,6 +582,13 @@ function buyEbook(){
 }
 
 /* ---------- 8. mes vidéos ---------- */
+function rvHtml(){return '<p class="kk">TON AVIS</p><b>Tu es satisfait du résultat ?</b><div class="stars rvs">'+[1,2,3,4,5].map(n=>'<button type="button" data-n="'+n+'" aria-label="'+n+' étoiles">★</button>').join("")+'</div><input class="inp rvn" maxlength="40" autocomplete="given-name" placeholder="Ton prénom et l\'initiale de ton nom (ex. Julie M.)"><textarea class="inp rvt" maxlength="500" placeholder="Ton avis, en quelques phrases (20 caractères minimum)"></textarea><p class="mut sm" style="margin:2px 0 10px">Ton avis est affiché avec ce nom après vérification. Seuls les clients qui ont terminé une vidéo peuvent en laisser un.</p><button type="button" class="btn gh big rvb" style="height:50px">Envoyer mon avis</button>'}
+function rvBind(root){if(!root)return;let stars=0;const q=s=>root.querySelector(s);
+  $$(".rvs button",root).forEach(b=>b.onclick=()=>{stars=+b.dataset.n;$$(".rvs button",root).forEach((x,i)=>x.classList.toggle("on",i<stars))});
+  q(".rvb").onclick=async()=>{const b=q(".rvb"),n=q(".rvn").value.trim(),t=q(".rvt").value.trim();
+    if(!stars){toast("Choisis une note.");return}if(n.length<2){toast("Indique ton prénom.");return}if(t.length<20){toast("Ton avis doit faire au moins 20 caractères.");return}
+    b.disabled=true;const r=await CL.submitReview(stars,t,n);b.disabled=false;if(!r.ok){toast(r.error);return}
+    track("review",{stars:stars});root.innerHTML='<p class="kk">TON AVIS</p><b>Merci !</b><p class="mut sm" style="margin-top:6px">Ton avis sera publié après vérification.</p>'}}
 function renderDash0(){
   if(!S.user){go("auth");return}
   const v=S.videos,c=S.credits,tot=Math.max(S.credTotal,c),pct=tot?Math.round(c/tot*100):0;
@@ -603,7 +611,7 @@ function renderDash0(){
   const sc=$("#subC");if(sc)sc.onclick=async()=>{sc.disabled=true;sc.textContent="Ouverture…";await openPortal("cancel");sc.disabled=false;sc.textContent="Résilier mon abonnement"};
 }
 
-function renderDash(){renderDash0();if(S.user&&S.ebook)$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd" style="margin-top:14px"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" data-v="dl">Télécharger</button></div></div>')}
+function renderDash(){renderDash0();if(S.user&&S.videos.length){$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd rvw" style="margin-top:14px">'+rvHtml()+'</div>');rvBind($("#dashBox .rvw"))}if(S.user&&S.ebook)$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd" style="margin-top:14px"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" data-v="dl">Télécharger</button></div></div>')}
 
 /* ---------- tarifs ---------- */
 function planCard(p){
@@ -696,7 +704,7 @@ function faq(){$$("#fqBox,#fqBox2").forEach(box=>{box.innerHTML=FAQ.map(f=>'<div
 /* Avis : n'affiche QUE de vrais avis de clients. Tant que la liste est vide, on montre les engagements. */
 const AVIS=[];
 function trustBox(){
-  if(AVIS.length){$("#trK").textContent="Avis clients";$("#trH").textContent="Ils ont créé leur vidéo";$("#trBox").innerHTML='<div class="avs">'+AVIS.map(a=>'<div class="rv"><b class="s">'+"★".repeat(a.stars)+'</b><p style="margin:8px 0 10px">'+a.text+'</p><span class="mut sm">'+a.name+'</span></div>').join("")+'</div>';return}
+  if(AVIS.length){$("#trK").textContent="Avis clients";$("#trH").textContent="Ils ont créé leur vidéo";$("#trBox").innerHTML='<div class="avs">'+AVIS.map(a=>'<div class="rv"><b class="s">'+"★".repeat(Math.max(1,Math.min(5,+a.stars||5)))+'</b><p style="margin:8px 0 10px">'+esc(a.text)+'</p><span class="mut sm">'+esc(a.name)+' · client vérifié</span></div>').join("")+'</div>';return}
   $("#trBox").innerHTML='<div class="trg">'+[["🔒","Paiement sécurisé","Réglé via Stripe. Tes données de carte ne passent jamais par nous."],["🎬","Sans filigrane","La vidéo livrée est propre, prête à être publiée."],["💶","Prix affiché = prix payé","Tu vois le prix avant de payer, TTC, sans frais cachés."],["🗑","Tes photos, ton contrôle","Suppression des photos après le montage et sur simple demande."]].map(x=>'<div class="trust"><i>'+x[0]+'</i><div><b>'+x[1]+'</b><span>'+x[2]+'</span></div></div>').join("")+'</div>';
 }
 if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("v");io.unobserve(e.target)}}),{threshold:.1});$$(".vis").forEach(el=>io.observe(el))}else{$$(".vis").forEach(el=>el.classList.add("v"))}
@@ -719,7 +727,7 @@ CL.restore().catch(()=>false).then(()=>{const ss=CL.session();if(ss){S.user={ema
   const q=new URLSearchParams(location.search),pd=q.get("paid")==="1",pc=q.get("pay")==="cancel";
   if(pd||pc){try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}afterPay(pd)}});
 CL.flags().then(f=>{S.flags=f;const cs=document.body.dataset.s;renderPlans($("#plHome"));homeAi();if(cs==="cfg")renderCfg();if(cs==="pr")renderPr()}).catch(()=>{});
-faq();trustBox();loadReal();renderPlans($("#plHome"));homeStyles();homeAi();hdr();nav();stkRot();
+faq();trustBox();loadReal();renderPlans($("#plHome"));homeStyles();homeAi();hdr();nav();stkRot();CL.reviews().then(l=>{if(l.length){AVIS.length=0;l.forEach(x=>AVIS.push(x));trustBox()}}).catch(()=>{});
 const h0=(location.hash||"#lp").slice(1);go(h0==="lp"||SCR.indexOf(h0)<0?"lp":(NEED[h0]?"lp":h0),{nopush:true});
 track("view_lp");
 })();
