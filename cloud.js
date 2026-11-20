@@ -172,10 +172,21 @@
     let j = null; try { j = await r.json() } catch (e) {}
     if (!r.ok) {
       const e = j && j.error;
-      throw new Error(e === "payments_unavailable" ? "Le paiement en ligne n'est pas encore ouvert." : e === "already_owned" ? "Tu as déjà la formation Airbnb." : e === "already_subscribed" ? "Tu as déjà cet abonnement." : "Le paiement n'a pas pu démarrer. Réessaie dans un instant.");
+      throw new Error(e === "payments_unavailable" ? "Le paiement en ligne n'est pas encore ouvert." : e === "already_owned" ? "Tu as déjà la formation Airbnb." : e === "already_subscribed" ? "Tu as déjà un abonnement actif. Pour en changer, résilie-le d'abord depuis Mon compte." : "Le paiement n'a pas pu démarrer. Réessaie dans un instant.");
     }
     return j;
   }
 
-  window.CL = { checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
+  /* Portail Stripe : résilier, changer de carte, factures. */
+  async function portal() {
+    const t = await token(); if (!t) throw new Error("Ta session a expiré. Reconnecte-toi.");
+    let r; try { r = await fetch(URL_ + "/functions/v1/customer-portal", { method: "POST", headers: hdr(t), body: "{}", cache: "no-store" }) }
+    catch (e) { throw new Error("Pas de connexion. Réessaie dans un instant.") }
+    let j = null; try { j = await r.json() } catch (e) {}
+    if (!r.ok || !j || typeof j.url !== "string" || !/^https:\/\/billing\.stripe\.com\//.test(j.url))
+      throw new Error(j && j.error === "no_customer" ? "Aucun abonnement trouvé sur ce compte." : "La gestion de l'abonnement n'a pas pu s'ouvrir. Réessaie dans un instant ou écris-nous.");
+    return j.url;
+  }
+
+  window.CL = { portal, checkout, session: () => sess, restore: fromHash, signUp, signIn, signOut, profile, ledger, flags, sweep, startJob, finishJob, aiClips };
 })();
