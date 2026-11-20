@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#07060C">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#07060C;--cd:#110F1C;--cd2:#181526;--ln:rgba(255,255,255,.08);--ink:#f2f5f0;--mut:#9aa59c;--g:#FF6A5E;--v:#14B8A6;--y:#F4C542;color-scheme:dark;box-sizing:border-box}
 *,*::before,*::after{box-sizing:inherit}
@@ -164,6 +164,11 @@ footer nav button{background:none;border:0;color:var(--mut);padding:0}
 .tile .tg{order:2;margin-top:6px;background:#F59E0B;color:#07060C;border-radius:999px;font:800 .62rem "JetBrains Mono",monospace;padding:2px 8px}
 .row3{display:grid;gap:10px;margin-top:14px}
 .row3 label{font:700 .72rem "JetBrains Mono",monospace;color:var(--mut);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px}
+.sty label{display:block;font-weight:700;font-size:.85rem;margin-bottom:8px}.stg{display:grid;gap:8px}.stg.m{grid-template-columns:1fr 1fr}.stg.c{grid-template-columns:repeat(3,1fr)}
+.stg button{position:relative;text-align:left;background:var(--cd);border:2px solid var(--ln);border-radius:14px;padding:12px;color:var(--ink);display:flex;flex-direction:column;gap:3px}.stg button.on{border-color:var(--g);box-shadow:0 0 0 3px rgba(255,56,92,.14)}
+.stg.m b{font-size:.95rem}.stg.m span{font-size:.78rem;color:var(--mut);line-height:1.35;font-weight:500}
+.stg.c button{padding:6px 6px 9px;align-items:stretch;gap:6px}.stg.c b{font-size:.78rem;text-align:center}
+.th{display:block;position:relative;overflow:hidden;aspect-ratio:4/3;border-radius:9px;background-size:cover;background-position:center}.th .b{position:absolute;inset:0}
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;background:#0D0B17;border:1px solid var(--ln);border-radius:16px;padding:5px}
 .seg button{border:0;background:none;border-radius:12px;padding:11px 6px;font-weight:800;font-size:.86rem;color:var(--mut)}.seg button.on{background:var(--g);color:#fff}
 .inp{width:100%;background:#0D0B17;border:1px solid var(--ln);border-radius:14px;color:var(--ink);font:inherit;padding:15px 16px}
@@ -331,6 +336,137 @@ body[data-s=an] .tabs,body[data-s=cfg] .tabs,body[data-s=mk] .tabs,body[data-s=g
 body[data-s=an] .bf,body[data-s=cfg] .bf,body[data-s=mk] .bf{display:none!important}
 .seg button small{display:block;font-weight:600;font-size:.68rem;opacity:.85;margin-top:2px}
 .pcfg{margin:14px 0 6px}
+
+/* ================= Thème clair, inspiré d'Airbnb ================= */
+:root{--bg:#FFFFFF;--cd:#FFFFFF;--cd2:#F7F7F7;--ln:#DDDDDD;--ink:#222222;--mut:#6A6A6A;--g:#FF385C;--v:#00A699;--y:#B45309;color-scheme:light;--sh:0 1px 2px rgba(0,0,0,.06),0 6px 20px rgba(0,0,0,.07)}
+body{background:#fff;color:var(--ink);font:500 16px/1.55 "Plus Jakarta Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.dsp{font-family:"Plus Jakarta Sans",system-ui,sans-serif;font-weight:800;text-transform:none;letter-spacing:-.025em;line-height:1.12}
+h2{font-size:clamp(1.7rem,6vw,2.4rem)}h3{font-size:1.15rem}
+.mono,.kk,.chip,.bd2,.tile .pc,.tile .tg,.row3 label,.cta .pz small,.dt span,.cons,.vm,.stk,.tb em,.bf .cdn{font-family:"Plus Jakarta Sans",system-ui,sans-serif!important;letter-spacing:0!important}
+.kk{font-size:.82rem;font-weight:800;text-transform:lowercase;color:var(--g)}
+.kk::first-letter,.kk:first-line{text-transform:none}
+.kk{text-transform:none}
+.chip{background:#F7F7F7;border:1px solid #DDD;color:#222;font-weight:700;font-size:.8rem;padding:7px 14px}
+.chip.y{color:#92400e;border-color:#F3D9A6;background:#FFF7E6}
+.row3 label{text-transform:none;font-size:.85rem;color:var(--ink)}
+.btn{border-radius:12px;box-shadow:none;background:var(--g);transition:background .15s,transform .1s}
+.btn:hover{background:#E00B41}
+.btn.gh{background:#fff;color:#222;border:1px solid #222}
+.btn.gh:hover{background:#F7F7F7}
+.btn.wh{background:#fff;color:#222;border:1px solid #DDD}
+.lk{color:#222}
+/* bandeau + en-tête */
+.bf{background:#222;color:#fff;font-weight:700}
+.bf b{font-family:"Plus Jakarta Sans",sans-serif;letter-spacing:0;text-transform:none;font-size:.9rem}
+.bf .cdn{background:rgba(255,255,255,.16)}
+.hd{background:rgba(255,255,255,.94);border-bottom:1px solid #EBEBEB}
+.logo{font:800 1.55rem "Plus Jakarta Sans",sans-serif;letter-spacing:-.04em;text-transform:lowercase;color:var(--g)}
+.logo i{width:auto;height:auto;border-radius:0;background:none;box-shadow:none;display:none}
+.nv button{color:#222}.nv button:hover{color:#222;background:#F7F7F7}
+.tabs{background:rgba(255,255,255,.96);border-bottom:1px solid #EBEBEB}
+.tb{color:#6A6A6A}.tb.on{color:#222;background:#F7F7F7;border-color:#222}
+.tb em{background:var(--g);color:#fff}
+/* hero */
+.hero{background:#fff;padding:34px 0 40px}
+.wmk{display:none}
+.hero h1{font-size:clamp(2.2rem,9vw,3.6rem);margin:12px 0 14px}
+.lead{color:#484848}
+.bar{background:#fff;border:1px solid #DDD;box-shadow:0 3px 14px rgba(0,0,0,.1);border-radius:999px}
+.bar:focus-within{border-color:#222;box-shadow:0 3px 14px rgba(0,0,0,.14)}
+.bar input::placeholder{color:#8a8a8a}
+.bar .btn{border-radius:999px}
+.emsg{color:#C13515}
+@media(max-width:560px){.bar{border-radius:24px}.bar .btn{border-radius:14px}}
+.ph{border:7px solid #222;background:#111;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.ph .nt{background:#222}
+.stk{background:#fff;border:1px solid #EBEBEB;box-shadow:0 8px 24px rgba(0,0,0,.14);color:#222;font-weight:700;font-size:.78rem}
+.stk.b{border-color:#EBEBEB}
+/* sections et cartes */
+.sec{padding:44px 0}
+.hrow p{color:#6A6A6A}
+.cd,.crd,.plan,.msg,.trust,.rv,.fq,.vi,.gc,.md .box{background:#fff;border:1px solid #EBEBEB;box-shadow:var(--sh);border-radius:20px}
+.cd .nm{font:800 2.2rem/1 "Plus Jakarta Sans",sans-serif;color:var(--g);opacity:1;letter-spacing:-.03em}
+.cd p{color:#6A6A6A}
+.mod{background:#F7F7F7;border:1px solid #EBEBEB;border-radius:24px}
+.mod::after{display:none}
+.mod li{color:#222}
+.mod li::before{color:#fff}
+.msg pre{color:#484848}
+.trust i{background:var(--g)}
+.rv b.s{color:#E8A400}
+.plan.hot{border:2px solid #222;box-shadow:var(--sh)}
+.plan .pr{font:800 2rem/1.1 "Plus Jakarta Sans",sans-serif;color:#222;letter-spacing:-.03em}
+.plan ul{color:#484848}
+.bd2{background:#E6F6F4;color:#00796B}.hot .bd2{background:var(--g);color:#fff}
+.fq>button{font:700 1.02rem "Plus Jakarta Sans",sans-serif;text-transform:none;letter-spacing:0}
+.legal{border:1px solid #F3D9A6;background:#FFF7E6;color:#7a5200}
+.fin{background:#F7F7F7}
+footer{background:#F7F7F7;border-top:1px solid #EBEBEB}
+/* entonnoir */
+.fnw{padding-top:18px}
+.dt i{background:#DDD}.dt i.on{background:var(--g)}
+.pb{background:#EBEBEB}
+.tile{background:#fff;border:1px solid #DDD;border-radius:16px}
+.tile.on{border:2px solid #222;background:#fff;box-shadow:0 0 0 1px #222 inset}
+.tile u{border:2px solid #DDD;color:transparent}.tile.on u{background:#222;border-color:#222;color:#fff}
+.tile .big{font:800 2rem/1 "Plus Jakarta Sans",sans-serif;letter-spacing:-.03em}
+.tile .pc b{color:#B4234F}
+.tile .tg{background:var(--g);color:#fff}
+.seg{background:#F2F2F2;border:0;border-radius:12px}
+.seg button{color:#484848}.seg button.on{background:#fff;color:#222;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.inp{background:#fff;border:1px solid #B0B0B0;border-radius:12px}.inp:focus{outline:2px solid #222;border-color:#222}
+.phb{background:#F7F7F7;border:1px dashed #B0B0B0}
+.sw{background:#B0B0B0}
+.cta{background:rgba(255,255,255,.96);border-top:1px solid #EBEBEB}
+.cta .pz b{font:800 1.5rem "Plus Jakarta Sans",sans-serif;color:#222}
+.cta .pz small{color:#6A6A6A;font-size:.74rem;font-weight:600}
+.stg button{background:#fff;border:1px solid #DDD;border-radius:14px}
+.stg button.on{border:2px solid #222;box-shadow:none}
+/* animations d'analyse et de montage */
+.rd{border:2px solid rgba(255,56,92,.4);background:repeating-radial-gradient(circle,transparent 0 30px,rgba(255,56,92,.1) 31px 32px)}
+.rd::after{background:conic-gradient(rgba(255,56,92,.45),transparent 28%)}
+.rd .pt{border:2px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.rg{font:800 clamp(1.3rem,5.4vw,2rem)/1.15 "Plus Jakarta Sans",sans-serif;text-transform:none;color:#222;letter-spacing:-.02em}
+.cons{background:#F7F7F7;border:1px solid #EBEBEB;color:#6A6A6A;font-size:.86rem;line-height:1.8;font-weight:600}
+.cons .ok{color:#00796B}.cons .cur{color:#222}
+.fs div{border:1px solid #DDD}.fs div.on{border-color:#222}
+.phd{background:#EBEBEB}
+.pcnt{font:800 3.2rem/1 "Plus Jakarta Sans",sans-serif;letter-spacing:-.04em}
+.rng .pc2{font:800 2rem "Plus Jakarta Sans",sans-serif}
+.rng circle:first-child{stroke:#EBEBEB}
+.stl .ic{border:2px solid #B0B0B0}
+/* porte et paiement */
+.gb{filter:blur(8px) saturate(1.1);opacity:.55}
+.gate{background:rgba(255,255,255,.92);border:1px solid #EBEBEB;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.ck{color:#6A6A6A}
+.errm{color:#C13515}
+.opt{background:#fff;border:1px solid #DDD;border-radius:16px}
+.opt.on{border:2px solid #222;background:#fff}
+.opt .pp{font:800 1.3rem "Plus Jakarta Sans",sans-serif;letter-spacing:-.02em}
+.sumr{border-bottom:1px solid #EBEBEB}
+.stars button{color:#DDD}.stars button.on{color:#E8A400}
+.md{background:rgba(0,0,0,.5)}
+.toast{background:#222;color:#fff}
+.sl::after{background:radial-gradient(120% 85% at 50% 42%,transparent 55%,rgba(24,14,6,.28))}
+.rd{width:84px;height:84px;margin:26px auto;border:6px solid #EBEBEB;border-top-color:var(--g);background:none;animation:sp .9s linear infinite}
+.rd::after,.rd .pt{display:none}
+.phb small{display:block;margin-top:2px}
+.found{background:#F7F7F7;border:1px solid #EBEBEB;border-radius:14px;padding:12px 14px;margin:14px 0 6px;color:#222}
+.gw{grid-template-columns:minmax(0,1fr)}.gate{min-width:0;width:min(470px,100%);justify-self:center}.gprev h2{font-size:clamp(1.5rem,6.2vw,2rem)}
+code{font-family:inherit;color:#00796B;background:none;font-weight:700}
+.cover{background:#fff!important;border:1px solid #EBEBEB;box-shadow:0 16px 40px rgba(0,0,0,.16)}
+.cover i{color:#6A6A6A!important;font-family:"Plus Jakarta Sans",sans-serif!important}.cover strong{color:#222!important;font-family:"Plus Jakarta Sans",sans-serif!important;text-transform:none!important;letter-spacing:-.02em}.cover strong span{color:var(--g)!important}.cover small{color:#6A6A6A!important}
+.found p b{color:#222}
+.buy{background:#F7F7F7;border:1px solid #EBEBEB;border-radius:20px}
+.buy .pz b{font:800 2.2rem "Plus Jakarta Sans",sans-serif;color:#222;letter-spacing:-.03em}
+.buy ul{color:#484848}
+.ch b.n{background:#FFE8EC;color:var(--g);font-family:"Plus Jakarta Sans",sans-serif}
+.hlp{background:#E6F6F4;border:1px solid #BFE6E1}
+.hlp code{color:#00796B;font-family:"Plus Jakarta Sans",sans-serif;font-weight:600}
+.gate{background:#fff!important}
+.gl{color:#484848}.gl li{color:#484848}
+.gate .mut,.gate p{color:#484848}
+@media(prefers-reduced-motion:no-preference){.btn:active{transform:scale(.98)}}
 </style>
 </head>
 <body>
@@ -357,7 +493,7 @@ body[data-s=an] .bf,body[data-s=cfg] .bf,body[data-s=mk] .bf{display:none!import
       <div>
         <p class="kk">Annonce Airbnb → vidéo</p>
         <h1>Ton annonce Airbnb, <span>en vidéo.</span></h1>
-        <p class="lead">Colle le lien. On récupère les photos, on monte une vidéo verticale avec des mouvements et des transitions. Tu choisis la durée, la qualité et le format.</p>
+        <p class="lead">Colle le lien de l'annonce, ajoute les photos du logement et choisis ton style : drone, cinéma, couleurs, format. La vidéo est montée directement sur ton téléphone.</p>
         <div class="finder">
           <div class="bar" id="bar" role="search">
             <label class="fl">
@@ -371,12 +507,12 @@ body[data-s=an] .bf,body[data-s=cfg] .bf,body[data-s=mk] .bf{display:none!import
           <div class="emsg" id="emsg" aria-live="polite"></div>
           <p class="ex">Pas de lien sous la main ? <button class="lk" onclick="V.demo()">Essayer avec un exemple</button></p>
         </div>
-        <div class="chips"><span class="chip">15 À 60 SECONDES</span><span class="chip">NETTETÉ HD À 4K</span><span class="chip y">SANS FILIGRANE</span></div>
+        <div class="chips"><span class="chip">15 à 60 secondes</span><span class="chip">Nette, de la HD à la 4K</span><span class="chip y">Sans filigrane</span></div>
       </div>
       <div class="phw">
-        <div class="stk a">📱 INSTAGRAM · TIKTOK</div>
+        <div class="stk a">Instagram · TikTok</div>
         <div class="ph"><div id="heroPh" style="position:absolute;inset:0"></div><div class="nt"></div></div>
-        <div class="stk b">✨ STYLE REEL</div>
+        <div class="stk b">Style reel</div>
       </div>
     </div>
   </div>
@@ -384,8 +520,8 @@ body[data-s=an] .bf,body[data-s=cfg] .bf,body[data-s=mk] .bf{display:none!import
   <div class="sec" id="how"><div class="w">
     <div class="hrow vis"><p class="kk">Comment ça marche</p><h2>3 gestes, une vidéo</h2><p>Pas de logiciel de montage, pas de compétences. Tout part d'un lien.</p></div>
     <div class="stp">
-      <div class="cd vis"><div class="nm">1</div><h3>Colle le lien</h3><p>Copie l'adresse de l'annonce Airbnb, colle-la dans la barre. On récupère les photos.</p></div>
-      <div class="cd vis"><div class="nm">2</div><h3>Choisis durée et qualité</h3><p>De 15 à 60 secondes, de la HD à la 4K, avec le format de ton choix (vertical, carré ou large).</p></div>
+      <div class="cd vis"><div class="nm">1</div><h3>Colle le lien</h3><p>Copie l'adresse de l'annonce Airbnb, colle-la dans la barre, puis ajoute les photos du logement.</p></div>
+      <div class="cd vis"><div class="nm">2</div><h3>Choisis ton style</h3><p>Durée de 15 à 60 secondes, qualité HD à 4K, mouvement (dynamique, drone, cinéma), couleurs et format.</p></div>
       <div class="cd vis"><div class="nm">3</div><h3>Reçois ta vidéo</h3><p>Le montage est lancé après ton paiement. Tu télécharges le fichier, sans filigrane.</p></div>
     </div>
   </div></div>
@@ -462,7 +598,7 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
 <section class="scr" id="eb" hidden>
   <div class="w" style="padding-bottom:60px">
     <div class="ebh">
-      <div class="cover"><i>GUIDE PDF</i><strong>Vends des <span>vidéos</span> aux hôtes Airbnb</strong><small>Par Cliploc · 8 chapitres</small></div>
+      <div class="cover"><i>Guide PDF</i><strong>Vends des <span>vidéos</span> aux hôtes Airbnb</strong><small>Par Cliploc · 14 chapitres</small></div>
       <div>
         <p class="kk">Formation Airbnb</p>
         <h1 class="dsp" style="font-size:clamp(2rem,6.4vw,3.4rem);line-height:1.02;margin:0">Apprends à proposer des vidéos d'annonces</h1>
@@ -470,7 +606,7 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
         <div class="buy" id="ebBuy"></div>
       </div>
     </div>
-    <div class="hrow"><p class="kk">Au programme</p><h2>8 chapitres, du premier message à la livraison</h2></div>
+    <div class="hrow"><p class="kk">Au programme</p><h2>14 chapitres, du premier message à la livraison</h2></div>
     <div class="chs" id="chBox"></div>
     <div class="opx" style="margin-top:30px">
       <div class="cd"><h3>Pour qui ?</h3><p>Freelances, conciergeries, photographes, community managers qui veulent ajouter la vidéo à leur offre.</p></div>
@@ -623,6 +759,15 @@ const SC=[
 ];
 let _u=0;
 const scn=i=>{const s=SC[i%SC.length],k="g"+(++_u);return '<div class="b" style="background:'+s.bg+'"><svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+s.s.replace(/@@/g,k)+'</svg></div>'};
+/* ---------- styles de montage ---------- */
+const MOT=[["dynamic","Dynamique","Rythmé, comme un reel : plans courts et transitions vives."],["drone","Drone","Montées, reculs qui révèlent la pièce et survols inclinés."],["cinema","Cinéma","Lent et élégant, fondus enchaînés et bords assombris."],["tour","Visite","Calme et fluide, pour bien montrer chaque pièce."]];
+const COL=[["natural","Naturel","contrast(1.03) saturate(1.05)"],["warm","Chaleureux","sepia(.2) saturate(1.2) hue-rotate(-6deg)"],["fresh","Frais","hue-rotate(8deg) saturate(1.05) brightness(1.04)"],["cinema","Cinéma","contrast(1.16) saturate(.95)"],["vivid","Vif","saturate(1.45) contrast(1.08)"],["mono","Noir et blanc","grayscale(1) contrast(1.12)"]];
+function thumbHtml(f){const st=f?' style="filter:'+f+'"':"";
+  if(S.files.length){if(!S.thumb||S.thumbN!==S.files[0]){if(S.thumb)URL.revokeObjectURL(S.thumb);S.thumb=URL.createObjectURL(S.files[0]);S.thumbN=S.files[0]}return '<i class="th"'+(f?' style="filter:'+f+';':' style="')+'background-image:url('+S.thumb+')"></i>'}
+  return '<i class="th"'+st+'>'+scn(1)+'</i>'}
+function styleBox(){
+  return '<div class="sty"><label>Mouvement de caméra</label><div class="stg m" id="stM">'+MOT.map(m=>'<button type="button" data-m="'+m[0]+'" class="'+(S.motion===m[0]?"on":"")+'"><b>'+m[1]+'</b><span>'+m[2]+'</span></button>').join("")+'</div>'+
+  '<label style="margin-top:18px">Couleurs</label><div class="stg c" id="stC">'+COL.map(c=>'<button type="button" data-c="'+c[0]+'" class="'+(S.grade===c[0]?"on":"")+'">'+thumbHtml(c[2])+'<b>'+c[1]+'</b></button>').join("")+'</div></div>'}
 /* ---------- montage réel (navigateur) ---------- */
 let _rm=null;const rmod=()=>_rm||(_rm=import("./render.js"));
 function sceneBlob(i){return new Promise((ok,ko)=>{const sc=SC[i%SC.length];
@@ -659,7 +804,7 @@ const SCAP=["Le séjour","Piscine privée","La chambre","La cuisine","Vue dégag
 const mkPhotos=n=>Array.from({length:n},(_,k)=>{const q=[1,0,2,3,4,5][k%6];return{s:q,c:SCAP[q]}});
 
 /* ---------- état ---------- */
-const S={files:[],rights:false,blobUrl:"",url:"",id:"",n:12,dur:30,q:"fhd",fmt:"v",music:"Chill estival",lang:"Français",caps:true,plan:"unit",cs:0,
+const S={motion:"dynamic",grade:"natural",thumb:"",files:[],rights:false,blobUrl:"",url:"",id:"",n:12,dur:30,q:"fhd",fmt:"v",music:"Chill estival",lang:"Français",caps:true,plan:"unit",cs:0,
   user:LS.get("vt_user",null),videos:LS.get("vt_videos",[]),credits:LS.get("vt_credits",0),sub:LS.get("vt_sub",false)};
 const save=()=>{LS.set("vt_user",S.user);LS.set("vt_videos",S.videos);LS.set("vt_credits",S.credits);LS.set("vt_sub",S.sub);LS.set("vt_ledger",S.ledger.slice(-60));LS.set("vt_ctot",S.credTotal);LS.set("vt_renew",S.renew);try{hdr()}catch(e){}};
 const base=()=>DUR.find(d=>d.s===S.dur).p+QUA.find(q=>q.k===S.q).x;
@@ -740,15 +885,15 @@ function demo(){const i=$("#url");i.value="https://www.airbnb.fr/rooms/123456789
 function runAn(){
   track("analysis_start");
   const rd=$("#rd");rd.innerHTML="";const rg=$("#rg"),cons=$("#cons");cons.innerHTML="";
-  const lines=[["> ouverture de l'annonce "+S.id,"ok"],["> annonce trouvée","ok"],["> "+S.n+" photos récupérées","ok"],["> tri des photos","ok"],["> choix du rythme","cur"]];
-  const stages=["Lecture de l'annonce",S.n+" photos trouvées","Tri des photos","Choix du rythme"];
+  const lines=[["ouverture de l'annonce "+S.id,"ok"],["annonce reconnue","ok"],["préparation du montage","ok"],["réglage du rythme","cur"]];
+  const stages=["Lecture de l'annonce","Annonce reconnue","Préparation du montage","Réglage du rythme"];
   const pos=[[8,38],[70,14],[78,60],[44,78],[14,70],[56,40],[30,12]];
   stages.forEach((s,k)=>{later(()=>{rg.textContent=s;const d=document.createElement("div");d.className=lines[k][1]==="cur"?"":"ok";d.textContent=lines[k][0]+(k<3?" ✓":"");cons.appendChild(d);cons.scrollTop=1e4;
     if(k>=1)pos.slice((k-1)*2,(k-1)*2+3).forEach((p,j)=>later(()=>{const el=document.createElement("div");el.className="pt";el.style.cssText="left:"+p[0]+"%;top:"+p[1]+"%;background:"+SC[(k+j)%6].bg;rd.appendChild(el)},j*140))},k*1150)});
   later(()=>{track("analysis_done");go("cfg")},4900);
 }
 
-function foundHtml(){return '<div class="found"><div class="fth">'+[1,0,2,3,4].map(i=>'<div class="ft">'+scn(i)+'</div>').join("")+'</div><p><b>✓ '+S.n+' photos trouvées</b><br><span class="mut">Prêtes pour le montage.</span></p></div>'}
+function foundHtml(){return '<div class="found"><p><b>✓ Annonce reconnue</b><br><span class="mut">À l\'étape suivante, tu ajoutes les photos du logement.</span></p></div>'}
 function gateBullets(){return '<ul class="gl"><li>Sans filigrane, prête à publier</li><li>Tu ne paies qu\'après avoir vérifié ton récapitulatif</li><li>Remboursé automatiquement si le montage échoue</li></ul>'}
 function payExtras(opts){
   const u=opts.find(o=>o.k==="unit"),pk=opts.find(o=>o.k==="pack");let h="";
@@ -793,8 +938,8 @@ function renderCfg(){
     h+='<p class="kk">QUALITÉ</p><h2>Quelle qualité d\'image ?</h2><p class="sub">Tu pourras télécharger la vidéo en MP4.</p><div class="gd c3" id="gd">'+
     QUA.map(q=>'<button class="tile'+(q.k===S.q?" on":"")+'" data-q="'+q.k+'" style="min-height:104px"><u>✓</u><span class="big" style="font-size:1.8rem">'+q.l+'<small>'+q.r+'</small></span><span class="ds">'+q.d+'</span>'+(q.tg?'<span class="tg">'+q.tg+'</span>':'')+'</button>').join("")+'</div>';
   }else{
-    h+='<p class="kk">STYLE</p><h2>Dernier réglage</h2><p class="sub">Tu pourras tout retoucher après le montage.</p>'+
-    '<div><label>Format</label><div class="seg" id="sgF"><button data-f="v" class="'+(S.fmt==="v"?"on":"")+'">Vertical · Reels, TikTok</button><button data-f="s" class="'+(S.fmt==="s"?"on":"")+'">Carré · Instagram</button><button data-f="h" class="'+(S.fmt==="h"?"on":"")+'">Large · YouTube</button></div></div><p class="mut" style="font-size:.86rem;margin-top:12px">La vidéo remplit tout l\'écran dans le format choisi, sans bande noire. Les photos sont recadrées au centre.</p>';
+    h+='<p class="kk">STYLE</p><h2>Style de ta vidéo</h2><p class="sub">Choisis le mouvement et les couleurs. Tu verras le résultat dans ta vidéo finale.</p>'+
+    styleBox()+'<div style="margin-top:18px"><label>Format</label><div class="seg" id="sgF"><button data-f="v" class="'+(S.fmt==="v"?"on":"")+'">Vertical · Reels, TikTok</button><button data-f="s" class="'+(S.fmt==="s"?"on":"")+'">Carré · Instagram</button><button data-f="h" class="'+(S.fmt==="h"?"on":"")+'">Large · YouTube</button></div></div><p class="mut" style="font-size:.86rem;margin-top:12px">La vidéo remplit tout l\'écran dans le format choisi, sans bande noire. Les photos sont recadrées au centre.</p>';
   }
   if(step>0)h+='<p style="margin-top:12px"><button class="lk mut" id="cfgBack">← Retour</button></p>';
   $("#cfgCard").innerHTML=h;
@@ -802,6 +947,8 @@ function renderCfg(){
   $("#cfgNext").textContent=step<total-1?"Continuer":"Lancer le montage";
   $$("#gd .tile").forEach(t=>t.onclick=()=>{if(t.dataset.d){S.dur=+t.dataset.d;track("cfg_duration",{s:S.dur})}else{S.q=t.dataset.q;track("cfg_quality",{q:S.q})}renderCfg()});
   $$("#sgF button").forEach(b=>b.onclick=()=>{S.fmt=b.dataset.f;renderCfg()});
+  $$("#stM button").forEach(b=>b.onclick=()=>{S.motion=b.dataset.m;track("cfg_motion",{m:S.motion});renderCfg()});
+  $$("#stC button").forEach(b=>b.onclick=()=>{S.grade=b.dataset.c;track("cfg_grade",{c:S.grade});renderCfg()});
   const pi=$("#phIn");if(pi)pi.onchange=()=>{const a=[...pi.files].filter(f=>/^image\//.test(f.type)).slice(0,30);S.files=a;track("photos_added",{n:a.length});renderCfg()};
   const pr=$("#phRt");if(pr)pr.onchange=()=>{S.rights=pr.checked};
   const bk=$("#cfgBack");if(bk)bk.onclick=()=>{S.cs--;renderCfg();window.scrollTo(0,0)};
@@ -823,7 +970,7 @@ function runMk(){
 }
 
 /* ---------- 4. projet prêt (fond flouté) + compte ---------- */
-function recap(){const q=QUA.find(x=>x.k===S.q);return '<div class="rec"><span class="chip">'+S.n+' PHOTOS</span><span class="chip">'+S.dur+' S</span><span class="chip">'+q.l.toUpperCase()+' '+q.r+'</span><span class="chip">'+({v:"VERTICAL",s:"CARRÉ",h:"LARGE"}[S.fmt])+'</span><span class="chip y">SANS FILIGRANE</span></div>'}
+function recap(){const q=QUA.find(x=>x.k===S.q);return '<div class="rec"><span class="chip">'+(S.files.length?S.files.length+' photos':'Vidéo d\'exemple')+'</span><span class="chip">'+S.dur+' s</span><span class="chip">'+q.l+' '+q.r+'</span><span class="chip">'+({v:"Vertical",s:"Carré",h:"Large"}[S.fmt])+'</span><span class="chip y">Sans filigrane</span></div>'}
 function renderGate(){
   track("gate_view",{logged:!!S.user});
   if(gbP)gbP.stop();gbP=Player($("#gbPh"),mkPhotos(S.n>6?6:S.n),2,{ui:true}).start();
@@ -906,7 +1053,7 @@ function buy(k){
   const pl=PLANS.find(x=>x.k===k);if(!pl||!pl.p)return;
   if(!S.user){S.back=document.body.dataset.s;S.buyK=k;track("buy_login",{k:k});go("auth");return}
   track("buy_open",{k:k});
-  openMd('<p class="kk">PAIEMENT SIMULÉ</p><h2 style="margin-bottom:10px">'+pl.n+'</h2><p class="mut">'+(pl.m?"40 vidéos par mois, renouvelées chaque mois. Tu peux arrêter quand tu veux.":"10 vidéos à utiliser quand tu veux, sans abonnement.")+'</p><div class="rec" style="margin-top:14px"><span class="chip y">'+eur(sale(pl.p))+(pl.m?" PAR MOIS":"")+'</span><span class="chip">'+pl.c+' VIDÉOS</span></div><button class="btn big" id="mdOk">Simuler un paiement réussi</button><p class="lg"><button class="lk" onclick="V.closeMd()">Annuler</button></p>');
+  openMd('<p class="kk">PAIEMENT SIMULÉ</p><h2 style="margin-bottom:10px">'+pl.n+'</h2><p class="mut">'+(pl.m?"40 vidéos par mois, renouvelées chaque mois. Tu peux arrêter quand tu veux.":"10 vidéos à utiliser quand tu veux, sans abonnement.")+'</p><div class="rec" style="margin-top:14px"><span class="chip y">'+eur(sale(pl.p))+(pl.m?" par mois":"")+'</span><span class="chip">'+pl.c+' vidéos</span></div><button class="btn big" id="mdOk">Simuler un paiement réussi</button><p class="lg"><button class="lk" onclick="V.closeMd()">Annuler</button></p>');
   $("#mdOk").onclick=()=>{closeMd();addCredits(pl.c,pl.n);if(pl.m){S.sub=true;S.renew=Date.now()+RENEW}save();track("buy_success",{k:k});toast(pl.c+" vidéos ajoutées à ton compte.");go("dash")};
 }
 function finish(o){track("pay_success",{plan:o.k});S.cur={id:Date.now(),listing:S.id,dur:S.dur,q:S.q,fmt:S.fmt,n:S.n,date:new Date().toLocaleDateString("fr-FR"),caps:S.caps};go("rd2")}
@@ -923,7 +1070,7 @@ function runRd(){
       const M=await rmod(),cap=await M.canRender(S.q,S.fmt);
       if(!cap.ok)throw new Error(cap.reason);
       const ph=await realPhotos();
-      const blob=await M.renderVideo({photos:ph.list,seconds:S.dur,quality:S.q,fmt:S.fmt,onProgress:p=>{keep();set(p)}});
+      const blob=await M.renderVideo({photos:ph.list,seconds:S.dur,quality:S.q,fmt:S.fmt,motion:S.motion,grade:S.grade,onProgress:p=>{keep();set(p)}});
       if(cancelled)return;
       if(S.blobUrl)URL.revokeObjectURL(S.blobUrl);S.blobUrl=URL.createObjectURL(blob);S.blobSize=blob.size;S.cur.demo=ph.demo;
       li.forEach(e=>e.className="d");set(1);S.videos.unshift(S.cur);save();track("render_done",{demo:ph.demo,mb:Math.round(blob.size/1e5)/10});later(()=>go("done"),400)
