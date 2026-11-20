@@ -479,3 +479,13 @@ code{font-family:inherit;color:#00796B;background:none;font-weight:700}
 .aiband b{font-size:1rem}.aiband p{margin:6px 0 0;color:#6A6A6A;font-size:.9rem;max-width:620px;line-height:1.45}
 .aib{position:relative;text-align:left;width:100%;background:#fff;border:1px solid #DDD;border-radius:14px;padding:12px;color:#222;display:flex;flex-direction:column;gap:3px}
 .aib span{font-size:.78rem;color:#6A6A6A;line-height:1.35;font-weight:500}.aib.on{border:2px solid #222}.aib[disabled]{opacity:.65;cursor:not-allowed;background:#F7F7F7}
+
+/* Aperçu des plans IA à valider */
+.cpg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(min-width:720px){.cpg{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cpi{display:block;border:1px solid var(--ln);border-radius:14px;overflow:hidden;background:#fff;cursor:pointer}
+.cpi video{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#000}
+.cpi span{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:13px;font-weight:600}
+.cpi input{width:18px;height:18px;accent-color:#222}
+.cpi.off{border-style:dashed;cursor:default;opacity:.7;display:flex;align-items:center;justify-content:center;min-height:80px;text-align:center}
+.stl li.cpw{display:block;opacity:1;min-width:0;width:100%}

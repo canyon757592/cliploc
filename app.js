@@ -49,9 +49,11 @@ const COL=[["natural","Naturel","contrast(1.03) saturate(1.05)"],["warm","Chaleu
 function thumbHtml(f){const st=f?' style="filter:'+f+'"':"";
   if(S.files.length){if(!S.thumb||S.thumbN!==S.files[0]){if(S.thumb)URL.revokeObjectURL(S.thumb);S.thumb=URL.createObjectURL(S.files[0]);S.thumbN=S.files[0]}return '<i class="th"'+(f?' style="filter:'+f+';':' style="')+'background-image:url('+S.thumb+')"></i>'}
   return '<i class="th"'+st+'>'+scn(1)+'</i>'}
+const aiAvail=()=>!!(S.flags&&S.flags.ai===true);
 function aiBox(){
-  const c=S.dur/15*AIC;
-  return '<label style="margin-top:18px">Animation IA</label><button type="button" class="aib'+(S.ai?" on":"")+'" id="stAI"'+(AI_ON?'':' disabled')+'><b>Photos animées par IA</b>'+(AI_ON?lkb(MINAI):'<em class="lkb">Bientôt</em>')+'<span>Chaque photo devient un court plan animé. L\'IA ne fait que bouger la caméra, et tu valides l\'aperçu avant de payer. +'+c+' crédits pour '+S.dur+' s.</span></button>';
+  const c=S.dur/15*AIC,okp=S.files.length>=2,on=aiAvail()&&okp;
+  if(S.ai&&!on)S.ai=false;
+  return '<label style="margin-top:18px">Animation IA</label><button type="button" class="aib'+(S.ai?" on":"")+'" id="stAI"'+(on?'':' disabled')+'><b>Photos animées par IA</b>'+(!aiAvail()?'<em class="lkb">Bientôt</em>':(!okp?'<em class="lkb">Ajoute tes photos</em>':lkb(MINAI)))+'<span>Chaque photo devient un plan animé de 5 s. L\'IA ne fait que bouger la caméra. Tu valides les plans avant le montage final, et un plan raté est remboursé. +'+c+' crédits pour '+S.dur+' s.</span></button>';
 }
 function styleBox(){
   return '<div class="sty"><label>Mouvement de caméra</label><div class="stg m" id="stM">'+MOT.map(m=>'<button type="button" data-m="'+m[0]+'" class="'+(S.motion===m[0]?"on":"")+'"><b>'+m[1]+'</b>'+lkb(MINM[m[0]])+'<span>'+m[2]+'</span></button>').join("")+'</div>'+
@@ -93,16 +95,16 @@ const mkPhotos=n=>Array.from({length:n},(_,k)=>{const q=[1,0,2,3,4,5][k%6];retur
 
 /* ---------- état ---------- */
 const S={motion:"dynamic",grade:"natural",thumb:"",files:[],rights:false,blobUrl:"",url:"",id:"",n:12,dur:30,q:"fhd",fmt:"v",music:"Chill estival",lang:"Français",caps:true,plan:"unit",cs:0,
-  user:LS.get("vt_user",null),videos:LS.get("vt_videos",[]),credits:LS.get("vt_credits",0),sub:LS.get("vt_sub",false)};
+  user:null,videos:LS.get("vt_videos",[]),credits:0,sub:false,flags:{ai:false}};
 function cleanState(){
   const num=(v,d)=>Number.isFinite(+v)?Math.max(0,Math.min(1e6,Math.trunc(+v))):d;
   if(S.user&&!(typeof S.user.email==="string"&&/^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']{2,}$/.test(S.user.email)&&S.user.email.length<255))S.user=null;
   S.credits=num(S.credits,0);S.sub=S.sub===true;
   S.videos=(Array.isArray(S.videos)?S.videos:[]).slice(0,200).filter(v=>v&&typeof v==="object").map(v=>({id:num(v.id,0),listing:String(v.listing||"").replace(/[^A-Za-z0-9_-]/g,"").slice(0,40),dur:[15,30,45,60].includes(+v.dur)?+v.dur:30,q:["hd","fhd","4k"].includes(v.q)?v.q:"hd",fmt:["v","s","h"].includes(v.fmt)?v.fmt:"v",n:num(v.n,10),date:String(v.date||"").slice(0,20),caps:false}));
 }
-const save=()=>{LS.set("vt_tiers",S.tiers);LS.set("vt_user",S.user);LS.set("vt_videos",S.videos);LS.set("vt_credits",S.credits);LS.set("vt_sub",S.sub);LS.set("vt_ledger",S.ledger.slice(-60));LS.set("vt_ctot",S.credTotal);LS.set("vt_renew",S.renew);try{hdr()}catch(e){}};
+const save=()=>{LS.set("vt_videos",S.videos);try{hdr()}catch(e){}};
 const base=()=>DUR.find(d=>d.s===S.dur).p+QUA.find(q=>q.k===S.q).x;
-const UNITP=6,AIC=3,MINAI=2,AI_ON=false,cr=()=>base()/UNITP+(S.ai?S.dur/15*AIC:0);
+const UNITP=6,AIC=3,MINAI=2,cr=()=>base()/UNITP+(S.ai?S.dur/15*AIC:0);
 const MINM={dynamic:0,tour:0,drone:1,cinema:1},MINC={natural:0,warm:0,fresh:0,cinema:1,vivid:1,mono:1},MINQ={hd:0,fhd:0,"4k":2};
 const TNAME=["Une vidéo","Pack Essentiel","Pack Pro","Abonnement Agence"],TMIN=["","Pack Essentiel","Pack Pro","Abonnement Agence"],TSHORT=["","Essentiel","Pro","Agence"];
 const need=()=>Math.max(MINM[S.motion]||0,MINC[S.grade]||0,MINQ[S.q]||0,S.ai?MINAI:0);
@@ -252,7 +254,7 @@ function renderCfg(){
   $$("#sgF button").forEach(b=>b.onclick=()=>{S.fmt=b.dataset.f;renderCfg()});
   $$("#stM button").forEach(b=>b.onclick=()=>{S.motion=b.dataset.m;track("cfg_motion",{m:S.motion});renderCfg()});
   $$("#stC button").forEach(b=>b.onclick=()=>{S.grade=b.dataset.c;track("cfg_grade",{c:S.grade});renderCfg()});
-  const ai=$("#stAI");if(ai&&AI_ON)ai.onclick=()=>{S.ai=!S.ai;track("cfg_ai",{on:S.ai});renderCfg()};
+  const ai=$("#stAI");if(ai&&!ai.disabled)ai.onclick=()=>{S.ai=!S.ai;track("cfg_ai",{on:S.ai});renderCfg()};
   const pi=$("#phIn");if(pi)pi.onchange=()=>{const all=[...pi.files],a=all.filter(f=>/^image\/(jpeg|png|webp|heic|heif|avif)$/i.test(f.type)&&f.size>0&&f.size<=25*1024*1024).slice(0,30);if(a.length<all.length)toast("Certains fichiers ont été ignorés : photos JPEG, PNG, WebP ou HEIC de 25 Mo maximum.");S.files=a;track("photos_added",{n:a.length});renderCfg()};
   const pr=$("#phRt");if(pr)pr.onchange=()=>{S.rights=pr.checked};
   const bk=$("#cfgBack");if(bk)bk.onclick=()=>{S.cs--;renderCfg();window.scrollTo(0,0)};
@@ -289,12 +291,12 @@ function renderGate(){
   }
   $("#gateCard").innerHTML=h;
   gpP=Player($("#gpPh"),mkPhotos(S.n>6?6:S.n),2).start();
-  $("#gGo").onclick=()=>{
+  $("#gGo").onclick=async()=>{
     if(!S.user){const e=$("#gE").value.trim(),p=$("#gP").value,er=$("#gErr");
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
       if(p.length<8){er.textContent="Le mot de passe doit faire 8 caractères minimum.";return}
       if(!$("#gC").checked){er.textContent="Accepte les conditions pour continuer.";return}
-      S.user={email:e};save();hdr();track("signup")}
+      if(!(await doAuth(true,e,p,er,$("#gGo"))))return}
     go("pay")};
   const lg=$("#gLog");if(lg)lg.onclick=()=>{S.back="gate";go("auth")};
 }
@@ -334,59 +336,98 @@ function renderPay(){
   const pe=$("#pEdit");if(pe)pe.onclick=()=>{S.cs=2;go("cfg")};
   const pb=$("#pBump");if(pb)pb.onchange=()=>{S.bump=pb.checked;track("bump",{on:S.bump});syncPay(opts)};
   $$("#payCard .opt:not(.off)").forEach(b=>b.onclick=()=>{S.planSet=true;S.plan=b.dataset.k;track("pay_plan",{k:S.plan});renderPay()});
-  $("#payBtn").onclick=()=>{
+  $("#payBtn").onclick=async()=>{
     if(!$("#pOk").checked){$("#pErr").textContent="Confirme l'accord du propriétaire pour continuer.";return}
     const o=opts.find(x=>x.k===S.plan);track("pay_click",{plan:o.k});
-    if(o.k==="credit"&&!bumpOn(o)){settle(o);finish(o);return}
-    openMd('<p class="kk">PAIEMENT SIMULÉ</p><h2 style="margin-bottom:10px">Stripe s\'ouvre ici</h2><p class="mut">Dans la vraie version, tu es redirigé vers la page de paiement sécurisée de Stripe. Ici, la maquette simule un paiement réussi.</p><div class="rec" style="margin-top:14px"><span class="chip y">'+o.n.toUpperCase()+'</span><span class="chip">'+eur(ptotal(o))+'</span></div><button class="btn big" id="mdOk">Simuler un paiement réussi</button><p class="lg"><button class="lk" data-v="closeMd">Annuler</button></p>');
-    $("#mdOk").onclick=()=>{closeMd();settle(o);finish(o)};
+    if(o.k==="credit"&&!bumpOn(o)){
+      const b=$("#payBtn");b.disabled=true;$("#pErr").textContent="";S.cur=newCur();
+      try{await ensureJob()}catch(e){S.cur=null;$("#pErr").textContent=e.message;b.disabled=false;return}
+      finish(o);return}
+    payLater();
   };
 }
+/* Le paiement par carte (Stripe) n'est pas encore branché : seuls les crédits déjà sur le compte servent. */
+function payLater(){track("pay_blocked");openMd('<p class="kk">BIENTÔT</p><h2 style="margin-bottom:10px">Le paiement en ligne ouvre très bientôt</h2><p class="mut">Cliploc est en phase de lancement et le paiement par carte est en cours d\'activation. Ton compte est créé : dès que c\'est ouvert, tu retrouves ici ton projet et tes choix.</p><button class="btn big" data-v="closeMd">Compris</button>')}
 function syncPay(opts){const o=opts.find(x=>x.k===S.plan),t=ptotal(o);$("#payPz").innerHTML=(o.free&&!bumpOn(o))?"<b>0 €</b>":(bumpOn(o)?"<b>"+eur(t)+"</b>":pHTML(o.p));$("#payBtn").textContent=t===0?"Débloquer ma vidéo":"Payer "+eur(t)}
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const RENEW=30*864e5;
-function addCredits(n,label){const before=S.credits;S.credits+=n;S.credTotal=before<=0?n:S.credTotal+n;S.ledger.push({l:label,d:n,at:Date.now()})}
-function useCredits(n,label){S.credits-=n;S.ledger.push({l:label,d:-n,at:Date.now()})}
-function grant(pl){addCredits(pl.c,pl.n);if(pl.m){S.sub=true;S.renew=Date.now()+RENEW}else S.tiers[pl.k]=true;if(pl.ebook&&!S.ebook){S.ebook=true;LS.set("vt_ebook",true);S.ledger.push({l:"Formation Airbnb offerte (PDF)",d:0,at:Date.now()})}}
-function settle(o){
-  const q=cr(),lab="Vidéo · annonce "+S.id;
-  if(o.pack){grant(o.pack);useCredits(q,lab)}
-  else if(o.k==="credit")useCredits(q,lab);
-  else S.ledger.push({l:lab+" (payée à l'unité)",d:0,at:Date.now()});
-  if(bumpOn(o)){S.ebook=true;LS.set("vt_ebook",true);S.ledger.push({l:"Formation Airbnb (PDF)",d:0,at:Date.now()})}
-  save();
-}
 /* achat direct d'un pack / abonnement, sans vidéo en cours */
 function buy(k){
   const pl=PLANS.find(x=>x.k===k);if(!pl||!pl.p)return;if(pl.m&&S.sub){toast("Tu as déjà cet abonnement.");return}
   if(!S.user){S.back=document.body.dataset.s;S.buyK=k;track("buy_login",{k:k});go("auth");return}
   track("buy_open",{k:k});
-  openMd('<p class="kk">PAIEMENT SIMULÉ</p><h2 style="margin-bottom:10px">'+pl.n+'</h2><p class="mut">'+(pl.m?pl.c+" crédits par mois, renouvelés chaque mois. Tu peux arrêter quand tu veux.":pl.c+" crédits à utiliser quand tu veux, sans abonnement.")+(pl.ebook&&!S.ebook?" La formation Airbnb est offerte.":"")+'</p><div class="rec" style="margin-top:14px"><span class="chip y">'+eur(sale(pl.p))+(pl.m?" par mois":"")+'</span><span class="chip">'+pl.c+' crédits</span></div><button class="btn big" id="mdOk">Simuler un paiement réussi</button><p class="lg"><button class="lk" data-v="closeMd">Annuler</button></p>');
-  $("#mdOk").onclick=()=>{closeMd();grant(pl);save();track("buy_success",{k:k});toast(pl.c+" crédits ajoutés à ton compte.");go("dash")};
+  payLater();
 }
-function finish(o){track("pay_success",{plan:o.k});S.cur={id:Date.now(),listing:S.id,dur:S.dur,q:S.q,fmt:S.fmt,n:S.n,date:new Date().toLocaleDateString("fr-FR"),caps:S.caps};go("rd2")}
+function newCur(){return{id:Date.now(),listing:S.id,dur:S.dur,q:S.q,fmt:S.fmt,n:S.n,date:new Date().toLocaleDateString("fr-FR"),caps:S.caps,ai:!!S.ai,motion:S.motion,grade:S.grade,job:null}}
+function finish(o){track("pay_success",{plan:o.k});go("rd2")}
+/* Débit des crédits côté serveur : une seule fois par vidéo, remboursé si le montage échoue. */
+async function ensureJob(){
+  const c=S.cur;if(c.job)return c.job;
+  const id=await CL.startJob({url:"https://www.airbnb.com/rooms/"+c.listing,duration:c.dur,quality:c.q,fmt:c.fmt,motion:c.motion,grade:c.grade,ai:c.ai});
+  c.job=id;await syncProfile();return id;
+}
 
 /* ---------- 6. montage en cours ---------- */
+/* Plans IA : on montre les clips, le client décoche ceux qui ne ressemblent pas à son logement. */
+function previewClips(clips){return new Promise(res=>{
+  const urls=clips.map(b=>b?URL.createObjectURL(b):null);
+  $("#rT").textContent="Vérifie les plans";$("#rL").style.maxWidth="none";
+  $("#rL").innerHTML='<li class="cpw" style="list-style:none"><p class="mut sm" style="margin-bottom:10px">L\'IA a seulement bougé la caméra. Vérifie que chaque plan reste fidèle à ton logement : décoche ceux qui ne te conviennent pas, ils seront remplacés par la photo.</p><div class="cpg">'+clips.map((b,i)=>b?'<label class="cpi"><video src="'+urls[i]+'" muted loop autoplay playsinline></video><span><input type="checkbox" data-i="'+i+'" checked> Plan '+(i+1)+'</span></label>':'<div class="cpi off"><span>Plan '+(i+1)+' : photo seule (remboursé)</span></div>').join("")+'</div><button class="btn big" id="cpOk" style="margin-top:14px">Valider et créer ma vidéo</button><button class="btn gh" id="cpNo" style="margin-top:8px;width:100%">Ça ne ressemble pas à mon logement : me rembourser</button></li>';
+  const done=r=>{urls.forEach(u=>u&&URL.revokeObjectURL(u));res(r)};
+  $("#cpOk").onclick=()=>{const on=new Set($$("#rL input[data-i]").filter(x=>x.checked).map(x=>+x.dataset.i));done({keep:clips.map((b,i)=>!!b&&on.has(i))})};
+  $("#cpNo").onclick=()=>done({refund:true});
+})}
+async function aiStage(M,ph,job,set,alive){
+  const plan=M.aiPlan(ph.list.length,S.cur.dur),images=plan.map(i=>ph.list[i]);
+  const r=await CL.aiClips({job,images,onProgress:(d,n)=>{alive();set(0.4*d/n);$("#rT").textContent="Animation IA : "+d+" / "+n+" plans"}});
+  alive();
+  if(r.refunded>0){await syncProfile();toast(crl(r.refunded)+" remboursé"+(r.refunded>1?"s":"")+" pour "+(r.refunded>1?"les plans":"le plan")+" que l'IA n'a pas pu faire.")}
+  if(!r.clips.some(Boolean))return{clips:null};
+  set(0.4);
+  const d=await previewClips(r.clips);
+  if(d.refund)return{refund:true};
+  alive();
+  return{clips:r.clips.map((b,i)=>d.keep[i]?b:null)};
+}
 function runRd(){
-  const L=["Préparation des photos","Montage des plans","Mouvements et transitions","Export "+QUA.find(q=>q.k===S.q).l+" "+S.dur+" s"];
-  $("#rL").innerHTML=L.map(x=>'<li><span class="ic"></span>'+x+'</li>').join("");
+  const c0=S.cur,ai=!!(c0&&c0.ai);
+  const L=ai?["Préparation des photos","Animation IA des plans","Aperçu à valider","Montage des plans","Export "+QUA.find(q=>q.k===c0.q).l+" "+c0.dur+" s"]:["Préparation des photos","Montage des plans","Mouvements et transitions","Export "+QUA.find(q=>q.k===S.q).l+" "+S.dur+" s"];
+  $("#rL").style.maxWidth="";$("#rL").innerHTML=L.map(x=>'<li><span class="ic"></span>'+x+'</li>').join("");
   const li=$$("#rL li"),C=364.4;let cancelled=false;
   const set=p=>{$("#rC").style.strokeDashoffset=C*(1-p);$("#rP").textContent=Math.round(p*100)+"%";const k=Math.min(L.length-1,Math.floor(p*L.length));li.forEach((e,j)=>{e.className=j<k?"d":(j===k?"a":"")});$("#rT").textContent=L[k]};
   set(0);const keep=()=>{if(document.body.dataset.s!=="rd2")cancelled=true};
   (async()=>{
+    let job=null;
+    const bail=()=>{if(job&&!ai&&c0.job){const j=job;c0.job=null;CL.finishJob(j,false,"cancelled").then(()=>syncProfile()).catch(()=>{})}};
     try{
-      const M=await rmod(),cap=await M.canRender(S.q,S.fmt);
+      const M=await rmod(),cap=await M.canRender(c0.q,c0.fmt);
       if(!cap.ok)throw new Error(cap.reason);
       const ph=await realPhotos();
-      const blob=await M.renderVideo({photos:ph.list,seconds:S.dur,quality:S.q,fmt:S.fmt,motion:S.motion,grade:S.grade,onProgress:p=>{keep();set(p)}});
-      if(cancelled)return;
-      if(S.blobUrl)URL.revokeObjectURL(S.blobUrl);S.blobUrl=URL.createObjectURL(blob);S.blobSize=blob.size;S.cur.demo=ph.demo;
-      li.forEach(e=>e.className="d");set(1);S.videos.unshift(S.cur);save();track("render_done",{demo:ph.demo,mb:Math.round(blob.size/1e5)/10});later(()=>go("done"),400)
+      if(ai&&ph.demo)throw new Error("L'animation IA demande tes propres photos.");
+      job=await ensureJob();
+      let clips=null;
+      if(ai){
+        const r=await aiStage(M,ph,job,set,keep);
+        if(cancelled){bail();return}
+        if(r.refund){
+          const f=await CL.finishJob(job,false,"ai_rejected");c0.job=null;await syncProfile();track("ai_refund",{r:f});
+          toast(f==="refunded"?"C'est remboursé : tes crédits sont rendus.":"Remboursement impossible pour le moment (trop de demandes aujourd'hui).");
+          S.cs=2;go("cfg");return}
+        clips=r.clips;
+      }
+      const blob=await M.renderVideo({photos:ph.list,seconds:c0.dur,quality:c0.q,fmt:c0.fmt,motion:c0.motion,grade:c0.grade,clips,onProgress:p=>{keep();set(ai?0.6+0.4*p:p)}});
+      if(cancelled){bail();return}
+      try{await CL.finishJob(job,true)}catch(e){}
+      if(S.blobUrl)URL.revokeObjectURL(S.blobUrl);S.blobUrl=URL.createObjectURL(blob);S.blobSize=blob.size;c0.demo=ph.demo;c0.ai=!!(clips&&clips.some(Boolean));
+      li.forEach(e=>e.className="d");set(1);S.videos.unshift(c0);save();track("render_done",{demo:ph.demo,mb:Math.round(blob.size/1e5)/10});later(()=>go("done"),400)
     }catch(e){
-      track("render_error",{m:String(e&&e.message||e).slice(0,80)});
+      const msg=String(e&&e.message||e);
+      track("render_error",{m:msg.slice(0,80)});
+      if(job&&!c0.noRefund){try{await CL.finishJob(job,false,msg)}catch(_){}c0.job=null;try{await syncProfile()}catch(_){}}
+      if(cancelled)return;
       $("#rT").textContent="Le montage a échoué";
-      $("#rL").innerHTML='<li style="list-style:none;color:var(--mut);line-height:1.5">'+String(e&&e.message||"Erreur inconnue").replace(/</g,"&lt;")+'<br><br><button class="btn" id="rRetry">Réessayer</button> <button class="btn gh" id="rQ">Choisir une qualité plus basse</button></li>';
-      const r=$("#rRetry");if(r)r.onclick=()=>go("rd2");const q=$("#rQ");if(q)q.onclick=()=>{if(S.q==="4k")S.q="fhd";else S.q="hd";go("rd2")}
+      $("#rL").innerHTML='<li class="cpw" style="list-style:none;color:var(--mut);line-height:1.5">'+esc(msg||"Erreur inconnue")+(job?'<br><br>Tes crédits ont été rendus.':'')+'<br><br><button class="btn" id="rRetry">Réessayer</button> <button class="btn gh" id="rQ">Choisir une qualité plus basse</button></li>';
+      const r=$("#rRetry");if(r)r.onclick=()=>go("rd2");const q=$("#rQ");if(q)q.onclick=()=>{c0.q=c0.q==="4k"?"fhd":"hd";S.q=c0.q;go("rd2")}
     }
   })();
 }
@@ -417,7 +458,7 @@ function renderDone(){
 
 /* ---------- onglets ---------- */
 const NAVS=[["lp","Accueil"],["u","Une vidéo"],["p","Packs & abonnement"],["ex","Exemples"],["eb","Formation Airbnb","NOUVEAU"],["fq","Contact"]];
-S.tiers=LS.get("vt_tiers",{});S.prMode="unit";S.ledger=LS.get("vt_ledger",[]);S.credTotal=LS.get("vt_ctot",0);S.name=LS.get("vt_name","");S.price=LS.get("vt_price",60);S.renew=LS.get("vt_renew",0);
+S.tiers={};S.prMode="unit";S.ledger=[];S.credTotal=0;S.name=LS.get("vt_name","");S.price=LS.get("vt_price",60);S.renew=0;
 S.tiers={essentiel:S.tiers&&S.tiers.essentiel===true,pro:S.tiers&&S.tiers.pro===true};try{cleanState()}catch(e){}
 let exP=[];
 function nav(){
@@ -455,7 +496,7 @@ function gallery(){
 const CHAP=[["Le business en dix minutes","Ce que tu vends, à qui, et combien il te reste à la fin."],["Tes clients","Six profils, ce qu'ils veulent, et par qui commencer."],["Se mettre en règle","Micro-entreprise, factures, droit sur les photos, prospection autorisée."],["Ton offre et tes prix","Trois offres, calcul de marge avec les vrais tarifs."],["Ta vitrine","Trois vidéos d'exemple, profil Instagram, WhatsApp Business."],["Dix méthodes pour trouver des clients","Entourage, Facebook, Instagram, LinkedIn, partenaires, terrain…"],["Quatorze messages à copier","Premier contact, relances, devis, livraison, avis."],["Le déroulé d'une vente","Sept étapes, de la démo au paiement et à la recommandation."],["Répondre aux objections","Dix objections courantes et comment y répondre."],["Faire grandir ton activité","Packs, abonnements, objectifs mensuels."],["T'organiser et suivre tes chiffres","Semaine type, feuille de suivi, entonnoir."],["Livrer comme un pro","Checklist, formats, conseils de publication."],["Les erreurs à éviter","Douze erreurs et quoi faire à la place."],["Plan d'action sur 30 jours","Un calendrier jour par jour."]];
 function dlEb(){track("ebook_download");const a=document.createElement("a");a.href="formation-cliploc.pdf";a.download="Cliploc-La-formation.pdf";document.body.appendChild(a);a.click();a.remove()}
 const EB_PRICE=39;
-S.ebook=LS.get("vt_ebook",false);
+S.ebook=false;
 function renderEb(){
   $("#chBox").innerHTML=CHAP.map((c,i)=>'<div class="ch"><b class="n">'+String(i+1).padStart(2,"0")+'</b><div><b>'+c[0]+'</b><span>'+c[1]+'</span></div></div>').join("");
   $("#ebBuy").innerHTML='<div class="pz">'+(bfOn()?'<s>'+eur(EB_PRICE)+'</s>':'')+'<b>'+eur(sale(EB_PRICE))+'</b><span class="mut sm">TTC · paiement unique</span></div>'+
@@ -468,8 +509,7 @@ function renderEb(){
 function buyEbook(){
   if(!S.user){S.back="eb";track("ebook_login");go("auth");return}
   track("ebook_checkout");
-  openMd('<p class="kk">PAIEMENT (SIMULATION)</p><h3 style="margin:4px 0">Formation Airbnb</h3><p class="mut">'+eur(sale(EB_PRICE))+' TTC</p><button class="btn big" id="ebPay" style="margin-top:12px">Simuler un paiement réussi</button><button class="btn gh" style="margin-top:8px;width:100%" data-v="closeMd">Annuler</button>');
-  $("#ebPay").onclick=()=>{S.ebook=true;LS.set("vt_ebook",true);closeMd();track("ebook_paid");toast("Paiement validé. Le téléchargement du PDF démarre.");renderEb();dlEb()};
+  payLater();
 }
 
 /* ---------- 8. mes vidéos ---------- */
@@ -482,7 +522,7 @@ function renderDash0(){
   $("#dashBox").innerHTML=
    '<div class="crd"><p class="kk">MON COMPTE</p><h2>Mes crédits</h2><div class="bal2"><b>'+c+'</b><span>crédit'+(c>1?"s":"")+' restant'+(c>1?"s":"")+(S.sub?" ce mois-ci":"")+'</span></div><p class="mut sm" style="margin-top:6px">Ta formule : <b>'+TNAME[rank()]+'</b>'+(rank()<3?' · 4K '+(rank()>=2?'débloquée':'verrouillée')+' · '+(rank()>=1?'tous les styles':'styles Dynamique et Visite'):' · tout est débloqué')+'</p>'+
    (S.credTotal>0?'<div class="pb" style="margin:12px 0 6px"><i style="width:'+pct+'%"></i></div><p class="mut sm">'+(tot-c)+' utilisé'+((tot-c)>1?"s":"")+' sur '+tot+'</p>':'<p class="mut sm" style="margin-top:8px">Tu n\'as pas encore de crédits. Un pack réduit le prix de chaque vidéo et débloque des options.</p>')+
-   (S.sub?'<div class="subc"><b>Abonnement Agence · actif</b><span>120 crédits par mois. Prochain renouvellement le '+renew+'.</span><button class="lk" id="subX">Arrêter l\'abonnement</button></div>':'')+
+   (S.sub?'<div class="subc"><b>Abonnement Agence · actif</b><span>120 crédits par mois. Renouvelé chaque mois.</span><button class="lk" id="subX">Arrêter l\'abonnement</button></div>':'')+
    '<div class="nxb" style="margin-top:14px"><button class="btn" id="dBuyP">Voir les formules</button>'+(S.sub?'':'<button class="btn gh" id="dBuyA">M\'abonner</button>')+'</div>'+
    '<p class="note">1 crédit = 15 s en HD. Le nombre de crédits d\'une vidéo est affiché avant de payer. Tu reçois un email quand il t\'en reste 2.</p></div>'+
    '<div class="crd" style="margin-top:14px"><p class="kk">MES VIDÉOS</p>'+
@@ -491,7 +531,7 @@ function renderDash0(){
    '<div class="crd" style="margin-top:14px"><p class="kk">MON MESSAGE POUR LES PROPRIÉTAIRES</p><div id="mbBox"></div></div>';
   msgBuilder($("#mbBox"));
   $("#dBuyP").onclick=()=>prGo("packs");const da=$("#dBuyA");if(da)da.onclick=()=>buy("agence");
-  const sx=$("#subX");if(sx)sx.onclick=()=>{openMd('<p class="kk">ABONNEMENT AGENCE</p><h2 style="margin-bottom:10px">Arrêter l\'abonnement ?</h2><p class="mut">Tes crédits restants restent utilisables jusqu\'au '+renew+'. Ensuite, plus de renouvellement.</p><button class="btn big" id="subOk">Oui, arrêter</button><p class="lg"><button class="lk" data-v="closeMd">Garder mon abonnement</button></p>');$("#subOk").onclick=()=>{S.sub=false;save();closeMd();track("sub_cancel");toast("Abonnement arrêté. Tes crédits restants sont conservés.");renderDash()}};
+  const sx=$("#subX");if(sx)sx.onclick=()=>toast("La gestion de l'abonnement en ligne arrive avec le paiement.");
 }
 
 function renderDash(){renderDash0();if(S.user&&S.ebook)$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd" style="margin-top:14px"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" data-v="dl">Télécharger</button></div></div>')}
@@ -541,13 +581,33 @@ function renderAuth(mode){
   $("#authCard").innerHTML='<p class="kk">'+(su?"CRÉER UN COMPTE":"CONNEXION")+'</p><h2>'+(su?"Rejoins Cliploc":"Content de te revoir")+'</h2><div class="fld" style="margin-top:14px"><input class="inp" id="aE" type="email" autocomplete="email" placeholder="Ton email"></div><div class="fld"><input class="inp" id="aP" type="password" autocomplete="'+(su?"new-password":"current-password")+'" placeholder="Mot de passe"></div>'+
    (su?'<label class="ck"><input type="checkbox" id="aC"><span>J\'accepte les conditions d\'utilisation et la politique de confidentialité.</span></label>':'')+'<div class="errm" id="aErr"></div><button class="btn big" id="aGo" style="margin-top:6px">'+(su?"Créer mon compte":"Me connecter")+'</button><p class="lg">'+(su?"Déjà un compte ?":"Pas encore de compte ?")+' <button class="lk" id="aSw">'+(su?"Se connecter":"Créer un compte")+'</button></p>';
   $("#aSw").onclick=()=>renderAuth(su?"login":"signup");
-  $("#aGo").onclick=()=>{const e=$("#aE").value.trim(),p=$("#aP").value,er=$("#aErr");
+  $("#aGo").onclick=async()=>{const e=$("#aE").value.trim(),p=$("#aP").value,er=$("#aErr");
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
     if(p.length<8){er.textContent="Le mot de passe doit faire 8 caractères minimum.";return}
     if(su&&!$("#aC").checked){er.textContent="Accepte les conditions pour continuer.";return}
-    S.user={email:e};save();hdr();track(su?"signup":"login");const b=S.back;S.back=null;go(b||(S.url?"gate":"dash"));if(S.buyK){const k=S.buyK;S.buyK=null;setTimeout(()=>buy(k),250)}};
+    if(!(await doAuth(su,e,p,er,$("#aGo"))))return;
+    const b=S.back;S.back=null;go(b||(S.url?"gate":"dash"));if(S.buyK){const k=S.buyK;S.buyK=null;setTimeout(()=>buy(k),250)}};
 }
-function logout(){S.user=null;save();hdr();toast("Tu es déconnecté.");go("lp")}
+async function doAuth(su,e,p,er,btn){
+  er.textContent="";btn.disabled=true;const t0=btn.textContent;btn.textContent="Un instant…";
+  try{
+    const r=su?await CL.signUp(e,p):await CL.signIn(e,p);
+    if(!r.ok){er.textContent=r.error;return false}
+    if(r.pending){openMd('<p class="kk">EMAIL ENVOYÉ</p><h2 style="margin-bottom:10px">Confirme ton email</h2><p class="mut">Clique sur le lien reçu à '+esc(e)+' : tu reviens ici, connecté. Pense à regarder les courriers indésirables.</p><button class="btn big" data-v="closeMd">OK</button>');return false}
+    S.user={email:r.email};await syncProfile();save();track(su?"signup":"login");return true;
+  }finally{btn.disabled=false;btn.textContent=t0}
+}
+async function syncProfile(){
+  let p=null,l=[];try{[p,l]=await Promise.all([CL.profile(),CL.ledger()])}catch(e){}
+  if(!p){if(!CL.session()){S.user=null;S.credits=0;S.sub=false;S.tiers={essentiel:false,pro:false};S.ebook=false;hdr()}return}
+  S.credits=p.credits|0;S.sub=p.plan==="agence";S.tiers={essentiel:p.plan==="essentiel"||p.plan==="pro",pro:p.plan==="pro"};S.ebook=p.ebook===true;
+  const LB={video_start:"Vidéo",video_refund:"Remboursement",purchase_unit:"Achat",purchase_pack:"Achat d'un pack",subscription:"Abonnement Agence",manual:"Crédits offerts"};
+  S.ledger=l.slice().reverse().map(e=>({l:LB[e.reason]||"Opération",d:e.delta|0,at:Date.parse(e.created_at)||Date.now()}));
+  const used=l.reduce((a,e)=>a+((e.reason==="video_start"||e.reason==="video_refund")?-e.delta:0),0);
+  S.credTotal=S.credits+Math.max(0,used);
+  hdr();if(document.body.dataset.s==="dash")renderDash();
+}
+function logout(){CL.signOut();S.user=null;S.credits=0;S.sub=false;S.tiers={essentiel:false,pro:false};S.ebook=false;S.ledger=[];S.credTotal=0;S.cur=null;save();hdr();toast("Tu es déconnecté.");go("lp")}
 
 /* ---------- pages légales ---------- */
 const PAGES={
@@ -587,6 +647,8 @@ $("#ctGo").onclick=()=>{const e=$("#ctE").value.trim(),m=$("#ctM").value.trim(),
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
   if(m.length<10){er.textContent="Écris un message d'au moins 10 caractères.";return}
   er.textContent="";const l=LS.get("vt_contact",[]);l.push({e:e,m:m.slice(0,1000),at:Date.now()});LS.set("vt_contact",l);track("contact_sent");$("#ctM").value="";toast("Message envoyé (maquette). On te répond par email.")};
+CL.restore().catch(()=>false).then(()=>{const ss=CL.session();if(ss){S.user={email:ss.m};hdr();return CL.sweep().catch(()=>{}).then(()=>syncProfile())}}).catch(()=>{});
+CL.flags().then(f=>{S.flags=f;if(document.body.dataset.s==="cfg")renderCfg()}).catch(()=>{});
 faq();trustBox();loadReal();renderPlans($("#plHome"));homeStyles();hdr();nav();
 const h0=(location.hash||"#lp").slice(1);go(h0==="lp"||SCR.indexOf(h0)<0?"lp":(NEED[h0]?"lp":h0),{nopush:true});
 track("view_lp");

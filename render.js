@@ -122,6 +122,31 @@ function drawShot(ctx, img, W, H, p, m, ox = 0, oy = 0, extra = 1) {
   else ctx.drawImage(img, x, y, dw, dh);
 }
 
+/* Animation IA : un plan de 5 s par tranche de 5 s, chacun tiré d'une photo (réparties sur toute la liste). */
+export function aiPlan(photoCount, seconds) {
+  const c = Math.ceil(seconds / 5);
+  return Array.from({ length: c }, (_, i) => Math.min(photoCount - 1, Math.floor(i * photoCount / c)));
+}
+function drawVid(ctx, v, W, H, ox = 0, oy = 0, extra = 1) {
+  const s = Math.max(W / v.videoWidth, H / v.videoHeight) * extra, dw = v.videoWidth * s, dh = v.videoHeight * s;
+  ctx.drawImage(v, (W - dw) / 2 + ox, (H - dh) / 2 + oy, dw, dh);
+}
+const drawAny = (ctx, sh, W, H, p, ox = 0, oy = 0, extra = 1) => sh.vid ? drawVid(ctx, sh.vid, W, H, ox, oy, extra) : drawShot(ctx, sh.img, W, H, p, sh, ox, oy, extra);
+function seekTo(v, t) {
+  return new Promise(res => {
+    let done = false; const end = () => { if (!done) { done = true; v.removeEventListener("seeked", end); clearTimeout(to); res() } };
+    const to = setTimeout(end, 4000); v.addEventListener("seeked", end); v.currentTime = t;
+  });
+}
+const prep = async (sh, p) => { if (sh.vid) { const t = clamp(p, 0, 1) * Math.max(0, (sh.vid.duration || 5) - 0.08); if (Math.abs(sh.vid.currentTime - t) > 1e-3) await seekTo(sh.vid, t) } };
+async function loadClip(blob) {
+  const v = document.createElement("video"); v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = URL.createObjectURL(blob);
+  await new Promise((res, rej) => { const to = setTimeout(() => rej(new Error("Plan IA illisible")), 10000); v.onloadeddata = () => { clearTimeout(to); res() }; v.onerror = () => { clearTimeout(to); rej(new Error("Plan IA illisible")) } });
+  if (!v.videoWidth || !v.videoHeight) throw new Error("Plan IA illisible");
+  await seekTo(v, 0);
+  return v;
+}
+
 /* Combien de plans pour une durée donnée. */
 export function planShots(photoCount, seconds, motion = "dynamic") {
   const M = MOTIONS[motion] || MOTIONS.dynamic;
@@ -130,24 +155,35 @@ export function planShots(photoCount, seconds, motion = "dynamic") {
   return { count, per: seconds / count };
 }
 
-export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt = "v", motion = "dynamic", grade = "natural", onProgress = () => {}, signal }) {
+export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt = "v", motion = "dynamic", grade = "natural", onProgress = () => {}, signal, clips = null }) {
   if (!photos || photos.length < 2) throw new Error("Il faut au moins 2 photos.");
   const cap = await canRender(quality, fmt);
   if (!cap.ok) throw new Error(cap.reason);
   const { w: W, h: H, bitrate, codec } = cap;
   const M = MOTIONS[motion] || MOTIONS.dynamic, G = GRADES[grade] || GRADES.natural;
 
-  const { count, per } = planShots(photos.length, seconds, motion);
-  const order = Array.from({ length: count }, (_, i) => i % photos.length);
-  const used = [...new Set(order)];
-  const maxSide = Math.min(Math.max(W, H) * 1.3, used.length > 12 ? 2800 : 3400);   // limite la mémoire sur téléphone
+  const useClips = Array.isArray(clips) && clips.some(c => c);
+  let count, per, order;
+  if (useClips) { order = aiPlan(photos.length, seconds); count = order.length; per = seconds / count }
+  else { ({ count, per } = planShots(photos.length, seconds, motion)); order = Array.from({ length: count }, (_, i) => i % photos.length) }
+  const vids = [];
+  const cleanVids = () => vids.forEach(v => { try { URL.revokeObjectURL(v.src); v.removeAttribute("src"); v.load() } catch (_) {} });
+  const needPhoto = [...new Set(order.filter((_, i) => !(useClips && clips[i])))];
+  const maxSide = Math.min(Math.max(W, H) * 1.3, needPhoto.length > 12 ? 2800 : 3400);   // limite la mémoire sur téléphone
   const cache = new Map();
-  for (let i = 0; i < used.length; i++) {
-    cache.set(used[i], await toBitmap(photos[used[i]], maxSide, G));
-    onProgress(0.12 * (i + 1) / used.length, "Préparation des photos");
+  for (let i = 0; i < needPhoto.length; i++) {
+    cache.set(needPhoto[i], await toBitmap(photos[needPhoto[i]], maxSide, G));
+    onProgress(0.12 * (i + 1) / Math.max(1, needPhoto.length), "Préparation des photos");
     if (signal && signal.aborted) throw new Error("Annulé");
   }
-  const shots = order.map((pi, i) => ({ img: cache.get(pi), mv: M.moves[i % M.moves.length], k: M.ease, tr: M.trans[i % M.trans.length] }));
+  const shots = [];
+  try {
+    for (let i = 0; i < order.length; i++) {
+      const base = { mv: M.moves[i % M.moves.length], k: M.ease, tr: useClips ? (M.trans.includes("through") ? "fade" : M.trans[i % M.trans.length]) : M.trans[i % M.trans.length] };
+      if (useClips && clips[i]) { const v = await loadClip(clips[i]); vids.push(v); shots.push({ ...base, vid: v, tr: "fade" }) }
+      else shots.push({ ...base, img: cache.get(order[i]) });
+    }
+  } catch (e) { cleanVids(); throw e }
 
   const canvas = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(W, H) : Object.assign(document.createElement("canvas"), { width: W, height: H });
   const ctx = canvas.getContext("2d", { alpha: false });
@@ -163,21 +199,23 @@ export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt =
   const xf = Math.min(motion === "dynamic" ? 0.35 : 0.6, per * 0.25);
   const pOf = (k, t) => clamp((t - (k * per - xf)) / (per + xf), 0, 1);
   const total = Math.round(seconds * FPS);
+  try {
   for (let f = 0; f < total; f++) {
     if (signal && signal.aborted) { enc.close(); throw new Error("Annulé"); }
     if (encError) throw encError;
     const t = f / FPS, i = Math.min(count - 1, Math.floor(t / per)), local = t - i * per;
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
-    const A = shots[i], inT = i < count - 1 && local > per - xf;
-    if (!inT) drawShot(ctx, A.img, W, H, pOf(i, t), A);
+    const A = shots[i], inT = i < count - 1 && local > per - xf, pa = pOf(i, t);
+    if (!inT) { await prep(A, pa); drawAny(ctx, A, W, H, pa) }
     else {
-      const B = shots[i + 1], u = easeIO((local - (per - xf)) / xf), pa = pOf(i, t), pb = pOf(i + 1, t);
+      const B = shots[i + 1], u = easeIO((local - (per - xf)) / xf), pb = pOf(i + 1, t);
+      await prep(A, pa); await prep(B, pb);
       switch (A.tr) {
-        case "slideH": drawShot(ctx, A.img, W, H, pa, A, -u * W, 0); drawShot(ctx, B.img, W, H, pb, B, (1 - u) * W, 0); break;
-        case "slideV": drawShot(ctx, A.img, W, H, pa, A, 0, -u * H); drawShot(ctx, B.img, W, H, pb, B, 0, (1 - u) * H); break;
-        case "zoom": drawShot(ctx, A.img, W, H, pa, A); ctx.globalAlpha = u; drawShot(ctx, B.img, W, H, pb, B, 0, 0, 1 + (1 - u) * .25); ctx.globalAlpha = 1; break;
-        case "through": drawShot(ctx, B.img, W, H, pb, B, 0, 0, 1.12 - .12 * u); ctx.globalAlpha = 1 - u; drawShot(ctx, A.img, W, H, pa, A, 0, 0, 1 + .32 * u); ctx.globalAlpha = 1; break;
-        default: drawShot(ctx, A.img, W, H, pa, A); ctx.globalAlpha = u; drawShot(ctx, B.img, W, H, pb, B); ctx.globalAlpha = 1;
+        case "slideH": drawAny(ctx, A, W, H, pa, -u * W, 0); drawAny(ctx, B, W, H, pb, (1 - u) * W, 0); break;
+        case "slideV": drawAny(ctx, A, W, H, pa, 0, -u * H); drawAny(ctx, B, W, H, pb, 0, (1 - u) * H); break;
+        case "zoom": drawAny(ctx, A, W, H, pa); ctx.globalAlpha = u; drawAny(ctx, B, W, H, pb, 0, 0, 1 + (1 - u) * .25); ctx.globalAlpha = 1; break;
+        case "through": drawAny(ctx, B, W, H, pb, 0, 0, 1.12 - .12 * u); ctx.globalAlpha = 1 - u; drawAny(ctx, A, W, H, pa, 0, 0, 1 + .32 * u); ctx.globalAlpha = 1; break;
+        default: drawAny(ctx, A, W, H, pa); ctx.globalAlpha = u; drawAny(ctx, B, W, H, pb); ctx.globalAlpha = 1;
       }
     }
     if (vig) { ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H) }
@@ -192,7 +230,7 @@ export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt =
   await enc.flush(); enc.close();
   if (encError) throw encError;
   muxer.finalize();
-  cache.forEach(b => b.close && b.close());
+  } finally { cleanVids(); cache.forEach(b => b.close && b.close()) }
   onProgress(1, "Terminé");
   return new Blob([target.buffer], { type: "video/mp4" });
 }
