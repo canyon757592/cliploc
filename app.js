@@ -623,7 +623,11 @@ function homeStyles(){
   m.innerHTML=MOT.map(x=>'<div class="hsc"><b>'+esc(x[1])+'</b>'+(MINM[x[0]]?'<em class="lkb">Dès la formule '+TSHORT[MINM[x[0]]]+'</em>':'<em class="lkb ok">Inclus partout</em>')+'<p>'+esc(x[2])+'</p></div>').join("");
   c.innerHTML=COL.map(x=>'<div class="hcc">'+thumbHtml(x[2])+'<b>'+esc(x[1])+'</b></div>').join("");
 }
-function renderPlans(el){el.classList.add("p3");el.innerHTML=PLANS.slice(1).map(planCard).join("")}
+function ebCard(){
+  return '<div class="crd ebs"><div><b>Tu veux juste la formation Airbnb ?</b><p class="mut sm">Guide PDF de 44 pages, 14 chapitres : trouver des clients, écrire les messages, fixer ton prix. Sans abonnement, paiement unique.</p></div>'+
+    (S.ebook?'<button class="btn gh" data-v="dl">Télécharger le PDF</button>':'<button class="btn" data-v="ebuy">Acheter seule · '+(bfOn()?'<s>'+eur(EB_PRICE)+'</s> ':'')+eur(sale(EB_PRICE))+'</button>')+'</div>';
+}
+function renderPlans(el){el.classList.add("p3");el.innerHTML=PLANS.slice(1).map(planCard).join("");const eh=$("#ebHome");if(eh)eh.innerHTML=ebCard()}
 function cmpTable(){
   const Y='<span class="yes">✓</span>',N='<span class="nop">–</span>';
   const rows=[["Prix d\'un crédit",PLANS.map(p=>eur(sale(p.k==="unit"?UNITP:p.per)))],["Crédits chaque mois",["—","12","40","120"]],["Styles Dynamique et Visite",[Y,Y,Y,Y]],["Styles Drone et Cinéma",[N,Y,Y,Y]],["Couleurs",["3","6","6","6"]],["HD et Full HD",[Y,Y,Y,Y]],["4K",[N,N,Y,Y]],["Montage diaporama de tes photos",[Y,Y,Y,Y]],["Animation IA en option"+(aiAvail()?"":" (bientôt)"),[N,N,Y,Y]],["Formation Airbnb",[N,N,"Offerte","Offerte"]],["Historique des projets",[N,N,Y,Y]]];
@@ -634,7 +638,7 @@ function credBox(){
 }
 function renderPr(){
   $("#prTg").innerHTML="";
-  $("#prBody").innerHTML='<div class="plans p3">'+planCard(PLANS[1])+planCard(PLANS[2])+planCard(PLANS[3])+'</div>'+cmpTable()+credBox()+
+  $("#prBody").innerHTML='<div class="plans p3">'+planCard(PLANS[1])+planCard(PLANS[2])+planCard(PLANS[3])+'</div>'+ebCard()+cmpTable()+credBox()+
     '<p class="note">'+(bfOn()?"Black Friday : −40 % sur le premier mois, jusqu\'au 30 novembre. ":"")+'Prix TTC, abonnement mensuel renouvelé automatiquement. Tu peux arrêter à tout moment depuis Mon compte : l\'abonnement continue jusqu\'à la fin du mois payé.</p>';
 }
 
@@ -663,7 +667,7 @@ async function doAuth(su,e,p,er,btn){
 async function syncProfile(){
   let p=null,l=[];try{[p,l]=await Promise.all([CL.profile(),CL.ledger()])}catch(e){}
   if(!p){if(!CL.session()){S.user=null;S.credits=0;S.sub=false;S.tiers={essentiel:false,pro:false};S.ebook=false;hdr()}return}
-  S.credits=p.credits|0;S.sub=p.plan==="agence";S.tiers={essentiel:p.plan==="essentiel"||p.plan==="pro",pro:p.plan==="pro"};S.ebook=p.ebook===true;
+  S.credits=p.credits|0;S.sub=p.plan==="agence";S.tiers={essentiel:p.plan==="essentiel"||p.plan==="pro",pro:p.plan==="pro"};S.ebook=p.ebook===true;try{const eh=$("#ebHome");if(eh)eh.innerHTML=ebCard()}catch(e){}
   const LB={video_start:"Vidéo",video_refund:"Remboursement",purchase_unit:"Achat",purchase_pack:"Achat d'un pack",subscription:"Abonnement (crédits du mois)",manual:"Crédits offerts"};
   S.ledger=l.slice().reverse().map(e=>({l:LB[e.reason]||"Opération",d:e.delta|0,at:Date.parse(e.created_at)||Date.now()}));
   const used=l.reduce((a,e)=>a+((e.reason==="video_start"||e.reason==="video_refund")?-e.delta:0),0);
@@ -698,7 +702,7 @@ if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.fo
 
 window.V={nav:navGo,pr:prGo,pick:pick,go:go,jump:jump,focus:focusBar,start:start,demo:demo,copy:copy,page:page,logout:logout,closeMd:closeMd,toast:toast,buyEbook:buyEbook,buy:buy,dl:dlEb};
 /* Clics : pas de gestionnaire inline (la politique de sécurité les interdit), liste blanche d'actions */
-const ACTS={focus:()=>V.focus(),closeMd:()=>V.closeMd(),toast:a=>V.toast(a),pr:a=>V.pr(a==="packs"?"packs":"unit"),page:a=>PAGES[a]&&V.page(a),nav:a=>V.nav(a),logout:()=>V.logout(),go:a=>SCR.includes(a)&&V.go(a),dl:()=>V.dl(),demo:()=>V.demo(),copy:()=>V.copy(),buy:a=>V.buy(a)};
+const ACTS={focus:()=>V.focus(),closeMd:()=>V.closeMd(),toast:a=>V.toast(a),pr:a=>V.pr(a==="packs"?"packs":"unit"),page:a=>PAGES[a]&&V.page(a),nav:a=>V.nav(a),logout:()=>V.logout(),go:a=>SCR.includes(a)&&V.go(a),dl:()=>V.dl(),demo:()=>V.demo(),copy:()=>V.copy(),buy:a=>V.buy(a),ebuy:()=>V.buyEbook()};
 document.addEventListener("click",e=>{
   const t=e.target.closest&&e.target.closest("[data-v]");if(!t)return;
   const n=t.dataset.v,a=t.dataset.a;

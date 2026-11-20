@@ -489,3 +489,18 @@ code{font-family:inherit;color:#00796B;background:none;font-weight:700}
 .cpi input{width:18px;height:18px;accent-color:#222}
 .cpi.off{border-style:dashed;cursor:default;opacity:.7;display:flex;align-items:center;justify-content:center;min-height:80px;text-align:center}
 .stl li.cpw{display:block;opacity:1;min-width:0;width:100%}
+
+/* Fond chaleureux (crème) à la place du blanc froid */
+:root{--bg:#FBF3E8;--cd2:#F4EADB;--ln:#E8DCC8}
+body{background:var(--bg)}
+.hd{background:rgba(251,243,232,.95);border-bottom:1px solid #EBDDC9}
+.tabs{background:rgba(251,243,232,.97);border-bottom:1px solid #EBDDC9}
+.hero{background:radial-gradient(60% 50% at 50% 0%,rgba(255,138,101,.18),transparent),radial-gradient(45% 40% at 90% 60%,rgba(255,196,120,.22),transparent),linear-gradient(180deg,#FFF1E2 0%,#FBF3E8 100%)}
+.cd,.crd,.plan,.msg,.trust,.rv,.fq,.vi,.gc,.md .box{border-color:#EBDDC9}
+.chip{background:#FFF9F0;border-color:#E8D9C0}
+.mod,.fin,footer{background:#F4EADB;border-color:#EBDDC9}
+.nv button:hover,.tb.on,.btn.gh:hover{background:#F4EADB}
+.phb{background:#F4EADB}
+.bar{border-color:#E8D9C0}
+.ebs{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;margin:14px 0}
+.ebs>div{flex:1 1 280px}.ebs b{font-size:1.02rem}.ebs .btn{flex:none;white-space:nowrap}.ebs .btn s{opacity:.65;font-weight:600}
