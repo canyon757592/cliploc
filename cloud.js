@@ -178,9 +178,9 @@
   }
 
   /* Portail Stripe : résilier, changer de carte, factures. */
-  async function portal() {
+  async function portal(action) {
     const t = await token(); if (!t) throw new Error("Ta session a expiré. Reconnecte-toi.");
-    let r; try { r = await fetch(URL_ + "/functions/v1/customer-portal", { method: "POST", headers: hdr(t), body: "{}", cache: "no-store" }) }
+    let r; try { r = await fetch(URL_ + "/functions/v1/customer-portal", { method: "POST", headers: hdr(t), body: JSON.stringify(action === "cancel" ? { action: "cancel" } : {}), cache: "no-store" }) }
     catch (e) { throw new Error("Pas de connexion. Réessaie dans un instant.") }
     let j = null; try { j = await r.json() } catch (e) {}
     if (!r.ok || !j || typeof j.url !== "string" || !/^https:\/\/billing\.stripe\.com\//.test(j.url))

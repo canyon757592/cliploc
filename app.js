@@ -421,8 +421,8 @@ function buy(k){
   if(!aiAvailPay()){payLater();return}
   startCheckout(k==="agence"?{kind:"agence"}:{kind:"pack",plan:k},{video:false,before:S.credits,grant:pl.c,ebook:false});
 }
-async function openPortal(){
-  try{const u=await CL.portal();location.assign(u)}
+async function openPortal(action){
+  try{const u=await CL.portal(action==='cancel'?'cancel':'');location.assign(u)}
   catch(e){const er=$("#pErr");if(er&&document.body.dataset.s==="pay")er.textContent=e.message;else toast(e.message)}
 }
 function newCur(){return{id:Date.now(),listing:S.id,dur:S.dur,q:S.q,fmt:S.fmt,n:S.n,date:new Date().toLocaleDateString("fr-FR"),caps:S.caps,ai:!!S.ai,motion:S.motion,grade:S.grade,job:null}}
@@ -590,7 +590,7 @@ function renderDash0(){
   $("#dashBox").innerHTML=
    '<div class="crd"><p class="kk">MON COMPTE</p><h2>Mes crédits</h2><div class="bal2"><b>'+c+'</b><span>crédit'+(c>1?"s":"")+' restant'+(c>1?"s":"")+(rank()>0?" ce mois-ci":"")+'</span></div><p class="mut sm" style="margin-top:6px">Ta formule : <b>'+TNAME[rank()]+'</b>'+(rank()<3?' · 4K '+(rank()>=2?'débloquée':'verrouillée')+' · '+(rank()>=1?'tous les styles':'styles Dynamique et Visite'):' · tout est débloqué')+'</p>'+
    (S.credTotal>0?'<div class="pb" style="margin:12px 0 6px"><i style="width:'+pct+'%"></i></div><p class="mut sm">'+(tot-c)+' utilisé'+((tot-c)>1?"s":"")+' sur '+tot+'</p>':'<p class="mut sm" style="margin-top:8px">Tu n\'as pas encore de crédits. Choisis une formule : tu en reçois chaque mois et tu arrêtes quand tu veux.</p>')+
-   (rank()>0?'<div class="subc"><b>Abonnement '+TNAME[rank()]+' · actif</b><span>'+PLANS[rank()].c+' crédits par mois, renouvelés chaque mois. Les crédits non utilisés sont conservés.</span><button class="lk" id="subX">Gérer mon abonnement</button></div>':'')+
+   (rank()>0?'<div class="subc"><b>Abonnement '+TNAME[rank()]+' · actif</b><span>'+PLANS[rank()].c+' crédits par mois, renouvelés chaque mois. Les crédits non utilisés sont conservés.</span><div class="subb"><button class="btn dng" id="subC">Résilier mon abonnement</button><button class="lk" id="subX">Gérer mon abonnement</button></div><small class="mut">Tu gardes ton abonnement et tes crédits jusqu\'à la fin du mois déjà payé. Rien n\'est repris ensuite.</small></div>':'')+
    '<div class="nxb" style="margin-top:14px"><button class="btn" id="dBuyP">Voir les formules</button>'+'</div>'+
    '<p class="note">1 crédit = 15 s en HD. Le nombre de crédits d\'une vidéo est affiché avant de payer. Tu reçois un email quand il t\'en reste 2.</p></div>'+
    '<div class="crd" style="margin-top:14px"><p class="kk">MES VIDÉOS</p>'+
@@ -600,6 +600,7 @@ function renderDash0(){
   msgBuilder($("#mbBox"));
   $("#dBuyP").onclick=()=>prGo("packs");
   const sx=$("#subX");if(sx)sx.onclick=async()=>{sx.disabled=true;await openPortal();sx.disabled=false};
+  const sc=$("#subC");if(sc)sc.onclick=async()=>{sc.disabled=true;sc.textContent="Ouverture…";await openPortal("cancel");sc.disabled=false;sc.textContent="Résilier mon abonnement"};
 }
 
 function renderDash(){renderDash0();if(S.user&&S.ebook)$("#dashBox").insertAdjacentHTML("beforeend",'<div class="crd" style="margin-top:14px"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" data-v="dl">Télécharger</button></div></div>')}
