@@ -828,6 +828,7 @@ $("#ctGo").onclick=async()=>{const e=$("#ctE").value.trim(),m=$("#ctM").value.tr
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)||e.length>254){er.textContent="Entre une adresse email valide.";return}
   if(m.length<10){er.textContent="Écris un message d'au moins 10 caractères.";return}
   if(m.length>2000){er.textContent="Ton message est trop long (2 000 caractères maximum).";return}
+  if(!CL.contact){er.textContent="Ta page n'est pas à jour. Recharge-la (Ctrl+F5) puis réessaie.";return}
   er.textContent="";b.disabled=true;const t0=b.textContent;b.textContent="Envoi…";
   const r=await CL.contact(e,m,($("#ctW")||{}).value||"");b.disabled=false;b.textContent=t0;
   if(!r.ok){er.textContent=r.error;return}

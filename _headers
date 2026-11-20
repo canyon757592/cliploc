@@ -16,6 +16,9 @@
 /app.js
   Cache-Control: no-cache
 
+/cloud.js
+  Cache-Control: no-cache
+
 /render.js
   Cache-Control: no-cache
 
