@@ -507,3 +507,5 @@ body{background:var(--bg)}
 .btn.dng{background:#D92D20;color:#fff;border:0;box-shadow:none}.btn.dng:hover{background:#B42318}
 .subb{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:10px 0 6px}.subc small{display:block}
 .subc .lk{color:#6A6A6A;text-decoration:underline}
+.hook{margin:14px 0 0;font-weight:700;font-size:1.02rem;color:#222}.hook b{color:var(--g);font-size:1.25rem}.hook s{color:#8a8a8a;font-weight:600;margin:0 2px}
+.pr s{color:#8a8a8a;font-weight:600;font-size:1.05rem;margin-right:8px}.pp s{display:block;color:#8a8a8a;font-weight:600;font-size:.85rem}
