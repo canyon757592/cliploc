@@ -559,13 +559,27 @@ function loadReal(){return fetch("examples/manifest.json",{cache:"no-cache"}).th
   if(!m)return;
   const ok=u=>typeof u==="string"&&/^examples\/[A-Za-z0-9_.-]+$/.test(u);
   REAL.hero=(Array.isArray(m.hero)?m.hero:[]).filter(ok);
-  REAL.videos=(Array.isArray(m.videos)?m.videos:[]).filter(v=>v&&ok(v.src)&&ok(v.poster)).slice(0,12);
+  REAL.videos=(Array.isArray(m.videos)?m.videos:[]).filter(v=>v&&ok(v.src)&&ok(v.poster)).slice(0,12).map(v=>{
+    const F={};if(v.formats&&typeof v.formats==="object")["s","h"].forEach(k=>{const f=v.formats[k];if(f&&ok(f.src)&&ok(f.poster))F[k]={src:f.src,poster:f.poster}});
+    return {title:v.title,meta:v.meta,src:v.src,poster:v.poster,formats:F}});
   if(REAL.hero.length>=3){heroPhotos=REAL.hero.map(u=>({u:u,c:""}));if(heroP){heroP.stop();heroP=Player($("#heroPh"),heroPhotos,2.4).start()}}
   if(!$("#ex").hidden)gallery();
 }).catch(()=>{})}
+/* Galerie d'exemples : chaque vidéo existe en vertical, carré et horizontal */
+const GFMT=[["v","Vertical","Reels, TikTok, stories"],["s","Carré","Fil Instagram, Facebook"],["h","Horizontal","YouTube, site web"]];
+let galFmt="v";
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-gf]");if(!b)return;galFmt=b.dataset.gf;gallery();const f=$('[data-gf="'+galFmt+'"]');if(f)f.focus()});
 function gallery(){
   if(REAL.videos.length){
-    $("#galBox").innerHTML=REAL.videos.map(v=>'<div class="gc"><div class="ph"><video src="'+v.src+'" poster="'+v.poster+'" muted loop playsinline preload="none" controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video></div><b>'+esc(v.title||"")+'</b><small>'+esc(v.meta||"")+'</small><button class="btn gh s" data-v="focus">Faire la mienne</button></div>').join("");
+    const fm=GFMT.filter(g=>g[0]==="v"||REAL.videos.some(v=>v.formats[g[0]]));
+    if(!fm.some(g=>g[0]===galFmt))galFmt="v";
+    const bar=$("#galFmt");
+    if(bar){bar.hidden=fm.length<2;bar.innerHTML=fm.map(g=>'<button type="button" data-gf="'+g[0]+'" aria-pressed="'+(g[0]===galFmt)+'"'+(g[0]===galFmt?' class="on"':'')+'>'+g[1]+'<small>'+g[2]+'</small></button>').join("")}
+    const box=$("#galBox");box.className="gal gf-"+galFmt;
+    box.innerHTML=REAL.videos.map(v=>{
+      const f=galFmt==="v"?v:v.formats[galFmt];if(!f)return"";
+      const vid='<video src="'+f.src+'" poster="'+f.poster+'" muted loop playsinline preload="none" controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>';
+      return '<div class="gc">'+(galFmt==="v"?'<div class="ph">'+vid+'</div>':'<div class="gsc">'+vid+'</div>')+'<b>'+esc(v.title||"")+'</b><small>'+esc(v.meta||"")+'</small><button class="btn gh s" data-v="focus">Faire la mienne</button></div>'}).join("");
     return;
   }
   $("#galBox").innerHTML=GAL.map((g,i)=>'<div class="gc"><div class="ph"><div id="gx'+i+'" style="position:absolute;inset:0"></div></div><b>'+g[0]+'</b><small>'+g[1]+'</small><button class="btn gh s" data-v="focus">Faire la mienne</button></div>').join("");

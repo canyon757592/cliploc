@@ -13,31 +13,81 @@
    "title": "Villa avec piscine à débordement",
    "meta": "30 S · FULL HD",
    "src": "examples/villa_piscine.mp4",
-   "poster": "examples/villa_piscine.jpg"
+   "poster": "examples/villa_piscine.jpg",
+   "formats": {
+    "s": {
+     "src": "examples/villa_piscine_s.mp4",
+     "poster": "examples/villa_piscine_s.jpg"
+    },
+    "h": {
+     "src": "examples/villa_piscine_h.mp4",
+     "poster": "examples/villa_piscine_h.jpg"
+    }
+   }
   },
   {
    "title": "Appartement en hauteur",
    "meta": "30 S · FULL HD",
    "src": "examples/appart_skyline.mp4",
-   "poster": "examples/appart_skyline.jpg"
+   "poster": "examples/appart_skyline.jpg",
+   "formats": {
+    "s": {
+     "src": "examples/appart_skyline_s.mp4",
+     "poster": "examples/appart_skyline_s.jpg"
+    },
+    "h": {
+     "src": "examples/appart_skyline_h.mp4",
+     "poster": "examples/appart_skyline_h.jpg"
+    }
+   }
   },
   {
    "title": "Villa vue sur la ville, style cinéma",
    "meta": "15 S · FULL HD",
    "src": "examples/villa_cinema.mp4",
-   "poster": "examples/villa_cinema.jpg"
+   "poster": "examples/villa_cinema.jpg",
+   "formats": {
+    "s": {
+     "src": "examples/villa_cinema_s.mp4",
+     "poster": "examples/villa_cinema_s.jpg"
+    },
+    "h": {
+     "src": "examples/villa_cinema_h.mp4",
+     "poster": "examples/villa_cinema_h.jpg"
+    }
+   }
   },
   {
    "title": "Appartement 2 chambres, visite complète",
    "meta": "45 S · HD",
    "src": "examples/appart_visite.mp4",
-   "poster": "examples/appart_visite.jpg"
+   "poster": "examples/appart_visite.jpg",
+   "formats": {
+    "s": {
+     "src": "examples/appart_visite_s.mp4",
+     "poster": "examples/appart_visite_s.jpg"
+    },
+    "h": {
+     "src": "examples/appart_visite_h.mp4",
+     "poster": "examples/appart_visite_h.jpg"
+    }
+   }
   },
   {
    "title": "Appartement de nuit, style cinéma",
    "meta": "15 S · FULL HD",
    "src": "examples/appart_nuit.mp4",
-   "poster": "examples/appart_nuit.jpg"
+   "poster": "examples/appart_nuit.jpg",
+   "formats": {
+    "s": {
+     "src": "examples/appart_nuit_s.mp4",
+     "poster": "examples/appart_nuit_s.jpg"
+    },
+    "h": {
+     "src": "examples/appart_nuit_h.mp4",
+     "poster": "examples/appart_nuit_h.jpg"
+    }
+   }
   }
  ]
 }

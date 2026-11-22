@@ -634,3 +634,11 @@ main:focus{outline:none}
 footer nav.fl2 a{color:#555;font-size:.85rem}
 
 .ph .hv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;background:#1d1930}.ph .nt{z-index:2}
+
+/* galerie : choix du format */
+.gfm{margin-top:20px;max-width:560px}
+.gfm[hidden]{display:none}
+.gal.gf-h{grid-template-columns:minmax(0,1fr)}
+@media(min-width:760px){.gal.gf-h{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.gc .gsc{position:relative;width:100%;border-radius:16px;overflow:hidden;background:#000}
+.gf-s .gc .gsc{aspect-ratio:1/1}.gf-h .gc .gsc{aspect-ratio:16/9}

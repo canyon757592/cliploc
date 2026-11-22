@@ -244,6 +244,12 @@ GUIDES = [
  },
 ]
 
+FORMATS = [  # code, nom, titre de section, usage, largeur, hauteur d'affichage, suffixe de fichier, classe
+    ("v", "vertical", "Vertical", "pour les Reels, TikTok et les stories", 540, 960, "", ""),
+    ("s", "carré", "Carré", "pour le fil Instagram et Facebook", 540, 540, "_s", " sq"),
+    ("h", "horizontal", "Horizontal", "pour YouTube et ton site", 960, 540, "_h", " hz"),
+]
+
 VIDEOS = [
  ("villa_piscine", "Villa avec piscine à débordement", "Visite d'une villa avec piscine à débordement et vue sur la ville, au coucher du soleil puis de nuit. Style drone, 30 secondes, Full HD vertical.", 30, "Drone · 30 s · Full HD"),
  ("appart_skyline", "Appartement en hauteur", "Appartement en étage élevé avec balcon et vue sur les tours : séjour, chambres, salle de bain. Style dynamique, 30 secondes, Full HD vertical.", 30, "Dynamique · 30 s · Full HD"),
@@ -274,22 +280,27 @@ def build():
     out.append(("/guides/", page("/guides/", "Guides vidéo pour location saisonnière et Airbnb | Cliploc",
                                   "Méthodes pratiques pour créer des vidéos de logement : annonce Airbnb, Reels et TikTok, offre vidéo pour conciergerie.",
                                   body, [coll, crs], "gd", "website", wide=True)))
-    # ----- exemples -----
+    # ----- exemples : chaque vidéo en vertical, carré et horizontal -----
     cr, crs = crumbs([("Accueil", "/"), ("Exemples", None)])
-    figs, vids = [], []
-    for k, t, d, s, m in VIDEOS:
-        figs.append(f'<figure class="vc"><video controls playsinline preload="none" poster="/examples/thumb/{k}.jpg" width="540" height="960" aria-label="{html.escape(t)}"><source src="/examples/{k}.mp4" type="video/mp4"></video><figcaption><b>{t}</b><span>{m}</span></figcaption></figure>')
-        vids.append({"@context": "https://schema.org", "@type": "VideoObject", "name": t, "description": d,
-                     "thumbnailUrl": f"{SITE}/examples/{k}.jpg", "contentUrl": f"{SITE}/examples/{k}.mp4",
-                     "uploadDate": "2026-11-21T00:00:00+01:00", "duration": f"PT{s}S", "inLanguage": "fr-FR",
-                     "publisher": ORG})
+    vids, sections = [], []
+    for fk, fname, flabel, usage, fw, fh, suf, cls in FORMATS:
+        figs = []
+        for k, t, d, s, m in VIDEOS:
+            if not os.path.exists(os.path.join(ROOT, "examples", f"{k}{suf}.mp4")): continue
+            figs.append(f'<figure class="vc"><video controls playsinline preload="none" poster="/examples/thumb/{k}{suf}.jpg" width="{fw}" height="{fh}" aria-label="{html.escape(t)}, format {fname}"><source src="/examples/{k}{suf}.mp4" type="video/mp4"></video><figcaption><b>{t}</b><span>{m}</span></figcaption></figure>')
+            vids.append({"@context": "https://schema.org", "@type": "VideoObject", "name": f"{t} (format {fname})", "description": d.replace(" vertical.", ".") + f" Format {fname}.",
+                         "thumbnailUrl": f"{SITE}/examples/{k}{suf}.jpg", "contentUrl": f"{SITE}/examples/{k}{suf}.mp4",
+                         "uploadDate": "2026-11-22T00:00:00+01:00", "duration": f"PT{s}S", "inLanguage": "fr-FR",
+                         "publisher": ORG})
+        if figs:
+            sections.append(f'<h2>{flabel}, {usage}</h2><div class="vg{cls}">{"".join(figs)}</div>')
     body = (f'{cr}<p class="kk">Exemples</p><h1>Exemples de vidéos d\'annonce réalisées avec Cliploc</h1>'
-            f'<p class="lead">Ces vidéos ont été montées avec Cliploc, à partir des photos de vrais logements : une villa avec piscine et un appartement en hauteur. Les tiennes seront faites avec les photos de ton annonce.</p>'
-            f'<div class="vg">{"".join(figs)}</div>'
+            f'<p class="lead">Ces vidéos ont été montées avec Cliploc, à partir des photos de vrais logements : une villa avec piscine et un appartement en hauteur. Chacune existe en trois formats : vertical, carré et horizontal. Les tiennes seront faites avec les photos de ton annonce.</p>'
+            f'{"".join(sections)}'
             f'<h2>Ce que tu choisis pour chaque vidéo</h2><ul><li><b>La durée :</b> 15, 30, 45 ou 60 secondes.</li><li><b>La qualité :</b> HD, Full HD ou 4K.</li><li><b>Le mouvement :</b> dynamique, visite, drone ou cinéma.</li><li><b>Les couleurs :</b> naturel, chaud, frais, cinéma et d\'autres ambiances.</li><li><b>Le format :</b> vertical, carré ou horizontal.</li></ul>'
             f'<p>Pour bien choisir tes photos et l\'ordre de la visite, lis le guide <a href="/guides/video-annonce-airbnb/">comment faire une vidéo de ton annonce Airbnb</a>.</p>{CTA}')
     out.append(("/exemples/", page("/exemples/", "Exemples de vidéos d'annonce Airbnb et location saisonnière | Cliploc",
-                                    "Regarde des vidéos verticales réalisées avec Cliploc à partir des photos de vrais logements : villa avec piscine, appartement avec vue. Styles drone, visite, cinéma.",
+                                    "Regarde des vidéos réalisées avec Cliploc à partir des photos de vrais logements, en vertical, carré et horizontal : villa avec piscine, appartement avec vue.",
                                     body, vids + [crs], "ex", "website", wide=True,
                                     extra_head=f'<link rel="preload" as="image" href="/examples/thumb/{VIDEOS[0][0]}.jpg" fetchpriority="high">\n')))
     for path, h in out:
@@ -304,8 +315,9 @@ def build():
     for u in urls:
         sm.append(f"  <url><loc>{SITE}{u}</loc><lastmod>{TODAY}</lastmod>")
         if u == "/exemples/":
-            for k, t, d, s, m in VIDEOS:
-                sm.append(f"    <video:video><video:thumbnail_loc>{SITE}/examples/{k}.jpg</video:thumbnail_loc><video:title>{html.escape(t)}</video:title><video:description>{html.escape(d)}</video:description><video:content_loc>{SITE}/examples/{k}.mp4</video:content_loc><video:duration>{s}</video:duration><video:publication_date>2026-11-21T00:00:00+01:00</video:publication_date><video:family_friendly>yes</video:family_friendly></video:video>")
+            for v in vids:
+                if v.get("@type") != "VideoObject": continue
+                sm.append(f"    <video:video><video:thumbnail_loc>{v['thumbnailUrl']}</video:thumbnail_loc><video:title>{html.escape(v['name'])}</video:title><video:description>{html.escape(v['description'])}</video:description><video:content_loc>{v['contentUrl']}</video:content_loc><video:duration>{v['duration'][2:-1]}</video:duration><video:publication_date>{v['uploadDate']}</video:publication_date><video:family_friendly>yes</video:family_friendly></video:video>")
         sm.append("  </url>")
     sm.append("</urlset>")
     with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as f:
