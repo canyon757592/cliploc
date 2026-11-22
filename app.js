@@ -133,8 +133,17 @@ function go(id,opt){
   hdr();
   const f={an:runAn,cfg:()=>renderCfg(),mk:runMk,gate:renderGate,pay:renderPay,rd2:runRd,done:renderDone,dash:()=>{S.dtab="ov";renderDash()},pr:renderPr,ex:gallery,eb:renderEb,auth:()=>renderAuth("signup")}[id];
   if(f)f();
-  if(id==="lp"){if(heroP)heroP.stop();if(!heroFilm())heroP=Player($("#heroPh"),heroPhotos||mkPhotos(6),2.4).start()}
-  if(id!=="lp"){if(heroP)heroP.stop();const v=$("#heroVid");if(v&&!v.paused)v.pause()}
+  if(id==="lp"){if(heroP)heroP.stop();if(!heroFilm())heroP=Player($("#heroPh"),heroPhotos||mkPhotos(6),2.4).start();loopVid($("#aiVid"))}
+  if(id!=="lp"){if(heroP)heroP.stop();["#heroVid","#aiVid"].forEach(q=>{const v=$(q);if(v&&!v.paused)v.pause()})}
+}
+/* Vidéo en boucle sans son, chargée seulement après l'affichage de la page */
+function loopVid(v){
+  if(!v||v.dataset.ko||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return;
+  const play=()=>{const p=v.play();if(p&&p.catch)p.catch(()=>{})};
+  if(v.getAttribute("src")){play();return}
+  v.addEventListener("error",()=>{v.dataset.ko="1"},{once:true});
+  const load=()=>{if(!v.getAttribute("src")){v.src=v.dataset.src;play()}};
+  if(document.readyState==="complete")setTimeout(load,900);else addEventListener("load",()=>setTimeout(load,1200),{once:true});
 }
 /* Téléphone de l'accueil : le vrai film d'exemple, chargé seulement après l'affichage de la page */
 function heroFilm(){
