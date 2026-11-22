@@ -643,9 +643,10 @@ footer nav.fl2 a{color:#555;font-size:.85rem}
 .gc .gsc{position:relative;width:100%;border-radius:16px;overflow:hidden;background:#000}
 .gf-s .gc .gsc{aspect-ratio:1/1}.gf-h .gc .gsc{aspect-ratio:16/9}
 
-/* aperçu de l'Animation IA, sous la barre de recherche */
-.aiv{max-width:340px;margin:16px auto 0}
-@media(min-width:900px){.aiv{margin:16px 0 0}}
-.aivf{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#1d1930;box-shadow:0 8px 24px rgba(0,0,0,.14)}
+/* vidéo de l'accueil, à la place du téléphone */
+.hvw{display:block}
+.aiv{margin:0 auto;max-width:620px}
+.aivf{position:relative;aspect-ratio:16/9;border-radius:22px;overflow:hidden;background:#1d1930;box-shadow:0 30px 80px rgba(120,40,20,.22)}
 .aivf video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.aivb{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.62);color:#fff;font-size:.72rem;font-weight:700;line-height:1;padding:5px 9px;border-radius:999px}
+.aiv figcaption{margin-top:8px;font-size:.72rem;color:#8a8090;text-align:right}
+@media(min-width:900px){.hero .w.hg:has(.hvw){max-width:1240px;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:48px}.hvw .aiv{max-width:none}}
