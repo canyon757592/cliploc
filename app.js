@@ -815,6 +815,24 @@ function trustBox(){
 }
 if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("v");io.unobserve(e.target)}}),{threshold:.1});$$(".vis").forEach(el=>io.observe(el))}else{$$(".vis").forEach(el=>el.classList.add("v"))}
 
+/* ---------- expérience dynamique ---------- */
+(function fx(){
+  const mm=q=>!!(window.matchMedia&&matchMedia(q).matches),RM=mm("(prefers-reduced-motion: reduce)"),FINE=mm("(hover:hover) and (pointer:fine)");
+  $$(".stp,.ag,.trg,.gal,.hsg,.pls").forEach(g=>[...g.children].forEach((c,k)=>c.style.setProperty("--d",(k%6)*90+"ms")));
+  const top=$(".top"),pb=$("#fxp");let tk=false;
+  const onS=()=>{tk=false;const y=window.scrollY||0,h=document.documentElement.scrollHeight-innerHeight;if(top)top.classList.toggle("fxs",y>8);if(pb)pb.style.transform="scaleX("+(h>0?Math.min(1,y/h):0).toFixed(4)+")"};
+  addEventListener("scroll",()=>{if(!tk){tk=true;requestAnimationFrame(onS)}},{passive:true});onS();
+  const w=$("#fxw");
+  if(w){const M=[["🔗","Lien Airbnb collé","Annonce reconnue"],["🖼","Photos ajoutées","Prêtes pour le montage"],["🎬","Montage en cours","",1],["✅","Vidéo prête","30 s · Full HD · sans filigrane"],["📲","Envoyée sur WhatsApp","Le voyageur visite avant de réserver"]];
+    const put=k=>{const m=M[k];w.innerHTML="<i>"+m[0]+"</i><div><b>"+m[1]+"</b>"+(m[3]?'<span class="fxq"><em></em></span>':"<span>"+m[2]+"</span>")+"</div>"};
+    if(RM)put(3);else{let i=0;put(0);setInterval(()=>{if(document.hidden)return;w.classList.add("out");setTimeout(()=>{i=(i+1)%M.length;put(i);w.classList.remove("out")},380)},2700)}}
+  if(FINE&&!RM){
+    const pw=$(".phw"),ph=$(".phw .ph");
+    if(pw&&ph){let r=0;pw.addEventListener("pointermove",e=>{const b=pw.getBoundingClientRect(),x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;cancelAnimationFrame(r);r=requestAnimationFrame(()=>{ph.style.transform="perspective(900px) rotateY("+(x*12).toFixed(2)+"deg) rotateX("+(-y*9).toFixed(2)+"deg)"})});pw.addEventListener("pointerleave",()=>{cancelAnimationFrame(r);ph.style.transform=""})}
+    document.addEventListener("pointermove",e=>{const c=e.target&&e.target.closest&&e.target.closest(".cd");if(!c)return;const b=c.getBoundingClientRect();c.style.setProperty("--mx",(e.clientX-b.left|0)+"px");c.style.setProperty("--my",(e.clientY-b.top|0)+"px")},{passive:true});
+  }
+})();
+
 window.V={nav:navGo,pr:prGo,pick:pick,go:go,jump:jump,focus:focusBar,start:start,demo:demo,copy:copy,page:page,logout:logout,closeMd:closeMd,toast:toast,buyEbook:buyEbook,buy:buy,dl:dlEb};
 /* Clics : pas de gestionnaire inline (la politique de sécurité les interdit), liste blanche d'actions */
 /* Accessibilité : chaque écran visible a un titre de niveau 1 (les titres d'écran sont des h2 mis en forme) */
@@ -847,6 +865,6 @@ CL.restore().catch(()=>false).then(()=>{const ss=CL.session();if(ss){S.user={ema
   else if(CL.isRecovery()&&S.user){go("auth");renderAuth("reset")}});
 CL.flags().then(f=>{S.flags=f;const cs=document.body.dataset.s;renderPlans($("#plHome"));homeAi();if(cs==="cfg")renderCfg();if(cs==="pr")renderPr()}).catch(()=>{});
 faq();trustBox();loadReal();renderPlans($("#plHome"));homeStyles();homeAi();hdr();nav();stkRot();CL.reviews().then(l=>{if(l.length){AVIS.length=0;l.forEach(x=>AVIS.push(x));trustBox()}}).catch(()=>{});
-const h0=(location.hash||"#lp").slice(1);go(h0==="lp"||SCR.indexOf(h0)<0?"lp":(NEED[h0]?"lp":h0),{nopush:true});
+const h0=(location.hash||"#lp").slice(1);go(h0==="lp"||SCR.indexOf(h0)<0?"lp":(NEED[h0]?"lp":h0),{nopush:true});if(["mentions","privacy","cgv","contact"].indexOf(h0)>=0&&PAGES[h0])page(h0);
 track("view_lp");
 })();

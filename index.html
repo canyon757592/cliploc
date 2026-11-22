@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>CLIPLOC – Ton annonce Airbnb, en vidéo</title>
-<meta name="description" content="Colle le lien d'une annonce Airbnb : on monte une vidéo verticale à partir de ses photos. Durée et qualité au choix, sans filigrane.">
+<title>Vidéo Airbnb en quelques minutes à partir de tes photos | Cliploc</title>
+<meta name="description" content="Transforme les photos de ton annonce Airbnb ou de ta location saisonnière en vidéo pour Instagram, TikTok et WhatsApp. Sans tournage ni logiciel, de la HD à la 4K, sans filigrane.">
 <link rel="canonical" href="https://cliploc.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Cliploc">
@@ -28,12 +28,13 @@
 <link rel="preload" href="fonts/plus-jakarta-sans-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/plus-jakarta-sans-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/plus-jakarta-sans-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://cliploc.com/#org","name":"Cliploc","url":"https://cliploc.com/","logo":"https://cliploc.com/icon-512.png","email":"contact@cliploc.com"},{"@type":"WebSite","@id":"https://cliploc.com/#site","url":"https://cliploc.com/","name":"Cliploc","inLanguage":"fr-FR","publisher":{"@id":"https://cliploc.com/#org"}}]}</script>
-<link rel="stylesheet" href="style.css?v=c600fca4">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://cliploc.com/#org","name":"Cliploc","url":"https://cliploc.com/","logo":"https://cliploc.com/icon-512.png","email":"contact@cliploc.com"},{"@type":"WebSite","@id":"https://cliploc.com/#site","url":"https://cliploc.com/","name":"Cliploc","inLanguage":"fr-FR","publisher":{"@id":"https://cliploc.com/#org"}},{"@type":"WebApplication","@id":"https://cliploc.com/#app","name":"Cliploc","url":"https://cliploc.com/","description":"Service en ligne qui transforme les photos d'une annonce Airbnb ou d'une location saisonnière en vidéo verticale, carrée ou horizontale, de 15 à 60 secondes, de la HD à la 4K, sans filigrane.","applicationCategory":"MultimediaApplication","operatingSystem":"Web","browserRequirements":"Navigateur récent avec JavaScript","inLanguage":"fr-FR","publisher":{"@id":"https://cliploc.com/#org"},"isPartOf":{"@id":"https://cliploc.com/#site"}}]}</script>
+<link rel="stylesheet" href="style.css?v=5d54d56d">
 </head>
 <body>
 <noscript><p style="margin:0;padding:14px 18px;background:#FFF7E6;color:#7a5200;text-align:center;font:600 15px/1.4 system-ui,sans-serif">Cliploc a besoin de JavaScript pour monter ta vidéo dans ton navigateur. Active-le dans les réglages de ton navigateur, puis recharge la page.</p></noscript>
 
+<div id="fxp" aria-hidden="true"></div>
 <header class="top">
   <button class="skip" type="button" data-v="skip">Aller au contenu</button>
   <div class="bf" id="bf" role="region" aria-label="Offre de lancement">
@@ -75,6 +76,7 @@
         <div class="stk a" id="stkA">Tous les réseaux</div>
         <div class="ph"><div id="heroPh" style="position:absolute;inset:0"></div><div class="nt"></div></div>
         <div class="stk b">Aussi en privé</div>
+        <div class="fxw" id="fxw" aria-hidden="true"></div>
       </div>
     </div>
   </div>
@@ -177,6 +179,16 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
       </div>
       <div class="emsg"></div>
     </div>
+  </div></div>
+
+  <div class="sec" id="guides" style="padding-top:8px"><div class="w">
+    <div class="hrow vis"><p class="kk">Guides</p><h2>Bien faire sa vidéo de logement</h2><p>Des méthodes simples, testées sur de vraies annonces.</p></div>
+    <div class="stp gds">
+      <a class="cd vis" href="/guides/video-annonce-airbnb/"><h3>Faire une vidéo de ton annonce Airbnb</h3><p>Les photos à garder, l'ordre de la visite, la bonne durée et le bon format.</p><span class="gl">Lire le guide →</span></a>
+      <a class="cd vis" href="/guides/reels-tiktok-location-saisonniere/"><h3>Reels et TikTok pour ta location</h3><p>Accroche, texte à l'écran, légende et rythme de publication.</p><span class="gl">Lire le guide →</span></a>
+      <a class="cd vis" href="/guides/video-conciergerie-airbnb/"><h3>Conciergerie : vendre des vidéos</h3><p>Quoi livrer, les droits sur les photos, la méthode et le message de prospection.</p><span class="gl">Lire le guide →</span></a>
+    </div>
+    <p style="text-align:center;margin-top:18px"><a class="gl" href="/exemples/">Voir les vidéos d'exemple</a> · <a class="gl" href="/guides/">Tous les guides</a></p>
   </div></div>
 </section>
 
@@ -320,6 +332,7 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
 <footer>
   <span class="logo" style="justify-content:center;font-size:1.2rem"><i></i>Cliploc</span>
   <nav><button data-v="page" data-a="mentions">Mentions légales</button><button data-v="page" data-a="privacy">Confidentialité</button><button data-v="page" data-a="cgv">CGV</button><button data-v="page" data-a="contact">Contact</button></nav>
+  <nav class="fl2" aria-label="Pages du site"><a href="/exemples/">Exemples de vidéos</a><a href="/guides/">Guides</a><a href="/guides/video-annonce-airbnb/">Vidéo d'annonce Airbnb</a><a href="/guides/video-conciergerie-airbnb/">Vidéo pour conciergerie</a></nav>
   <div>© Cliploc · non affilié à Airbnb</div>
 </footer>
 
@@ -327,6 +340,6 @@ Je peux vous préparer la vôtre pour [prix] €. Je vous envoie un exemple ?</p
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="cloud.js?v=f8ef72bd"></script>
-<script src="app.js?v=af375719"></script>
+<script src="app.js?v=0267fab9"></script>
 </body>
 </html>
