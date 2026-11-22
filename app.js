@@ -27,8 +27,8 @@ const pHTML=b=>bfOn()?"<s>"+eur(b)+"</s><b>"+eur(sale(b))+"</b>":"<b>"+eur(b)+"<
 const PLANS=[
  {k:"unit",r:0,n:"Une vidéo",d:"Tu paies seulement la vidéo que tu crées.",p:null,f:["Rendu : montage diaporama de tes photos","Durée de 15 à 60 s","HD et Full HD (pas de 4K)","Styles Dynamique et Visite","3 couleurs : Naturel, Chaleureux, Frais","Sans filigrane, sans bordure","-Formation Airbnb non incluse"]},
  {k:"essentiel",r:1,n:"Essentiel",d:"12 crédits chaque mois, arrêt à tout moment.",reg:69,lp:39.99,u:"/ mois",c:12,m:true,f:["12 crédits chaque mois, non utilisés = conservés","Rendu : montage diaporama de tes photos","Les 4 styles : Drone et Cinéma inclus","Les 6 couleurs","HD et Full HD (pas de 4K)","-Formation Airbnb non incluse","Tu arrêtes quand tu veux"]},
- {k:"pro",r:2,n:"Pro",d:"40 crédits chaque mois + la formation offerte.",reg:179,lp:99.99,u:"/ mois",c:40,m:true,ebook:true,f:["40 crédits chaque mois, non utilisés = conservés","Montage diaporama + Animation IA en option","Les 4 styles et les 6 couleurs","4K débloquée","Formation Airbnb offerte (PDF de 44 pages)","Tu arrêtes quand tu veux"],hot:true,bd:"Le plus choisi"},
- {k:"agence",r:3,n:"Agence",d:"120 crédits chaque mois, arrêt à tout moment.",reg:299,lp:179.99,u:"/ mois",c:120,m:true,ebook:true,f:["120 crédits chaque mois, non utilisés = conservés","Montage diaporama + Animation IA en option","Tout est débloqué : styles, couleurs, 4K","Formation Airbnb offerte","Historique de tous tes projets","Tu arrêtes quand tu veux"],bd:"Meilleur prix"}
+ {k:"pro",r:2,n:"Pro",d:"40 crédits chaque mois + la formation offerte.",reg:179,lp:99.99,u:"/ mois",c:40,m:true,ebook:true,f:["40 crédits chaque mois, non utilisés = conservés","Montage diaporama + Animation IA en option","Les 4 styles et les 6 couleurs","4K débloquée","Formation Airbnb offerte (PDF de 44 pages)","Tu arrêtes quand tu veux"],hot:true,bd:"LE PLUS CHOISI"},
+ {k:"agence",r:3,n:"Agence",d:"120 crédits chaque mois, arrêt à tout moment.",reg:299,lp:179.99,u:"/ mois",c:120,m:true,ebook:true,f:["120 crédits chaque mois, non utilisés = conservés","Montage diaporama + Animation IA en option","Tout est débloqué : styles, couleurs, 4K","Formation Airbnb offerte","Historique de tous tes projets","Tu arrêtes quand tu veux"],bd:"MEILLEUR PRIX"}
 ];
 
 PLANS.forEach(p=>{if(p.reg){Object.defineProperty(p,"p",{get(){return bfOn()?p.lp:p.reg},enumerable:true});Object.defineProperty(p,"per",{get(){return p.p/p.c},enumerable:true})}});
@@ -85,7 +85,7 @@ function Player(root,photos,dur,opt){
     $$("span",bar).forEach((sp,j)=>{sp.className=j<i?"d":"";sp.style.setProperty("--du",dur+"s")});
     const c=$$("span",bar)[i];c.classList.remove("r");void c.offsetWidth;c.classList.add("r");
     const b=sl[i].querySelector(".b");b.style.animation="none";void b.offsetWidth;b.style.animation="";
-    cap.classList.add("sw");setTimeout(()=>{cap.textContent=show_cap?photos[i].c:"";cap.classList.remove("sw")},180);if(opt&&opt.onShow)opt.onShow(i)}
+    cap.classList.add("sw");setTimeout(()=>{cap.textContent=show_cap?photos[i].c:"";cap.classList.remove("sw")},180)}
   self.start=function(){build();show(0);clearInterval(t);t=setInterval(()=>show(i+1),dur*1000);return self};
   self.stop=()=>clearInterval(t);
   return self;
@@ -113,11 +113,7 @@ const lkb=n=>n>rank()?'<em class="lkb">🔒 '+TSHORT[n]+'</em>':'';
 function lacks(r){const o=[];if((MINM[S.motion]||0)>r)o.push("le style "+MOT.find(m=>m[0]===S.motion)[1]);if((MINC[S.grade]||0)>r)o.push("la couleur "+COL.find(c=>c[0]===S.grade)[1]);if((MINQ[S.q]||0)>r)o.push("la qualité "+QUA.find(q=>q.k===S.q).l);if(S.ai&&MINAI>r)o.push("l'Animation IA");return o}
 const crl=n=>n+" crédit"+(n>1?"s":"");
 const hashOf=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
-let heroPhotos=(()=>{const e=document.getElementById("heroPh"),d=e&&e.dataset.ph;const L=d?d.split(",").filter(u=>/^examples\/[\w-]+\.jpg$/.test(u)):[];return L.length>=3?L.map(u=>({u:u,c:""})):null})(),timers=[],heroP=null,gbP=null,doneP=null,gpP=null;
-/* frise des photos sous le téléphone : la photo affichée est mise en avant */
-function heroTl(k){const tl=$("#heroTl");if(!tl)return;const L=heroPhotos||[];
-  if(tl.dataset.n!==String(L.length)){tl.innerHTML="";L.forEach(p=>{const s=document.createElement("i");if(p.u)s.style.backgroundImage='url("'+p.u+'")';tl.appendChild(s)});tl.dataset.n=String(L.length)}
-  [...tl.children].forEach((s,j)=>s.classList.toggle("on",j===k))}
+let heroPhotos=null,timers=[],heroP=null,gbP=null,doneP=null,gpP=null;
 const later=(fn,ms)=>{const t=setTimeout(fn,ms);timers.push(t);return t};
 const clearAll=()=>{timers.forEach(clearTimeout);timers=[]};
 
@@ -137,7 +133,7 @@ function go(id,opt){
   hdr();
   const f={an:runAn,cfg:()=>renderCfg(),mk:runMk,gate:renderGate,pay:renderPay,rd2:runRd,done:renderDone,dash:()=>{S.dtab="ov";renderDash()},pr:renderPr,ex:gallery,eb:renderEb,auth:()=>renderAuth("signup")}[id];
   if(f)f();
-  if(id==="lp"){if(heroP)heroP.stop();const st=()=>{if(heroP)heroP.stop();heroP=Player($("#heroPh"),heroPhotos||mkPhotos(6),2.4,{onShow:heroTl}).start()};if(document.readyState==="complete")st();else{heroP=null;addEventListener("load",()=>setTimeout(()=>{if(!heroP&&!$("#lp").hidden)st()},700),{once:true})}}
+  if(id==="lp"){if(heroP)heroP.stop();heroP=Player($("#heroPh"),heroPhotos||mkPhotos(6),2.4).start()}
   if(id!=="lp"&&heroP){heroP.stop()}
 }
 window.addEventListener("popstate",e=>{const id=(location.hash||"#lp").slice(1);go(SCR.indexOf(id)>=0?id:"lp",{nopush:true})});
@@ -228,7 +224,7 @@ function msgBuilder(el){
 }
 function balLine(){return S.credits>0?'<div class="bal"><span>🎟 Il te reste <b>'+crl(S.credits)+'</b>'+(S.sub?" ce mois-ci":"")+'</span><button class="lk" id="balGo">Voir mon compte</button></div>':''}
 function nextSteps(){
-  let h='<div class="nx"><p class="kk">Et maintenant ?</p><h3>Passe à l\'action</h3>'+
+  let h='<div class="nx"><p class="kk">ET MAINTENANT ?</p><h3>Passe à l\'action</h3>'+
    balLine()+'<div class="nxc"><b>1 · Envoie-la à ton prospect</b><span>Ton message est prêt : ajoute ton prénom et ton prix, puis copie.</span><div id="mbBox"></div></div>';
   if(rank()===0)h+='<div class="nxc"><b>2 · Prépare les suivantes</b><span>Un abonnement te donne des crédits chaque mois : '+eur(PLANS[1].per)+' le crédit avec Essentiel, '+eur(PLANS[2].per)+' avec Pro (formation offerte), '+eur(PLANS[3].per)+' avec Agence. Tu arrêtes quand tu veux.</span><div class="nxb"><button class="btn s" id="nxPk">Voir les formules</button></div></div>';
   if(!S.ebook)h+='<div class="nxc"><b>3 · Apprends à vendre</b><span>La formation Airbnb : trouver des hôtes, fixer ton prix.</span><button class="btn gh s" id="nxEb">Voir la formation</button></div>';
@@ -241,13 +237,13 @@ function renderCfg(){
   const dots=Array.from({length:total},(_,i)=>'<i class="'+(i<=step?"on":"")+'"></i>').join("");
   let h='<div class="dt">'+dots+'<span>ÉTAPE '+(step+1)+'/'+total+'</span></div><div class="pb"><i style="width:'+((step+1)/total*100)+'%"></i></div>';
   if(step===0){
-    h+='<p class="kk">Durée</p><h2>Quelle durée pour ta vidéo ?</h2>'+foundHtml()+'<p class="sub">Plus la vidéo est longue, plus chaque pièce est détaillée.</p><div class="gd" id="gd">'+
+    h+='<p class="kk">DURÉE</p><h2>Quelle durée pour ta vidéo ?</h2>'+foundHtml()+'<p class="sub">Plus la vidéo est longue, plus chaque pièce est détaillée.</p><div class="gd" id="gd">'+
     DUR.map(d=>'<button class="tile'+(d.s===S.dur?" on":"")+'" data-d="'+d.s+'"><u>✓</u><span class="big">'+d.s+'<small>S</small></span><span class="ds">'+d.d+'</span>'+(d.tg?'<span class="tg">'+d.tg+'</span>':'')+'</button>').join("")+'</div>'+photoBox();
   }else if(step===1){
-    h+='<p class="kk">Qualité</p><h2>Quelle qualité d\'image ?</h2><p class="sub">Tu pourras télécharger la vidéo en MP4.</p><div class="gd c3" id="gd">'+
+    h+='<p class="kk">QUALITÉ</p><h2>Quelle qualité d\'image ?</h2><p class="sub">Tu pourras télécharger la vidéo en MP4.</p><div class="gd c3" id="gd">'+
     QUA.map(q=>'<button class="tile'+(q.k===S.q?" on":"")+'" data-q="'+q.k+'" style="min-height:104px"><u>✓</u><span class="big" style="font-size:1.8rem">'+q.l+'<small>'+q.r+'</small></span><span class="ds">'+q.d+'</span>'+lkb(MINQ[q.k])+(q.tg?'<span class="tg">'+q.tg+'</span>':'')+'</button>').join("")+'</div>';
   }else{
-    h+='<p class="kk">Style</p><h2>Style de ta vidéo</h2><p class="sub">Choisis le mouvement et les couleurs. Tu verras le résultat dans ta vidéo finale.</p>'+
+    h+='<p class="kk">STYLE</p><h2>Style de ta vidéo</h2><p class="sub">Choisis le mouvement et les couleurs. Tu verras le résultat dans ta vidéo finale.</p>'+
     styleBox()+'<div style="margin-top:18px"><label>Format</label><div class="seg" id="sgF"><button data-f="v" class="'+(S.fmt==="v"?"on":"")+'">Vertical · Reels, TikTok</button><button data-f="s" class="'+(S.fmt==="s"?"on":"")+'">Carré · Instagram</button><button data-f="h" class="'+(S.fmt==="h"?"on":"")+'">Large · YouTube</button></div></div><p class="mut" style="font-size:.86rem;margin-top:12px">La vidéo remplit tout l\'écran dans le format choisi, sans bande noire. Les photos sont recadrées au centre.</p>';
   }
   if(step>0)h+='<p style="margin-top:12px"><button class="lk mut" id="cfgBack">← Retour</button></p>';
@@ -284,7 +280,7 @@ function recap(){const q=QUA.find(x=>x.k===S.q);return '<div class="rec"><span c
 function renderGate(){
   track("gate_view",{logged:!!S.user});
   if(gbP)gbP.stop();gbP=Player($("#gbPh"),mkPhotos(S.n>6?6:S.n),2,{ui:true}).start();
-  let h='<div class="gprev"><div class="ph"><div id="gpPh" style="position:absolute;inset:0"></div><div class="lockb">🔒</div></div><div><p class="kk">Montage terminé</p><h2>Ta vidéo est prête</h2></div></div><p class="mut">Voici l\'aperçu, flouté. Crée ton compte pour débloquer le fichier final, sans filigrane.</p>'+recap()+gateBullets();
+  let h='<div class="gprev"><div class="ph"><div id="gpPh" style="position:absolute;inset:0"></div><div class="lockb">🔒</div></div><div><p class="kk">MONTAGE TERMINÉ</p><h2>Ta vidéo est prête</h2></div></div><p class="mut">Voici l\'aperçu, flouté. Crée ton compte pour débloquer le fichier final, sans filigrane.</p>'+recap()+gateBullets();
   if(S.user){
     h+='<p class="mut sm">Connecté en tant que <b style="color:var(--ink)">'+S.user.email+'</b></p><button class="btn big" id="gGo">Débloquer ma vidéo</button>';
   }else{
@@ -319,8 +315,8 @@ function payCfg(){
 function paySel(){
   const qx=QUA.find(x=>x.k===S.q).x,dp=DUR.find(x=>x.s===S.dur).p;
   return (bfOn()?'<p class="gbf">🔥 Offre de lancement appliquée, jusqu\'au 30 novembre</p>':'')+
-  '<div class="pcfg"><label class="kk" style="display:block;margin-bottom:6px">Durée</label><div class="seg" id="pD">'+DUR.map(d=>'<button data-d="'+d.s+'" class="'+(d.s===S.dur?"on":"")+'">'+d.s+' s<small>'+crl((d.p+qx)/UNITP)+'</small></button>').join("")+'</div>'+
-  '<label class="kk" style="display:block;margin:12px 0 6px">Qualité</label><div class="seg" id="pQ">'+QUA.map(q=>'<button data-q="'+q.k+'" class="'+(q.k===S.q?"on":"")+'">'+q.l+'<small>'+(q.x?"+"+crl(q.x/UNITP):"inclus")+'</small></button>').join("")+'</div>'+
+  '<div class="pcfg"><label class="kk" style="display:block;margin-bottom:6px">DURÉE</label><div class="seg" id="pD">'+DUR.map(d=>'<button data-d="'+d.s+'" class="'+(d.s===S.dur?"on":"")+'">'+d.s+' s<small>'+crl((d.p+qx)/UNITP)+'</small></button>').join("")+'</div>'+
+  '<label class="kk" style="display:block;margin:12px 0 6px">QUALITÉ</label><div class="seg" id="pQ">'+QUA.map(q=>'<button data-q="'+q.k+'" class="'+(q.k===S.q?"on":"")+'">'+q.l+'<small>'+(q.x?"+"+crl(q.x/UNITP):"inclus")+'</small></button>').join("")+'</div>'+
   '<p class="mut sm" style="margin-top:8px"><b>Rendu :</b> '+(S.ai?'Animation IA (plans générés par IA, validés par toi)':'montage diaporama de tes photos')+'</p><p class="mut sm" style="margin-top:4px">'+S.n+' photos · format '+({v:"vertical",s:"carré",h:"large"}[S.fmt])+'</p></div>';
 }
 function optHtml(o){
@@ -329,9 +325,9 @@ function optHtml(o){
 }
 function renderPay(){
   track("pay_view");
-  const opts=payCfg(),ok=opts.filter(o=>!o.off);if(!S.planSet&&ok[0]&&ok[0].k==="credit")S.plan="credit";if(!ok.length){$("#payCard").innerHTML='<p class="kk">Dernière étape</p><h2>Plus assez de crédits</h2><p class="sub">Cette vidéo coûte '+crl(cr())+' et il t\'en reste '+S.credits+'. Ton abonnement t\'en ajoute à chaque renouvellement. '+(S.credits>0?'Tu peux aussi choisir une vidéo plus courte ou en qualité HD.':'')+'</p><div class="nxb" style="margin-top:14px"><button class="btn" id="pCfg">Changer ma vidéo</button><button class="btn gh" id="pPortal">Gérer mon abonnement</button></div><div class="errm" id="pErr"></div>';const pc=$("#pCfg");if(pc)pc.onclick=()=>{S.cs=2;go("cfg")};const pp=$("#pPortal");if(pp)pp.onclick=openPortal;return}
+  const opts=payCfg(),ok=opts.filter(o=>!o.off);if(!S.planSet&&ok[0]&&ok[0].k==="credit")S.plan="credit";if(!ok.length){$("#payCard").innerHTML='<p class="kk">DERNIÈRE ÉTAPE</p><h2>Plus assez de crédits</h2><p class="sub">Cette vidéo coûte '+crl(cr())+' et il t\'en reste '+S.credits+'. Ton abonnement t\'en ajoute à chaque renouvellement. '+(S.credits>0?'Tu peux aussi choisir une vidéo plus courte ou en qualité HD.':'')+'</p><div class="nxb" style="margin-top:14px"><button class="btn" id="pCfg">Changer ma vidéo</button><button class="btn gh" id="pPortal">Gérer mon abonnement</button></div><div class="errm" id="pErr"></div>';const pc=$("#pCfg");if(pc)pc.onclick=()=>{S.cs=2;go("cfg")};const pp=$("#pPortal");if(pp)pp.onclick=openPortal;return}
   if(!ok.some(o=>o.k===S.plan))S.plan=(ok.find(o=>o.k==="pro")||ok[0]).k;
-  let h='<div class="dt"><i class="on"></i><i class="on"></i><i class="on"></i><span>PAIEMENT</span></div><div class="pb"><i style="width:100%"></i></div><p class="kk">Dernière étape</p><h2>Choisis ta formule</h2><p class="sub">Ta vidéo coûte '+crl(cr())+' (1 crédit = 15 s en HD). Choisis ton abonnement : tu reçois tes crédits chaque mois et tu arrêtes quand tu veux. La vidéo est livrée sans filigrane.</p>'+paySel()+(need()>0?'<p class="lknote" style="margin-top:12px">🔒 Tu as choisi '+lacks(0).join(", ")+' : il faut un abonnement Essentiel ou mieux. <button class="lk" id="pEdit">Changer mon style</button></p>':'')+
+  let h='<div class="dt"><i class="on"></i><i class="on"></i><i class="on"></i><span>PAIEMENT</span></div><div class="pb"><i style="width:100%"></i></div><p class="kk">DERNIÈRE ÉTAPE</p><h2>Choisis ta formule</h2><p class="sub">Ta vidéo coûte '+crl(cr())+' (1 crédit = 15 s en HD). Choisis ton abonnement : tu reçois tes crédits chaque mois et tu arrêtes quand tu veux. La vidéo est livrée sans filigrane.</p>'+paySel()+(need()>0?'<p class="lknote" style="margin-top:12px">🔒 Tu as choisi '+lacks(0).join(", ")+' : il faut un abonnement Essentiel ou mieux. <button class="lk" id="pEdit">Changer mon style</button></p>':'')+
   opts.map(optHtml).join("")+
   payExtras(opts)+'<label class="ck"><input type="checkbox" id="pOk"><span>Je confirme avoir l\'accord du propriétaire pour utiliser les photos de cette annonce, et je m\'engage à ne pas présenter le logement autrement qu\'il est.</span></label><div class="errm" id="pErr"></div><div class="sec2">🔒 Paiement sécurisé par Stripe · Facture envoyée par email</div>';
   $("#payCard").innerHTML=h;
@@ -383,7 +379,7 @@ async function restoreDraft(){
   return{flow:f?{video:f.video===true,before:Math.max(0,Math.min(1e6,Math.trunc(+f.before)||0)),grant:Math.max(0,Math.min(200,Math.trunc(+f.grant)||0)),ebook:f.ebook===true}:null};
 }
 const aiAvailPay=()=>!!(S.flags&&S.flags.pay===true);
-function payLater(){track("pay_blocked");openMd('<p class="kk">Bientôt</p><h2 style="margin-bottom:10px">Le paiement en ligne ouvre très bientôt</h2><p class="mut">Cliploc est en phase de lancement et le paiement par carte est en cours d\'activation. Ton compte est créé : dès que c\'est ouvert, tu retrouves ici ton projet et tes choix.</p><button class="btn big" data-v="closeMd">Compris</button>')}
+function payLater(){track("pay_blocked");openMd('<p class="kk">BIENTÔT</p><h2 style="margin-bottom:10px">Le paiement en ligne ouvre très bientôt</h2><p class="mut">Cliploc est en phase de lancement et le paiement par carte est en cours d\'activation. Ton compte est créé : dès que c\'est ouvert, tu retrouves ici ton projet et tes choix.</p><button class="btn big" data-v="closeMd">Compris</button>')}
 let _co=false;window.addEventListener("pageshow",()=>{_co=false});
 async function startCheckout(spec,flow){
   if(_co)return;_co=true;
@@ -401,10 +397,10 @@ async function afterPay(paid){
   if(!paid){if(rs){go("pay");toast("Paiement annulé : ton projet est conservé.")}return}
   if(!CL.session()){S.back=rs?"pay":null;go("auth");toast("Reconnecte-toi pour retrouver ton achat.");return}
   const fl=rs&&rs.flow,ok=p=>p&&(!fl||(p.credits>=fl.before+fl.grant&&(!fl.ebook||p.ebook===true)));
-  openMd('<p class="kk">Paiement reçu</p><h2 style="margin-bottom:10px">On active ton achat…</h2><p class="mut">Ça prend quelques secondes. Ne ferme pas cette page.</p>');
+  openMd('<p class="kk">PAIEMENT REÇU</p><h2 style="margin-bottom:10px">On active ton achat…</h2><p class="mut">Ça prend quelques secondes. Ne ferme pas cette page.</p>');
   let done=false;
   for(let i=0;i<30&&!done;i++){let p=null;try{p=await CL.profile()}catch(e){}if(ok(p)||(!fl&&p)){done=true;break}await new Promise(r=>setTimeout(r,2000))}
-  if(!done){openMd('<p class="kk">Paiement reçu</p><h2 style="margin-bottom:10px">Validation en cours</h2><p class="mut">Ton paiement est bien parti, mais la validation prend plus de temps que d\'habitude. Recharge cette page dans une minute : ton projet est conservé et tes crédits arriveront.</p><button class="btn big" data-v="closeMd">OK</button>');return}
+  if(!done){openMd('<p class="kk">PAIEMENT REÇU</p><h2 style="margin-bottom:10px">Validation en cours</h2><p class="mut">Ton paiement est bien parti, mais la validation prend plus de temps que d\'habitude. Recharge cette page dans une minute : ton projet est conservé et tes crédits arriveront.</p><button class="btn big" data-v="closeMd">OK</button>');return}
   await syncProfile();closeMd();track("paid_return");
   if(rs&&fl&&fl.video){
     S.cur=newCur();
@@ -507,7 +503,7 @@ function runRd(){
 let stars=0;
 function renderDone(){
   const c=S.cur;stars=0;
-  $("#doneCard").innerHTML='<p class="kk">C\'est fait</p><h2>Ta vidéo est prête</h2><p class="mut">'+c.dur+' s · '+QUA.find(q=>q.k===c.q).l+(c.ai?' · Animation IA':' · montage diaporama')+' · sans filigrane'+(c.demo?' · vidéo d\'exemple':'')+'</p><div class="phw" style="margin:18px 0"><div class="ph"><div id="dnPh" style="position:absolute;inset:0"></div><div class="nt"></div></div></div>'+
+  $("#doneCard").innerHTML='<p class="kk">C\'EST FAIT</p><h2>Ta vidéo est prête</h2><p class="mut">'+c.dur+' s · '+QUA.find(q=>q.k===c.q).l+(c.ai?' · Animation IA':' · montage diaporama')+' · sans filigrane'+(c.demo?' · vidéo d\'exemple':'')+'</p><div class="phw" style="margin:18px 0"><div class="ph"><div id="dnPh" style="position:absolute;inset:0"></div><div class="nt"></div></div></div>'+
   '<button class="btn big" id="dl" style="margin-top:0">Télécharger la vidéo (MP4)</button><button class="btn gh big" id="shr" style="margin-top:10px;height:52px">Envoyer la vidéo (WhatsApp, SMS…)</button>'+
   nextSteps()+'<div class="rvw" style="margin-top:26px;border-top:1px solid var(--ln);padding-top:20px">'+rvHtml()+'</div>'+
   '<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap"><button class="btn" id="nv">Créer une autre vidéo</button><button class="btn gh" id="mv">Mes vidéos</button></div>';
@@ -529,7 +525,7 @@ function renderDone(){
 
 
 /* ---------- onglets ---------- */
-const NAVS=[["lp","Accueil"],["p","Formules"],["ex","Exemples"],["eb","Formation Airbnb","Nouveau"],["fq","Contact"]];
+const NAVS=[["lp","Accueil"],["p","Formules"],["ex","Exemples"],["eb","Formation Airbnb","NOUVEAU"],["fq","Contact"]];
 S.tiers={};S.prMode="unit";S.ledger=[];S.credTotal=0;S.name=LS.get("vt_name","");S.price=LS.get("vt_price",60);S.renew=0;
 S.tiers={essentiel:S.tiers&&S.tiers.essentiel===true,pro:S.tiers&&S.tiers.pro===true};try{cleanState()}catch(e){}
 let exP=[];
@@ -552,7 +548,7 @@ function loadReal(){return fetch("examples/manifest.json",{cache:"no-cache"}).th
   const ok=u=>typeof u==="string"&&/^examples\/[A-Za-z0-9_.-]+$/.test(u);
   REAL.hero=(Array.isArray(m.hero)?m.hero:[]).filter(ok);
   REAL.videos=(Array.isArray(m.videos)?m.videos:[]).filter(v=>v&&ok(v.src)&&ok(v.poster)).slice(0,12);
-  if(REAL.hero.length>=3){heroPhotos=REAL.hero.map(u=>({u:u,c:""}));if(heroP){heroP.stop();heroP=Player($("#heroPh"),heroPhotos,2.4,{onShow:heroTl}).start()}}
+  if(REAL.hero.length>=3){heroPhotos=REAL.hero.map(u=>({u:u,c:""}));if(heroP){heroP.stop();heroP=Player($("#heroPh"),heroPhotos,2.4).start()}}
   if(!$("#ex").hidden)gallery();
 }).catch(()=>{})}
 function gallery(){
@@ -586,14 +582,14 @@ function buyEbook(){
 }
 
 /* ---------- 8. mes vidéos ---------- */
-function rvHtml(){return '<p class="kk">Ton avis</p><b>Tu es satisfait du résultat ?</b><div class="stars rvs">'+[1,2,3,4,5].map(n=>'<button type="button" data-n="'+n+'" aria-label="'+n+' étoiles">★</button>').join("")+'</div><input class="inp rvn" maxlength="40" autocomplete="given-name" placeholder="Ton prénom et l\'initiale de ton nom (ex. Julie M.)"><textarea class="inp rvt" maxlength="500" placeholder="Ton avis, en quelques phrases (20 caractères minimum)"></textarea><p class="mut sm" style="margin:2px 0 10px">Ton avis est affiché avec ce nom après vérification. Seuls les clients qui ont terminé une vidéo peuvent en laisser un.</p><button type="button" class="btn gh big rvb" style="height:50px">Envoyer mon avis</button>'}
+function rvHtml(){return '<p class="kk">TON AVIS</p><b>Tu es satisfait du résultat ?</b><div class="stars rvs">'+[1,2,3,4,5].map(n=>'<button type="button" data-n="'+n+'" aria-label="'+n+' étoiles">★</button>').join("")+'</div><input class="inp rvn" maxlength="40" autocomplete="given-name" placeholder="Ton prénom et l\'initiale de ton nom (ex. Julie M.)"><textarea class="inp rvt" maxlength="500" placeholder="Ton avis, en quelques phrases (20 caractères minimum)"></textarea><p class="mut sm" style="margin:2px 0 10px">Ton avis est affiché avec ce nom après vérification. Seuls les clients qui ont terminé une vidéo peuvent en laisser un.</p><button type="button" class="btn gh big rvb" style="height:50px">Envoyer mon avis</button>'}
 function rvBind(root){if(!root)return;let stars=0;const q=s=>root.querySelector(s);
   {const n0=q(".rvn"),p=S.pf||{};if(n0&&!n0.value&&p.first_name)n0.value=(p.first_name+(p.last_name?" "+p.last_name.charAt(0).toUpperCase()+".":"")).slice(0,40)}
   $$(".rvs button",root).forEach(b=>b.onclick=()=>{stars=+b.dataset.n;$$(".rvs button",root).forEach((x,i)=>x.classList.toggle("on",i<stars))});
   q(".rvb").onclick=async()=>{const b=q(".rvb"),n=q(".rvn").value.trim(),t=q(".rvt").value.trim();
     if(!stars){toast("Choisis une note.");return}if(n.length<2){toast("Indique ton prénom.");return}if(t.length<20){toast("Ton avis doit faire au moins 20 caractères.");return}
     b.disabled=true;const r=await CL.submitReview(stars,t,n);b.disabled=false;if(!r.ok){toast(r.error);return}
-    track("review",{stars:stars});root.innerHTML='<p class="kk">Ton avis</p><b>Merci !</b><p class="mut sm" style="margin-top:6px">Ton avis sera publié après vérification.</p>'}}
+    track("review",{stars:stars});root.innerHTML='<p class="kk">TON AVIS</p><b>Merci !</b><p class="mut sm" style="margin-top:6px">Ton avis sera publié après vérification.</p>'}}
 /* ---------- Mon compte : profil, photo, crédits, vidéos ---------- */
 const AC_TABS=[["ov","Vue d'ensemble"],["pf","Mes infos"],["vd","Mes vidéos"],["eb","Formation"],["mb","Mon message"]];
 const PFK=["first_name","last_name","username","phone","company","addr1","zip","city","country"];
@@ -641,21 +637,21 @@ function renderDash(){
    '<div class="nxb" style="margin-top:14px"><button class="btn" id="dBuyP">Voir les formules</button></div>'+
    '<p class="note">1 crédit = 15 s en HD. Le nombre de crédits d\'une vidéo est affiché avant de payer. Tu reçois un email quand il t\'en reste 2.</p></div>'+
    (pp<100?'<div class="crd acnx"><b>Ton profil est complet à '+pp+' %</b><div class="pb" style="margin:10px 0 8px"><i style="width:'+pp+'%"></i></div><p class="mut sm">Ajoute ta photo et tes coordonnées pour personnaliser ton compte.</p><button type="button" class="btn gh s" id="ovPf" style="margin-top:10px">Compléter mon profil</button></div>':'')+
-   (led.length?'<div class="crd"><p class="kk">Historique</p>'+led.slice(0,12).map(e=>'<div class="lg2"><span>'+esc(e.l)+'<small>'+dt(e.at)+'</small></span><b class="'+(e.d>0?"pos":e.d<0?"neg":"")+'">'+(e.d>0?"+"+e.d:e.d<0?e.d:"—")+'</b></div>').join("")+'</div>':'');
+   (led.length?'<div class="crd"><p class="kk">HISTORIQUE</p>'+led.slice(0,12).map(e=>'<div class="lg2"><span>'+esc(e.l)+'<small>'+dt(e.at)+'</small></span><b class="'+(e.d>0?"pos":e.d<0?"neg":"")+'">'+(e.d>0?"+"+e.d:e.d<0?e.d:"—")+'</b></div>').join("")+'</div>':'');
   const inp=(k,extra)=>'<label'+(extra&&extra.full?' class="full"':'')+'><span>'+PFL[k]+(extra&&extra.opt?' <small>(facultatif)</small>':'')+'</span><input class="inp" id="pf_'+k+'" name="'+k+'" maxlength="'+PFM[k]+'"'+(extra&&extra.attrs?' '+extra.attrs:'')+'></label>';
-  const pf='<div class="crd"><p class="kk">Mes infos</p><h2>Mon profil</h2><div class="pfph"><div id="pfAv">'+avHtml(96)+'</div><div class="pfbt"><div><button type="button" class="btn gh s" id="pfPick">'+(hasAv?'Changer la photo':'Ajouter une photo')+'</button>'+(hasAv?' <button type="button" class="lk" id="pfDel">Retirer</button>':'')+'</div><input type="file" id="pfFile" accept="image/*" hidden><p class="mut sm">Photo recadrée en carré. Elle reste privée : seul ton compte peut la voir.</p></div></div>'+
+  const pf='<div class="crd"><p class="kk">MES INFOS</p><h2>Mon profil</h2><div class="pfph"><div id="pfAv">'+avHtml(96)+'</div><div class="pfbt"><div><button type="button" class="btn gh s" id="pfPick">'+(hasAv?'Changer la photo':'Ajouter une photo')+'</button>'+(hasAv?' <button type="button" class="lk" id="pfDel">Retirer</button>':'')+'</div><input type="file" id="pfFile" accept="image/*" hidden><p class="mut sm">Photo recadrée en carré. Elle reste privée : seul ton compte peut la voir.</p></div></div>'+
    '<form id="pfForm" novalidate><div class="pff">'+inp("first_name",{attrs:'autocomplete="given-name"'})+inp("last_name",{attrs:'autocomplete="family-name"'})+inp("username",{attrs:'autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="ex. julie.m"',full:true,opt:true})+
    '<label class="full"><span>Adresse email</span><input class="inp" id="pf_email" type="email" disabled></label>'+
    inp("phone",{attrs:'type="tel" inputmode="tel" autocomplete="tel" placeholder="ex. 06 12 34 56 78"',full:true,opt:true})+inp("company",{attrs:'autocomplete="organization"',full:true,opt:true})+inp("addr1",{attrs:'autocomplete="street-address"',full:true,opt:true})+inp("zip",{attrs:'autocomplete="postal-code" inputmode="text"',opt:true})+inp("city",{attrs:'autocomplete="address-level2"',opt:true})+inp("country",{attrs:'autocomplete="country-name"',full:true,opt:true})+
    '</div><p class="pfe" id="pfErr" role="alert"></p><button type="submit" class="btn" id="pfSave" style="margin-top:6px">Enregistrer</button></form>'+
    '<p class="note" style="margin-top:14px">Tous les champs sont facultatifs. Ces informations servent à personnaliser ton compte : elles restent privées, ne sont jamais affichées publiquement et ne sont pas utilisées pour t\'envoyer de la publicité. Pour changer ton adresse email, écris-nous depuis la page Contact.</p></div>'+
-   '<div class="crd"><p class="kk">Sécurité</p><h2>Mot de passe</h2><form id="pwForm" novalidate><div class="pff"><label><span>Nouveau mot de passe</span><input class="inp" id="pw1" type="password" autocomplete="new-password" placeholder="8 caractères minimum"></label><label><span>Répète-le</span><input class="inp" id="pw2" type="password" autocomplete="new-password"></label></div><p class="pfe" id="pwErr" role="alert"></p><button type="submit" class="btn gh s" id="pwSave">Changer mon mot de passe</button></form></div>'+
-   '<div class="crd dgr"><p class="kk">Zone sensible</p><h2>Supprimer mon compte</h2><p class="mut sm" style="margin:6px 0 12px">Efface définitivement ton compte : profil, photo, vidéos, historique et crédits restants. Les factures restent conservées chez notre prestataire de paiement, comme la loi l\'impose.</p><button type="button" class="btn dng s" id="delAcc">Supprimer mon compte</button></div>';
-  const vd='<div class="crd"><p class="kk">Mes vidéos</p>'+
+   '<div class="crd"><p class="kk">SÉCURITÉ</p><h2>Mot de passe</h2><form id="pwForm" novalidate><div class="pff"><label><span>Nouveau mot de passe</span><input class="inp" id="pw1" type="password" autocomplete="new-password" placeholder="8 caractères minimum"></label><label><span>Répète-le</span><input class="inp" id="pw2" type="password" autocomplete="new-password"></label></div><p class="pfe" id="pwErr" role="alert"></p><button type="submit" class="btn gh s" id="pwSave">Changer mon mot de passe</button></form></div>'+
+   '<div class="crd dgr"><p class="kk">ZONE SENSIBLE</p><h2>Supprimer mon compte</h2><p class="mut sm" style="margin:6px 0 12px">Efface définitivement ton compte : profil, photo, vidéos, historique et crédits restants. Les factures restent conservées chez notre prestataire de paiement, comme la loi l\'impose.</p><button type="button" class="btn dng s" id="delAcc">Supprimer mon compte</button></div>';
+  const vd='<div class="crd"><p class="kk">MES VIDÉOS</p>'+
    (v.length?'<div class="vl">'+v.map(x=>'<div class="vi"><div class="th">'+scn(0)+'</div><div style="flex:1"><b>Annonce '+esc(x.listing)+'</b><small>'+(+x.dur||0)+' s · '+esc((QUA.find(q=>q.k===x.q)||QUA[0]).l)+' · '+esc(x.date)+'</small></div></div>').join("")+'</div><p class="note" style="margin-top:12px">Cliploc ne conserve pas tes fichiers vidéo : télécharge ta vidéo à la fin du montage, avant de quitter la page.</p>':'<div class="empty">Aucune vidéo pour l\'instant.<br><br><button class="btn" data-v="focus">Créer ma première vidéo</button></div>')+'</div>'+
    (v.length?'<div class="crd rvw">'+rvHtml()+'</div>':'');
-  const eb=S.ebook?'<div class="crd"><p class="kk">Ma bibliothèque</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" data-v="dl">Télécharger</button></div></div>':'<div class="crd"><p class="kk">Formation</p><b>Formation Airbnb · guide PDF</b><p class="mut sm" style="margin-top:6px">Un guide pour proposer ta vidéo à des propriétaires et remplir ton calendrier.</p><div style="margin-top:12px"><button class="btn gh s" data-v="go" data-a="eb">Découvrir la formation</button></div></div>';
-  const mb='<div class="crd"><p class="kk">Mon message pour les propriétaires</p><div id="mbBox"></div></div>';
+  const eb=S.ebook?'<div class="crd"><p class="kk">MA BIBLIOTHÈQUE</p><b>Formation Airbnb · guide PDF</b><div style="margin-top:10px"><button class="btn gh s" data-v="dl">Télécharger</button></div></div>':'<div class="crd"><p class="kk">FORMATION</p><b>Formation Airbnb · guide PDF</b><p class="mut sm" style="margin-top:6px">Un guide pour proposer ta vidéo à des propriétaires et remplir ton calendrier.</p><div style="margin-top:12px"><button class="btn gh s" data-v="go" data-a="eb">Découvrir la formation</button></div></div>';
+  const mb='<div class="crd"><p class="kk">MON MESSAGE POUR LES PROPRIÉTAIRES</p><div id="mbBox"></div></div>';
   $("#dashBox").innerHTML=side+'<div class="acm"><h1 class="vh" id="acH">Mon compte</h1><section class="acpn" id="ac_ov">'+ov+'</section><section class="acpn" id="ac_pf" hidden>'+pf+'</section><section class="acpn" id="ac_vd" hidden>'+vd+'</section><section class="acpn" id="ac_eb" hidden>'+eb+'</section><section class="acpn" id="ac_mb" hidden>'+mb+'</section></div>';
   PFK.forEach(k=>{$("#pf_"+k).value=p[k]||""});$("#pf_email").value=S.user.email;
   msgBuilder($("#mbBox"));
@@ -680,7 +676,7 @@ function renderDash(){
     if(!r.ok){er.textContent=r.error;return}
     $("#pw1").value="";$("#pw2").value="";track("password_change");toast("Mot de passe modifié.")};
   $("#delAcc").onclick=()=>{
-    openMd('<p class="kk" style="color:#D92D20">Suppression définitive</p><h2 style="margin-bottom:8px">Supprimer mon compte ?</h2><p class="mut">Tout sera effacé : ton profil, ta photo, tes vidéos, ton historique et tes crédits restants. Cette action ne peut pas être annulée.</p>'+(rank()>0?'<p class="mut" style="margin-top:8px"><b>Ton abonnement sera arrêté tout de suite, sans remboursement du mois en cours.</b></p>':'')+
+    openMd('<p class="kk" style="color:#D92D20">SUPPRESSION DÉFINITIVE</p><h2 style="margin-bottom:8px">Supprimer mon compte ?</h2><p class="mut">Tout sera effacé : ton profil, ta photo, tes vidéos, ton historique et tes crédits restants. Cette action ne peut pas être annulée.</p>'+(rank()>0?'<p class="mut" style="margin-top:8px"><b>Ton abonnement sera arrêté tout de suite, sans remboursement du mois en cours.</b></p>':'')+
       '<div class="fld" style="margin-top:14px"><input class="inp" id="dPw" type="password" autocomplete="current-password" placeholder="Ton mot de passe"></div><div class="fld"><input class="inp" id="dCf" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Écris SUPPRIMER pour confirmer"></div><div class="errm" id="dErr"></div><button class="btn dng big" id="dGo">Supprimer définitivement</button><button class="btn gh big" data-v="closeMd" style="margin-top:8px">Annuler</button>');
     $("#dGo").onclick=async()=>{const er=$("#dErr"),b=$("#dGo");er.textContent="";
       if(!$("#dPw").value){er.textContent="Entre ton mot de passe.";return}
@@ -739,18 +735,18 @@ function renderPr(){
 
 /* ---------- compte ---------- */
 function renderForgot(){
-  $("#authCard").innerHTML='<p class="kk">Mot de passe oublié</p><h2>On t\'envoie un lien</h2><p class="mut sm" style="margin-top:6px">Entre l\'email de ton compte : tu reçois un lien pour choisir un nouveau mot de passe.</p><div class="fld" style="margin-top:14px"><input class="inp" id="fE" type="email" autocomplete="email" placeholder="Ton email"></div><div class="errm" id="fErr"></div><button class="btn big" id="fGo" style="margin-top:6px">Recevoir le lien</button><p class="lg"><button class="lk" id="fBk" type="button">Retour à la connexion</button></p>';
+  $("#authCard").innerHTML='<p class="kk">MOT DE PASSE OUBLIÉ</p><h2>On t\'envoie un lien</h2><p class="mut sm" style="margin-top:6px">Entre l\'email de ton compte : tu reçois un lien pour choisir un nouveau mot de passe.</p><div class="fld" style="margin-top:14px"><input class="inp" id="fE" type="email" autocomplete="email" placeholder="Ton email"></div><div class="errm" id="fErr"></div><button class="btn big" id="fGo" style="margin-top:6px">Recevoir le lien</button><p class="lg"><button class="lk" id="fBk" type="button">Retour à la connexion</button></p>';
   $("#fBk").onclick=()=>renderAuth("login");
   $("#fGo").onclick=async()=>{const e=$("#fE").value.trim(),er=$("#fErr"),b=$("#fGo");er.textContent="";
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)){er.textContent="Entre une adresse email valide.";return}
     b.disabled=true;const t0=b.textContent;b.textContent="Envoi…";const r=await CL.recover(e);b.disabled=false;b.textContent=t0;
     if(!r.ok){er.textContent=r.error;return}
     track("password_forgot");
-    $("#authCard").innerHTML='<p class="kk">Email envoyé</p><h2>Regarde ta boîte mail</h2><p class="mut" style="margin-top:8px">Si un compte existe avec <b>'+esc(e)+'</b>, un lien vient d\'être envoyé. Il est valable environ une heure. Pense à regarder les courriers indésirables.</p><button class="btn big" id="fOk">Retour à la connexion</button>';
+    $("#authCard").innerHTML='<p class="kk">EMAIL ENVOYÉ</p><h2>Regarde ta boîte mail</h2><p class="mut" style="margin-top:8px">Si un compte existe avec <b>'+esc(e)+'</b>, un lien vient d\'être envoyé. Il est valable environ une heure. Pense à regarder les courriers indésirables.</p><button class="btn big" id="fOk">Retour à la connexion</button>';
     $("#fOk").onclick=()=>renderAuth("login")};
 }
 function renderReset(){
-  $("#authCard").innerHTML='<p class="kk">Nouveau mot de passe</p><h2>Choisis ton mot de passe</h2><div class="fld" style="margin-top:14px"><input class="inp" id="rP1" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères minimum)"></div><div class="fld"><input class="inp" id="rP2" type="password" autocomplete="new-password" placeholder="Répète-le"></div><div class="errm" id="rErr"></div><button class="btn big" id="rGo" style="margin-top:6px">Enregistrer</button>';
+  $("#authCard").innerHTML='<p class="kk">NOUVEAU MOT DE PASSE</p><h2>Choisis ton mot de passe</h2><div class="fld" style="margin-top:14px"><input class="inp" id="rP1" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères minimum)"></div><div class="fld"><input class="inp" id="rP2" type="password" autocomplete="new-password" placeholder="Répète-le"></div><div class="errm" id="rErr"></div><button class="btn big" id="rGo" style="margin-top:6px">Enregistrer</button>';
   $("#rGo").onclick=async()=>{const a=$("#rP1").value,c=$("#rP2").value,er=$("#rErr"),b=$("#rGo");er.textContent="";
     if(a.length<8){er.textContent="Le mot de passe doit faire 8 caractères minimum.";return}
     if(a!==c){er.textContent="Les deux mots de passe ne sont pas identiques.";return}
@@ -762,7 +758,7 @@ function renderAuth(mode){
   if(mode==="forgot")return renderForgot();
   if(mode==="reset")return renderReset();
   const su=mode==="signup";
-  $("#authCard").innerHTML='<p class="kk">'+(su?"Créer un compte":"Connexion")+'</p><h2>'+(su?"Rejoins Cliploc":"Content de te revoir")+'</h2><div class="fld" style="margin-top:14px"><input class="inp" id="aE" type="email" autocomplete="email" placeholder="Ton email"></div><div class="fld"><input class="inp" id="aP" type="password" autocomplete="'+(su?"new-password":"current-password")+'" placeholder="Mot de passe"></div>'+
+  $("#authCard").innerHTML='<p class="kk">'+(su?"CRÉER UN COMPTE":"CONNEXION")+'</p><h2>'+(su?"Rejoins Cliploc":"Content de te revoir")+'</h2><div class="fld" style="margin-top:14px"><input class="inp" id="aE" type="email" autocomplete="email" placeholder="Ton email"></div><div class="fld"><input class="inp" id="aP" type="password" autocomplete="'+(su?"new-password":"current-password")+'" placeholder="Mot de passe"></div>'+
    (su?'<label class="ck"><input type="checkbox" id="aC"><span>J\'accepte les conditions d\'utilisation et la politique de confidentialité.</span></label>':'')+'<div class="errm" id="aErr"></div><button class="btn big" id="aGo" style="margin-top:6px">'+(su?"Créer mon compte":"Me connecter")+'</button><p class="lg">'+(su?"Déjà un compte ?":"Pas encore de compte ?")+' <button class="lk" id="aSw">'+(su?"Se connecter":"Créer un compte")+'</button></p>';
   $("#aSw").onclick=()=>renderAuth(su?"login":"signup");
   if(!su){$("#aGo").insertAdjacentHTML("afterend",'<p class="lg" style="margin-top:12px"><button class="lk" id="aFg" type="button">Mot de passe oublié ?</button></p>');$("#aFg").onclick=()=>renderAuth("forgot")}
@@ -778,7 +774,7 @@ async function doAuth(su,e,p,er,btn){
   try{
     const r=su?await CL.signUp(e,p):await CL.signIn(e,p);
     if(!r.ok){er.textContent=r.error;return false}
-    if(r.pending){openMd('<p class="kk">Email envoyé</p><h2 style="margin-bottom:10px">Confirme ton email</h2><p class="mut">Clique sur le lien reçu à '+esc(e)+' : tu reviens ici, connecté. Pense à regarder les courriers indésirables.</p><button class="btn big" data-v="closeMd">OK</button>');return false}
+    if(r.pending){openMd('<p class="kk">EMAIL ENVOYÉ</p><h2 style="margin-bottom:10px">Confirme ton email</h2><p class="mut">Clique sur le lien reçu à '+esc(e)+' : tu reviens ici, connecté. Pense à regarder les courriers indésirables.</p><button class="btn big" data-v="closeMd">OK</button>');return false}
     S.user={email:r.email};await syncProfile();save();track(su?"signup":"login");return true;
   }finally{btn.disabled=false;btn.textContent=t0}
 }
@@ -818,6 +814,24 @@ function trustBox(){
   $("#trBox").innerHTML='<div class="trg">'+[["🔒","Paiement sécurisé","Réglé via Stripe. Tes données de carte ne passent jamais par nous."],["🎬","Sans filigrane","La vidéo livrée est propre, prête à être publiée."],["💶","Prix affiché = prix payé","Tu vois le prix avant de payer, TTC, sans frais cachés."],["🗑","Tes photos, ton contrôle","Suppression des photos après le montage et sur simple demande."]].map(x=>'<div class="trust"><i>'+x[0]+'</i><div><b>'+x[1]+'</b><span>'+x[2]+'</span></div></div>').join("")+'</div>';
 }
 if("IntersectionObserver" in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("v");io.unobserve(e.target)}}),{threshold:.1});$$(".vis").forEach(el=>io.observe(el))}else{$$(".vis").forEach(el=>el.classList.add("v"))}
+
+/* ---------- expérience dynamique ---------- */
+(function fx(){
+  const mm=q=>!!(window.matchMedia&&matchMedia(q).matches),RM=mm("(prefers-reduced-motion: reduce)"),FINE=mm("(hover:hover) and (pointer:fine)");
+  $$(".stp,.ag,.trg,.gal,.hsg,.pls").forEach(g=>[...g.children].forEach((c,k)=>c.style.setProperty("--d",(k%6)*90+"ms")));
+  const top=$(".top"),pb=$("#fxp");let tk=false;
+  const onS=()=>{tk=false;const y=window.scrollY||0,h=document.documentElement.scrollHeight-innerHeight;if(top)top.classList.toggle("fxs",y>8);if(pb)pb.style.transform="scaleX("+(h>0?Math.min(1,y/h):0).toFixed(4)+")"};
+  addEventListener("scroll",()=>{if(!tk){tk=true;requestAnimationFrame(onS)}},{passive:true});onS();
+  const w=$("#fxw");
+  if(w){const M=[["🔗","Lien Airbnb collé","Annonce reconnue"],["🖼","Photos ajoutées","Prêtes pour le montage"],["🎬","Montage en cours","",1],["✅","Vidéo prête","30 s · Full HD · sans filigrane"],["📲","Envoyée sur WhatsApp","Le voyageur visite avant de réserver"]];
+    const put=k=>{const m=M[k];w.innerHTML="<i>"+m[0]+"</i><div><b>"+m[1]+"</b>"+(m[3]?'<span class="fxq"><em></em></span>':"<span>"+m[2]+"</span>")+"</div>"};
+    if(RM)put(3);else{let i=0;put(0);setInterval(()=>{if(document.hidden)return;w.classList.add("out");setTimeout(()=>{i=(i+1)%M.length;put(i);w.classList.remove("out")},380)},2700)}}
+  if(FINE&&!RM){
+    const pw=$(".phw"),ph=$(".phw .ph");
+    if(pw&&ph){let r=0;pw.addEventListener("pointermove",e=>{const b=pw.getBoundingClientRect(),x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;cancelAnimationFrame(r);r=requestAnimationFrame(()=>{ph.style.transform="perspective(900px) rotateY("+(x*12).toFixed(2)+"deg) rotateX("+(-y*9).toFixed(2)+"deg)"})});pw.addEventListener("pointerleave",()=>{cancelAnimationFrame(r);ph.style.transform=""})}
+    document.addEventListener("pointermove",e=>{const c=e.target&&e.target.closest&&e.target.closest(".cd");if(!c)return;const b=c.getBoundingClientRect();c.style.setProperty("--mx",(e.clientX-b.left|0)+"px");c.style.setProperty("--my",(e.clientY-b.top|0)+"px")},{passive:true});
+  }
+})();
 
 window.V={nav:navGo,pr:prGo,pick:pick,go:go,jump:jump,focus:focusBar,start:start,demo:demo,copy:copy,page:page,logout:logout,closeMd:closeMd,toast:toast,buyEbook:buyEbook,buy:buy,dl:dlEb};
 /* Clics : pas de gestionnaire inline (la politique de sécurité les interdit), liste blanche d'actions */

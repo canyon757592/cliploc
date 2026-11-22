@@ -37,11 +37,11 @@ def page(path, title, desc, body, schema, current="", og_type="article", wide=Fa
 <meta property="og:description" content="{html.escape(desc)}">
 <meta property="og:image" content="{SITE}/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#FBF3E8">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/plus-jakarta-sans-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/pages.css">
 {extra_head}{''.join(ld(s) for s in schema)}
 </head>
@@ -57,7 +57,7 @@ def page(path, title, desc, body, schema, current="", og_type="article", wide=Fa
 <footer>
 <a class="logo" href="/" style="justify-content:center"><i></i>Cliploc</a>
 <nav aria-label="Liens du site"><a href="/">Créer une vidéo</a><a href="/exemples/">Exemples</a><a href="/guides/">Guides</a><a href="/#pr">Formules</a><a href="/#mentions">Mentions légales</a><a href="/#cgv">CGV</a><a href="/#privacy">Confidentialité</a><a href="/#contact">Contact</a></nav>
-<div>© Cliploc. Non affilié à Airbnb.</div>
+<div>© Cliploc · non affilié à Airbnb</div>
 </footer>
 </body>
 </html>
@@ -69,7 +69,7 @@ def crumbs(items):
     sch = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "name": t, **({"item": SITE + h} if h else {})}
         for i, (t, h) in enumerate(items)]}
-    return f'<nav class="crumb" aria-label="Fil d’Ariane">{vis}</nav>', sch
+    return f'<p class="crumb">{vis}</p>', sch
 
 
 def article_schema(path, title, desc):
@@ -79,7 +79,7 @@ def article_schema(path, title, desc):
             "publisher": ORG, "mainEntityOfPage": SITE + path, "image": SITE + "/og.png"}
 
 
-CTA = """<div class="box cta"><p><b>Prête en quelques minutes, à partir de tes photos.</b><br>Colle le lien de ton annonce, ajoute tes photos, choisis la durée et le style.</p><a class="btn" href="/">Créer ma vidéo</a></div>"""
+CTA = """<div class="box cta"><p><b>Prête en quelques minutes, à partir de tes photos.</b><br>Colle le lien de ton annonce, ajoute tes photos, choisis la durée et le style.</p><a class="btn" href="/">Créer ma vidéo →</a></div>"""
 
 GUIDES = [
  {
@@ -245,11 +245,11 @@ GUIDES = [
 ]
 
 VIDEOS = [
- ("villa_piscine", "Villa avec piscine à débordement", "Visite d'une villa avec piscine à débordement et vue sur la ville, au coucher du soleil puis de nuit. Style drone, 30 secondes, Full HD vertical.", 30, "Drone, 30 secondes, Full HD"),
- ("appart_skyline", "Appartement en hauteur", "Appartement en étage élevé avec balcon et vue sur les tours : séjour, chambres, salle de bain. Style dynamique, 30 secondes, Full HD vertical.", 30, "Dynamique, 30 secondes, Full HD"),
- ("villa_cinema", "Villa vue sur la ville, style cinéma", "Accroche de 15 secondes d'une villa avec terrasse, piscine et vue panoramique, avec un étalonnage cinéma.", 15, "Cinéma, 15 secondes, Full HD"),
- ("appart_visite", "Appartement 2 chambres, visite complète", "Visite pièce par pièce d'un appartement de deux chambres : séjour, chambres, dressing, salle de bain, balcon. Style visite, 45 secondes, HD vertical.", 45, "Visite, 45 secondes, HD"),
- ("appart_nuit", "Appartement de nuit, style cinéma", "Accroche de nuit de 15 secondes : balcon, vue sur la ville illuminée, chambre et salon.", 15, "Cinéma, 15 secondes, Full HD"),
+ ("villa_piscine", "Villa avec piscine à débordement", "Visite d'une villa avec piscine à débordement et vue sur la ville, au coucher du soleil puis de nuit. Style drone, 30 secondes, Full HD vertical.", 30, "Drone · 30 s · Full HD"),
+ ("appart_skyline", "Appartement en hauteur", "Appartement en étage élevé avec balcon et vue sur les tours : séjour, chambres, salle de bain. Style dynamique, 30 secondes, Full HD vertical.", 30, "Dynamique · 30 s · Full HD"),
+ ("villa_cinema", "Villa vue sur la ville, style cinéma", "Accroche de 15 secondes d'une villa avec terrasse, piscine et vue panoramique, avec un étalonnage cinéma.", 15, "Cinéma · 15 s · Full HD"),
+ ("appart_visite", "Appartement 2 chambres, visite complète", "Visite pièce par pièce d'un appartement de deux chambres : séjour, chambres, dressing, salle de bain, balcon. Style visite, 45 secondes, HD vertical.", 45, "Visite · 45 s · HD"),
+ ("appart_nuit", "Appartement de nuit, style cinéma", "Accroche de nuit de 15 secondes : balcon, vue sur la ville illuminée, chambre et salon.", 15, "Cinéma · 15 s · Full HD"),
 ]
 
 
@@ -262,12 +262,12 @@ def build():
         others = [o for o in GUIDES if o is not g]
         more = '<h2>À lire aussi</h2><div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">' + "".join(
             f'<a class="card" href="/guides/{o["slug"]}/"><b>{o["h1"]}</b><span>{o["card"]}</span></a>' for o in others) + "</div>"
-        body = f'{cr}<h1>{g["h1"]}</h1><p class="meta">Mis à jour le 22 novembre 2026 par l\'équipe Cliploc</p>{g["body"]}{CTA}{more}'
+        body = f'{cr}<p class="kk">Guide</p><h1>{g["h1"]}</h1><p class="meta">Mis à jour le 22 novembre 2026 · par l\'équipe Cliploc</p>{g["body"]}{CTA}{more}'
         out.append((path, page(path, g["title"], g["desc"], body, [article_schema(path, g["h1"], g["desc"]), crs], "gd")))
     # ----- index des guides -----
     cr, crs = crumbs([("Accueil", "/"), ("Guides", None)])
     cards = "".join(f'<a class="card" href="/guides/{g["slug"]}/"><b>{g["h1"]}</b><span>{g["card"]}</span></a>' for g in GUIDES)
-    body = f'{cr}<h1>Guides vidéo pour la location saisonnière</h1><p class="lead">Des méthodes simples pour transformer les photos d\'un logement en vidéo, la publier au bon endroit et en faire un service pour tes propriétaires.</p><div class="cards">{cards}</div>{CTA}'
+    body = f'{cr}<p class="kk">Guides</p><h1>Guides vidéo pour la location saisonnière</h1><p class="lead">Des méthodes simples pour transformer les photos d\'un logement en vidéo, la publier au bon endroit et en faire un service pour tes propriétaires.</p><div class="cards">{cards}</div>{CTA}'
     coll = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "Guides vidéo pour la location saisonnière",
             "url": SITE + "/guides/", "inLanguage": "fr-FR", "isPartOf": {"@id": SITE + "/#site"},
             "hasPart": [{"@type": "Article", "headline": g["h1"], "url": f"{SITE}/guides/{g['slug']}/"} for g in GUIDES]}
@@ -283,7 +283,7 @@ def build():
                      "thumbnailUrl": f"{SITE}/examples/{k}.jpg", "contentUrl": f"{SITE}/examples/{k}.mp4",
                      "uploadDate": "2026-11-21T00:00:00+01:00", "duration": f"PT{s}S", "inLanguage": "fr-FR",
                      "publisher": ORG})
-    body = (f'{cr}<h1>Exemples de vidéos d\'annonce réalisées avec Cliploc</h1>'
+    body = (f'{cr}<p class="kk">Exemples</p><h1>Exemples de vidéos d\'annonce réalisées avec Cliploc</h1>'
             f'<p class="lead">Ces vidéos ont été montées avec Cliploc, à partir des photos de vrais logements : une villa avec piscine et un appartement en hauteur. Les tiennes seront faites avec les photos de ton annonce.</p>'
             f'<div class="vg">{"".join(figs)}</div>'
             f'<h2>Ce que tu choisis pour chaque vidéo</h2><ul><li><b>La durée :</b> 15, 30, 45 ou 60 secondes.</li><li><b>La qualité :</b> HD, Full HD ou 4K.</li><li><b>Le mouvement :</b> dynamique, visite, drone ou cinéma.</li><li><b>Les couleurs :</b> naturel, chaud, frais, cinéma et d\'autres ambiances.</li><li><b>Le format :</b> vertical, carré ou horizontal.</li></ul>'
