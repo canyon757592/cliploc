@@ -21,6 +21,9 @@
 /render.js
   Cache-Control: no-cache
 
+/cine.js
+  Cache-Control: no-cache
+
 /style.css
   Cache-Control: no-cache
 

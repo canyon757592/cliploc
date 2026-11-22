@@ -632,3 +632,5 @@ main:focus{outline:none}
 @media(prefers-reduced-motion:reduce){.vis{filter:none}.hero::before,.hero::after,.hero h1 span,.bar .btn::after,.fxw,.stk{animation:none}.fxw .fxq em{animation:none;width:100%}#fxp{display:none}}
 .gds a.cd{display:block;color:inherit;text-decoration:none}.gl{color:#C8183F;font-weight:800;font-size:.92rem;text-decoration:none}.gds .gl{display:inline-block;margin-top:8px}a.gl:hover{text-decoration:underline}
 footer nav.fl2 a{color:#555;font-size:.85rem}
+
+.ph .hv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;background:#1d1930}.ph .nt{z-index:2}

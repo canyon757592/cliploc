@@ -2,6 +2,7 @@
    Aucun serveur de montage : le calcul se fait sur l'appareil, donc 0 € de coût par vidéo.
    Usage : const blob = await renderVideo({ photos:[Blob|File|string], captions:[], seconds:30, quality:"fhd", fmt:"v", onProgress }); */
 import { Muxer, ArrayBufferTarget } from "./vendor/mp4-muxer.mjs";
+import { analyze, createGL, planCine, frameCams } from "./cine.js";
 
 const FPS = 30;
 const QUALITIES = {
@@ -41,14 +42,14 @@ export const MOTIONS = {
       { z0: 1.00, z1: 1.16, x0: -.3, x1: .3, y0: 0, y1: 0 }, { z0: 1.16, z1: 1.00, x0: .3, x1: -.2, y0: -.4, y1: .2 },
       { z0: 1.10, z1: 1.10, x0: -1, x1: 1, y0: 0, y1: 0 }, { z0: 1.12, z1: 1.12, x0: 1, x1: -1, y0: .2, y1: -.2 },
       { z0: 1.00, z1: 1.20, x0: 0, x1: 0, y0: .8, y1: -.4 }, { z0: 1.18, z1: 1.02, x0: -.5, x1: .5, y0: -.8, y1: .6 }] },
-  drone: { label: "Drone", shot: [2.6, 4.4], ease: .35, trans: ["through", "fade", "through", "zoom"], vig: .18,
+  drone: { label: "Drone", shot: [2.6, 5.0], ease: .35, trans: ["through", "fade", "through", "zoom"], vig: .18,
     moves: [
       { z0: 1.00, z1: 1.30, x0: 0, x1: 0, y0: .9, y1: -.5, r0: 0, r1: 0 },            // avancée avec montée
       { z0: 1.32, z1: 1.00, x0: 0, x1: 0, y0: -.7, y1: .6, r0: 0, r1: 0 },            // recul qui révèle la scène
       { z0: 1.16, z1: 1.16, x0: -1, x1: 1, y0: .15, y1: -.15, r0: -1.2, r1: 1.2 },    // survol latéral incliné
       { z0: 1.10, z1: 1.26, x0: .8, x1: -.8, y0: .3, y1: -.3, r0: 1.4, r1: -1.4 },    // orbite lente
       { z0: 1.00, z1: 1.24, x0: -.3, x1: .3, y0: 1, y1: -.8, r0: 0, r1: .6 }] },
-  cinema: { label: "Cinéma", shot: [3.2, 4.8], ease: 1, trans: ["fade"], vig: .34,
+  cinema: { label: "Cinéma", shot: [3.2, 5.2], ease: 1, trans: ["fade"], vig: .34,
     moves: [
       { z0: 1.00, z1: 1.08, x0: -.2, x1: .2, y0: 0, y1: 0 }, { z0: 1.09, z1: 1.00, x0: .2, x1: -.2, y0: .1, y1: -.1 },
       { z0: 1.04, z1: 1.04, x0: -.6, x1: .6, y0: 0, y1: 0 }] },
@@ -68,7 +69,7 @@ export const GRADES = {
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 /* Étalonnage appliqué UNE fois par photo (fonctionne sur tous les navigateurs, y compris Safari). */
-function gradeCanvas(src, W, H, g) {
+function gradeCanvas(src, W, H, g, sharpen = 0) {
   const c = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(W, H) : Object.assign(document.createElement("canvas"), { width: W, height: H });
   const x = c.getContext("2d", { willReadFrequently: true });
   x.drawImage(src, 0, 0, W, H);
@@ -83,11 +84,19 @@ function gradeCanvas(src, W, H, g) {
     r = l + (r - l) * sat; gg = l + (gg - l) * sat; b = l + (b - l) * sat;
     d[i] = r; d[i + 1] = gg; d[i + 2] = b;
   }
+  if (sharpen > 0) {
+    const N = W * H, Y = new Float32Array(N), T = new Float32Array(N);
+    for (let i = 0; i < N; i++) Y[i] = .299 * d[4 * i] + .587 * d[4 * i + 1] + .114 * d[4 * i + 2];
+    const pass = (a, o, horiz) => { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const i = y * W + x;
+      o[i] = horiz ? (a[x > 0 ? i - 1 : i] + a[i] + a[x < W - 1 ? i + 1 : i]) / 3 : (a[y > 0 ? i - W : i] + a[i] + a[y < H - 1 ? i + W : i]) / 3 } };
+    pass(Y, T, true); const U = new Float32Array(N); pass(T, U, false);
+    for (let i = 0; i < N; i++) { const k = sharpen * (Y[i] - U[i]); d[4 * i] += k; d[4 * i + 1] += k; d[4 * i + 2] += k }
+  }
   x.putImageData(id, 0, 0);
   return c;
 }
 
-async function toBitmap(src, maxSide, grade) {
+async function toBitmap(src, maxSide, grade, sharpen = 0) {
   let blob = src;
   if (typeof src === "string") { const r = await fetch(src, { mode: "cors" }); if (!r.ok) throw new Error("Photo introuvable"); blob = await r.blob() }
   const probe = await createImageBitmap(blob);
@@ -99,7 +108,7 @@ async function toBitmap(src, maxSide, grade) {
     probe.close();
   }
   if (grade) {
-    const out = gradeCanvas(bmp, bmp.width, bmp.height, grade);
+    const out = gradeCanvas(bmp, bmp.width, bmp.height, grade, sharpen);
     bmp.close();
     return out;
   }
@@ -155,7 +164,14 @@ export function planShots(photoCount, seconds, motion = "dynamic") {
   return { count, per: seconds / count };
 }
 
-export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt = "v", motion = "dynamic", grade = "natural", onProgress = () => {}, signal, clips = null }) {
+/* Montage : caméra en relief (WebGL) quand l'appareil le permet, sinon montage classique.
+   Si la carte graphique décroche en cours de route, on recommence avec le montage classique. */
+export async function renderVideo(opts) {
+  try { return await renderCore(opts) }
+  catch (e) { if (e && e.cineLost) return await renderCore({ ...opts, engine: "2d" }); throw e }
+}
+
+async function renderCore({ photos, seconds = 30, quality = "fhd", fmt = "v", motion = "dynamic", grade = "natural", onProgress = () => {}, signal, clips = null, engine = "auto" }) {
   if (!photos || photos.length < 2) throw new Error("Il faut au moins 2 photos.");
   const cap = await canRender(quality, fmt);
   if (!cap.ok) throw new Error(cap.reason);
@@ -170,9 +186,11 @@ export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt =
   const cleanVids = () => vids.forEach(v => { try { URL.revokeObjectURL(v.src); v.removeAttribute("src"); v.load() } catch (_) {} });
   const needPhoto = [...new Set(order.filter((_, i) => !(useClips && clips[i])))];
   const maxSide = Math.min(Math.max(W, H) * 1.3, needPhoto.length > 12 ? 2800 : 3400);   // limite la mémoire sur téléphone
+  let cine = null;
+  if (!useClips && engine !== "2d") { try { cine = createGL(W, H) } catch (_) { cine = null } }
   const cache = new Map();
   for (let i = 0; i < needPhoto.length; i++) {
-    cache.set(needPhoto[i], await toBitmap(photos[needPhoto[i]], maxSide, G));
+    cache.set(needPhoto[i], await toBitmap(photos[needPhoto[i]], maxSide, G, cine ? .45 : 0));
     onProgress(0.12 * (i + 1) / Math.max(1, needPhoto.length), "Préparation des photos");
     if (signal && signal.aborted) throw new Error("Annulé");
   }
@@ -185,6 +203,15 @@ export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt =
     }
   } catch (e) { cleanVids(); throw e }
 
+  let plan = null; const infos = new Map(), texOf = new Map(), lastUse = new Map();
+  if (cine) {
+    try {
+      for (const idx of needPhoto) infos.set(idx, analyze(cache.get(idx)));
+      plan = planCine({ infos: order.map(p => infos.get(p)), asps: order.map(p => cache.get(p).width / cache.get(p).height), per, count, seconds, motion, outAsp: W / H, outH: H });
+      order.forEach((p, k) => lastUse.set(p, k));
+    } catch (_) { cine.destroy(); cine = null; plan = null }
+  }
+  const texture = p => { if (!texOf.has(p)) texOf.set(p, cine.upload(cache.get(p), infos.get(p))); return texOf.get(p) };
   const canvas = typeof OffscreenCanvas !== "undefined" ? new OffscreenCanvas(W, H) : Object.assign(document.createElement("canvas"), { width: W, height: H });
   const ctx = canvas.getContext("2d", { alpha: false });
   let vig = null;
@@ -204,6 +231,14 @@ export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt =
     if (signal && signal.aborted) { enc.close(); throw new Error("Annulé"); }
     if (encError) throw encError;
     const t = f / FPS, i = Math.min(count - 1, Math.floor(t / per)), local = t - i * per;
+    const fadeG = Math.min(1, Math.max(t < 0.35 ? 1 - t / 0.35 : 0, t > seconds - 0.6 ? (t - (seconds - 0.6)) / 0.6 : 0));
+    if (cine) {
+      const passes = frameCams(plan, t, FPS).map(ps => ({ ...ps, tex: texture(order[ps.shot.p]) }));
+      cine.draw(passes, { vig: plan.st.vig, grain: plan.st.grain, fade: fadeG, time: t });
+      if (cine.lost()) throw Object.assign(new Error("La carte graphique a été interrompue"), { cineLost: true });
+      ctx.drawImage(cine.canvas, 0, 0, W, H);
+      for (const [p, h] of texOf) if (lastUse.get(p) < i - 1) { cine.release(h); texOf.delete(p) }
+    } else {
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
     const A = shots[i], inT = i < count - 1 && local > per - xf, pa = pOf(i, t);
     if (!inT) { await prep(A, pa); drawAny(ctx, A, W, H, pa) }
@@ -221,6 +256,7 @@ export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt =
     if (vig) { ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H) }
     const fade = Math.max(t < 0.3 ? 1 - t / 0.3 : 0, t > seconds - 0.5 ? (t - (seconds - 0.5)) / 0.5 : 0);
     if (fade > 0) { ctx.fillStyle = `rgba(0,0,0,${Math.min(1, fade)})`; ctx.fillRect(0, 0, W, H) }
+    }
     const frame = new VideoFrame(canvas, { timestamp: Math.round(f * 1e6 / FPS), duration: Math.round(1e6 / FPS) });
     enc.encode(frame, { keyFrame: f % (FPS * 2) === 0 });
     frame.close();
@@ -230,7 +266,7 @@ export async function renderVideo({ photos, seconds = 30, quality = "fhd", fmt =
   await enc.flush(); enc.close();
   if (encError) throw encError;
   muxer.finalize();
-  } finally { cleanVids(); cache.forEach(b => b.close && b.close()) }
+  } finally { cleanVids(); cache.forEach(b => b.close && b.close()); if (cine) { texOf.forEach(h => cine.release(h)); cine.destroy() } }
   onProgress(1, "Terminé");
   return new Blob([target.buffer], { type: "video/mp4" });
 }

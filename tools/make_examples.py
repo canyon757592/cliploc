@@ -28,7 +28,7 @@ def poster(path, out):
 
 manifest = {"hero": [], "videos": []}
 with sync_playwright() as p:
-    b = p.chromium.launch(); pg = b.new_page(); pg.goto("http://localhost:8766/index.html")
+    b = p.chromium.launch(args=["--enable-unsafe-swiftshader"]); pg = b.new_page(); pg.goto("http://localhost:8766/index.html")
     for d in sorted(x for x in glob.glob(os.path.join(SRC, "*")) if os.path.isdir(x)):
         name = os.path.basename(d); photos = sorted(glob.glob(os.path.join(d, "*.jpg")) + glob.glob(os.path.join(d, "*.jpeg")))
         if len(photos) < 3: print("ignoré (moins de 3 photos):", name); continue

@@ -146,7 +146,7 @@ GUIDES = [
 </ul>
 
 <h2>Le faire en quelques minutes avec Cliploc</h2>
-<p>Avec Cliploc, tu colles le lien de ton annonce, tu ajoutes tes photos, puis tu choisis la durée (15 à 60 secondes), la qualité (HD à 4K), le mouvement de caméra et le format. La vidéo est montée à partir de tes photos et livrée sans filigrane. Tu peux voir le résultat sur la page <a href="/exemples/">exemples</a>.</p>
+<p>Avec Cliploc, tu colles le lien de ton annonce, tu ajoutes tes photos, puis tu choisis la durée (15 à 60 secondes), la qualité (HD à 4K), le mouvement de caméra et le format. Tes photos prennent du relief et une caméra virtuelle s'y déplace : elle avance dans les pièces et survole la terrasse. La vidéo est livrée sans filigrane. Tu peux voir le résultat sur la page <a href="/exemples/">exemples</a>.</p>
 """
  },
  {
