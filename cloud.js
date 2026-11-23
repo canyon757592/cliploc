@@ -84,7 +84,7 @@
   /* ---------- données du compte ---------- */
   async function profile() {
     const t = await token(); if (!t) return null;
-    const res = await call("/rest/v1/profiles?select=credits,plan,ebook&limit=1", undefined, t, "GET");
+    const res = await call("/rest/v1/profiles?select=credits,plan,ebook,launch_used&limit=1", undefined, t, "GET");
     return res.ok && Array.isArray(res.j) && res.j[0] ? res.j[0] : null;
   }
   async function ledger() {
