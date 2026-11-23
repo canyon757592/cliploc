@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /merci/
+Disallow: /restaurer/
+Disallow: /api/
+
+Sitemap: https://voute.pages.dev/sitemap.xml

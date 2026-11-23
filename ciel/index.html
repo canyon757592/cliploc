@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ouvrir le ciel : le viseur d&#x27;étoiles de Voûte</title>
+<meta name="description" content="Pointe ton téléphone vers le ciel : les noms des étoiles, constellations et planètes s&#x27;affichent en direct. Gratuit, sans inscription.">
+<link rel="canonical" href="https://voute.pages.dev/ciel/">
+
+<meta name="theme-color" content="#10234a">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Voûte">
+<meta property="og:title" content="Ouvrir le ciel : le viseur d&#x27;étoiles de Voûte">
+<meta property="og:description" content="Pointe ton téléphone vers le ciel : les noms des étoiles, constellations et planètes s&#x27;affichent en direct. Gratuit, sans inscription.">
+<meta property="og:url" content="https://voute.pages.dev/ciel/">
+<meta property="og:image" content="https://voute.pages.dev/assets/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preload" href="/assets/fonts/bodoni-moda-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css?v=9ba8a9f0">
+<link rel="stylesheet" href="/assets/css/ciel.css?v=bba5fecc">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Voûte", "url": "https://voute.pages.dev/ciel/", "applicationCategory": "EducationalApplication", "operatingSystem": "iOS, Android, Windows, macOS", "description": "Pointe ton téléphone vers le ciel : Voûte affiche le nom des étoiles, des constellations et des planètes.", "inLanguage": "fr", "offers": [{"@type": "Offer", "price": "0", "priceCurrency": "EUR", "name": "Viseur gratuit"}, {"@type": "Offer", "price": "2.99", "priceCurrency": "EUR", "name": "Voûte+"}]}</script>
+</head>
+<body class="app">
+<video id="cam" playsinline muted autoplay aria-hidden="true"></video>
+<canvas id="ciel" role="img" aria-label="Le ciel en direct dans la direction où pointe ton téléphone. La liste des astres est disponible avec le bouton Chercher."></canvas>
+<div class="reticule" aria-hidden="true"></div>
+<header class="app-haut">
+<a class="marque" href="/" aria-label="Voûte, retour à l'accueil"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 27a13 13 0 0 1 26 0" fill="none" stroke="#c8a45d" stroke-width="1.6"/><path d="M16 6l1.5 4.5L22 12l-4.5 1.5L16 18l-1.5-4.5L10 12l4.5-1.5z" fill="#f4efe2"/><circle cx="24.5" cy="20" r="1.1" fill="#f4efe2"/><circle cx="7.5" cy="19" r=".8" fill="#f4efe2"/></svg><span class="sr">Voûte</span></a>
+<div class="outils" role="toolbar" aria-label="Outils du viseur">
+<button class="outil" id="btnRecherche" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Chercher</span></button>
+<button class="outil" id="btnTemps" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Temps</span></button>
+<button class="outil" id="btnRouge" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Rouge</span></button>
+<button class="outil" id="btnCapture" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>Partager</span></button>
+<button class="outil" id="btnCalage" type="button" aria-pressed="false" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Recaler</span></button>
+<button class="outil" id="btnReglages" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>Réglages</span></button>
+</div>
+</header>
+<button class="bandeau-temps" id="bandeauTemps" type="button" hidden></button>
+<div class="vise" id="vise" aria-live="polite"></div>
+<div class="fleche" id="fleche" hidden><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="26" fill="rgba(10,24,52,.85)" stroke="#ee5a43" stroke-width="2"/><path d="M18 28h18M30 20l8 8-8 8" fill="none" stroke="#f4efe2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span></span></div>
+<div class="fiche" id="fiche" hidden aria-live="polite"></div>
+<div class="calage" id="calage" hidden><p style="margin:0 0 8px">Fais glisser le ciel à gauche ou à droite pour l'aligner sur la Lune ou une étoile brillante que tu vois.</p><div class="ligne-temps" style="justify-content:center;margin:0"><button type="button" id="calageZero">Remettre à zéro</button><button type="button" id="calageOk">C'est aligné</button></div></div>
+
+<section class="panneau" id="recherche" hidden aria-labelledby="t-rech"><button class="ferme" type="button" aria-label="Fermer">×</button>
+<h2 id="t-rech">Chercher un astre</h2>
+<label class="sr" for="filtre">Nom de l'astre</label><input class="filtre" id="filtre" type="search" placeholder="Saturne, Véga, Orion…" autocomplete="off">
+<ul class="liste" id="liste"></ul></section>
+
+<section class="panneau" id="temps" hidden aria-labelledby="t-temps"><button class="ferme" type="button" aria-label="Fermer">×</button>
+<h2 id="t-temps">Voyager dans le temps</h2>
+<label class="sr" for="quand">Date et heure</label><input class="filtre" id="quand" type="datetime-local">
+<div class="ligne-temps"><button type="button" data-dt="-24">− 1 jour</button><button type="button" data-dt="-1">− 1 h</button><button type="button" data-dt="1">+ 1 h</button><button type="button" data-dt="24">+ 1 jour</button></div>
+<button class="bouton petit" type="button" id="maintenant">Revenir à maintenant</button></section>
+
+<section class="panneau" id="reglages" hidden aria-labelledby="t-reg"><button class="ferme" type="button" aria-label="Fermer">×</button>
+<h2 id="t-reg">Réglages</h2>
+<label class="reglage"><span>Image de la caméra</span><input type="checkbox" id="rCam"></label>
+<label class="reglage"><span>Tracés des constellations</span><input type="checkbox" id="rLignes"></label>
+<label class="reglage"><span>Noms</span><input type="checkbox" id="rNoms"></label>
+<label class="reglage"><span>Étoiles faibles (Voûte+)</span><input type="checkbox" id="rFaibles"></label>
+<label class="reglage"><span>Champ de vision</span><input type="range" id="rZoom" min="18" max="110" step="1"></label>
+<div class="reglage"><span>Ciel vu depuis <span id="rLieu"></span></span><button class="lien-btn" type="button" id="rPos">Ma position</button></div>
+<p class="petit discret" style="margin-top:14px">Noms décalés&nbsp;? Éloigne-toi des objets métalliques, fais un grand huit avec ton téléphone pour réveiller la boussole, puis utilise « Recaler ». Déjà acheté Voûte+ ailleurs&nbsp;? <a href="/restaurer/">Récupère-le</a>.</p></section>
+
+<aside class="carte-offre" id="offrePoster" hidden aria-label="Proposition"><button class="ferme" type="button" aria-label="Fermer">×</button>
+<p>Un ciel qui compte pour toi&nbsp;? Voûte peut redessiner celui d'une rencontre ou d'une naissance, en poster.</p><a class="bouton petit" href="/poster/">Créer un poster</a></aside>
+
+<div class="rouge" id="rouge" hidden></div>
+<div class="depart" id="depart"><div class="in">
+<h1>Le ciel a des noms.</h1>
+<p class="chapo" id="depTexte">Pointe ton téléphone vers le ciel&nbsp;: Voûte affiche le nom de ce que tu regardes.</p>
+<ul><li>Ta position, pour savoir quel ciel tu as au-dessus de toi</li><li>L'orientation du téléphone, pour savoir où tu vises</li><li>La caméra, pour voir les noms par-dessus le vrai ciel (facultatif)</li></ul>
+<p class="petit discret">Tout reste dans ton téléphone. Rien n'est enregistré ni envoyé.</p>
+<div class="boutons"><button class="bouton" type="button" id="btnGo">Commencer</button><button class="lien-btn" type="button" id="btnGlisser">Explorer sans capteurs</button></div>
+<p class="msg" id="depMsg" role="alert"></p>
+</div></div>
+<script src="/assets/js/astronomy.min.js?v=c5e4e5d5" defer></script>
+<script type="module" src="/assets/js/ciel.js?v=09640189"></script>
+</body>
+</html>
