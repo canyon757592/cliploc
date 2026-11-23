@@ -1,6 +1,7 @@
 /* Retour de paiement : on vérifie auprès de Stripe (via le serveur), on débloque, on livre. */
-import { enregistre, offrePlus, aPlus } from "./achats.js";
+import { enregistre, aPass } from "./achats.js";
 import { renderPoster, HD } from "./poster-render.js";
+import { son } from "./ambiance.js";
 
 const $ = s => document.querySelector(s);
 
@@ -11,18 +12,24 @@ export async function telechargerHD(poster, bouton) {
   await renderPoster(cv, poster, { w: HD.w, apercu: false });
   await new Promise(ok => cv.toBlob(b => {
     const a = document.createElement("a"); a.href = URL.createObjectURL(b);
-    a.download = `poster-ciel-${poster.date}.png`; document.body.append(a); a.click(); a.remove();
+    a.download = `affiche-des-etoiles-${poster.date}.png`; document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 8000); ok();
   }, "image/png"));
   if (bouton) { bouton.disabled = false; bouton.textContent = txt; }
+  son("magie");
 }
 
-export function blocPoster(achat, conteneur) {
-  const el = document.createElement("div"); el.className = "livraison";
-  el.innerHTML = `<canvas aria-label="Aperçu de ton poster"></canvas><div><h2>${achat.poster.titre || "Ton poster"}</h2><p class="discret">${achat.poster.lieu || ""}</p><button class="bouton" type="button">Télécharger le poster HD</button><p class="petit discret">Fichier PNG 3000 × 4243 pixels. Pour l'impression, choisis « ajuster à la page » en A4 ou en A3.</p></div>`;
-  conteneur.append(el);
-  renderPoster(el.querySelector("canvas"), achat.poster, { w: 600 });
-  el.querySelector("button").onclick = e => telechargerHD(achat.poster, e.currentTarget);
+/* Livre un achat vérifié : affiche, carnet, pass */
+export function livre(a, box) {
+  if (a.poster) {
+    const el = document.createElement("div"); el.className = "livraison";
+    el.innerHTML = `<canvas aria-label="Aperçu de ton affiche"></canvas><div><h2>${a.poster.titre || "Ton affiche"}</h2><p class="discret">${a.poster.lieu || ""}</p><button class="bouton" type="button">Télécharger l'affiche HD</button><p class="petit discret">Fichier PNG 3000 × 4243 pixels. Pour l'impression, choisis « ajuster à la page » en A4 ou en A3.</p></div>`;
+    box.append(el);
+    renderPoster(el.querySelector("canvas"), a.poster, { w: 600 });
+    el.querySelector("button").onclick = e => telechargerHD(a.poster, e.currentTarget);
+  }
+  if (a.carnet) box.insertAdjacentHTML("beforeend", `<div class="livraison"><img src="/assets/img/carnet/couverture.webp" alt="Couverture du Carnet des étoiles" width="260" height="368"><div><h2>Le Carnet des étoiles</h2><p class="discret">26 pages en PDF, à lire sur ton téléphone ou à imprimer. La deuxième page est une dédicace à remplir si tu l'offres.</p><a class="bouton" href="/api/livre?s=${encodeURIComponent(a.id)}" data-son="magie">Télécharger le Carnet (PDF)</a></div></div>`);
+  if (a.pass) box.insertAdjacentHTML("beforeend", `<div class="livraison-plus"><h2>Le Pass des étoiles est activé sur cet appareil</h2><p>Toutes les étoiles, le voyage dans le temps et la flèche de guidage t'attendent dans le viseur. Sur un autre téléphone, récupère-le avec ton e-mail.</p><a class="bouton" href="/ciel/">Ouvrir le ciel</a></div>`);
 }
 
 async function init() {
@@ -39,12 +46,8 @@ async function init() {
   }
   const a = j.achat; enregistre(a);
   $("#titreMerci").textContent = "Merci, c'est réglé.";
-  box.innerHTML = "";
-  if (a.poster) blocPoster(a, box);
-  if (a.plus) box.insertAdjacentHTML("beforeend", `<div class="livraison-plus"><h2>Voûte+ est activé sur cet appareil</h2><p>Toutes les étoiles, le voyage dans le temps et la flèche de guidage t'attendent dans le viseur. Sur un autre téléphone, récupère-le avec ton e-mail.</p><a class="bouton" href="/ciel/">Ouvrir le ciel</a></div>`);
-  // suite logique, sans insister
-  if (a.poster && !aPlus()) box.insertAdjacentHTML("beforeend", `<p class="suite">Pendant que tu y es : pointe ton téléphone vers le ciel avec <a href="/ciel/">le viseur</a>, c'est gratuit.</p>`);
-  if (!a.poster) box.insertAdjacentHTML("beforeend", `<p class="suite">Une date qui compte pour toi ? <a href="/poster/">Fais-en un poster du ciel</a>.</p>`);
+  box.innerHTML = ""; livre(a, box); son("magie");
+  if (!a.pass && !aPass()) box.insertAdjacentHTML("beforeend", `<p class="suite">Pointe ton téléphone vers le ciel avec <a href="/ciel/">le viseur</a> : c'est gratuit.</p>`);
+  if (!a.poster) box.insertAdjacentHTML("beforeend", `<p class="suite">Une date qui compte pour toi ? <a href="/affiche/">Offre-lui son Affiche des étoiles</a>.</p>`);
 }
 init();
-export { offrePlus };

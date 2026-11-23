@@ -1,6 +1,7 @@
 import { loadSky, horMatrix, starsENU, bodies, altAz, azName } from "./sky.js";
 import { drawDome, fitCanvas } from "./dome.js";
 import { renderPoster } from "./poster-render.js";
+import { son } from "./ambiance.js";
 
 const $ = s => document.querySelector(s);
 const lieu = { lat: 48.8566, lon: 2.3522, nom: "Paris", moi: false };
@@ -27,7 +28,7 @@ function dessine(reveal = 1) {
   ctx.clearRect(0, 0, s, s);
   const hm = horMatrix(new Date(), lieu.lat, lieu.lon);
   drawDome(ctx, sky, hm, { cx: s / 2, cy: s / 2, R: s / 2 - 38 * (s / 620), reveal, maxMag: 5.2, rangMax: 1 });
-  $("#domeLieu").textContent = `Le ciel au-dessus ${lieu.moi ? "de toi" : "de " + lieu.nom}, en ce moment (${heureFr(new Date())}).`;
+  $("#domeLieu").textContent = `Le vrai ciel au-dessus ${lieu.moi ? "de toi" : "de " + lieu.nom}, en ce moment (${heureFr(new Date())}).`;
 }
 
 function ouverture() {
@@ -50,13 +51,35 @@ function ceSoir() {
     else if (b.mag < -1) sous = "Très brillante, impossible à rater";
     else if (b.mag < 1.5) sous = "Bien visible à l'œil nu";
     else if (b.mag < 6) sous = "Visible avec un ciel bien noir";
-    return `<li><span class="nom">${b.fr}</span><span><span class="ou">vers le ${azName(a.az)}</span><br><span class="sous">${sous}</span></span><span class="haut">${Math.round(a.alt)}° au-dessus de l'horizon</span></li>`;
+    return `<li><a href="/ciel/?cible=${b.id}" aria-label="Voir ${b.fr} dans le viseur"><span class="nom">${b.fr}</span><span><span class="ou">vers le ${azName(a.az)}</span><br><span class="sous">${sous}</span></span><span class="haut">${Math.round(a.alt)}° de haut<br><span class="aller">Voir dans le viseur</span></span></a></li>`;
   }).join("");
 }
 
 async function exemplePoster() {
   const cv = $("#posterEx"); if (!cv) return;
-  await renderPoster(cv, { date: "2026-02-14", heure: "21:30", lat: 48.8566, lon: 2.3522, lieu: "Paris", titre: "La nuit où tout a commencé", sousTitre: "Léa & Sami", theme: "encre" }, { w: 700, apercu: false });
+  await renderPoster(cv, { date: "2026-02-14", heure: "21:30", lat: 48.8566, lon: 2.3522, lieu: "Paris", titre: "La nuit où tout a commencé", sousTitre: "Léa & Sami", theme: "aurore" }, { w: 700, apercu: false });
+}
+
+/* Le savais-tu ? */
+const FAITS = [
+  "La lumière du Soleil met environ 8 minutes et 20 secondes pour arriver jusqu'à toi.",
+  "Sirius, l'étoile la plus brillante de la nuit, est à environ 8,6 années-lumière : tu vois une lumière partie il y a plus de huit ans.",
+  "La Lune s'éloigne de la Terre d'environ 3,8 centimètres chaque année.",
+  "On voit toujours la même face de la Lune : elle tourne sur elle-même aussi vite qu'elle tourne autour de nous.",
+  "Une étoile filante est souvent un grain de poussière pas plus gros qu'un grain de sable.",
+  "La galaxie d'Andromède se voit à l'œil nu loin des villes. Sa lumière est partie il y a environ 2,5 millions d'années.",
+  "Sur Vénus, un jour dure plus longtemps qu'une année : elle tourne très lentement sur elle-même.",
+  "Bételgeuse, l'épaule d'Orion, est si grande que placée à la place du Soleil, elle dépasserait l'orbite de Mars.",
+  "L'étoile Polaire n'est pas la plus brillante du ciel : des dizaines d'étoiles brillent davantage.",
+  "La Station spatiale fait le tour de la Terre en environ une heure et demie. On la voit passer comme un point brillant qui ne clignote pas.",
+  "Saturne est si peu dense qu'elle flotterait dans une baignoire assez grande pour la contenir.",
+];
+function savais() {
+  const p = $("#fait"), b = $("#faitSuivant"); if (!p || !b) return;
+  let i = Math.floor(Math.random() * FAITS.length);
+  const montre = () => { p.textContent = FAITS[i % FAITS.length]; };
+  montre();
+  b.addEventListener("click", () => { i++; p.animate?.([{ opacity: 0, filter: "blur(4px)" }, { opacity: 1, filter: "blur(0)" }], { duration: 380 }); montre(); });
 }
 
 /* Planche d'atlas : une constellation en projection gnomonique, vue de l'intérieur (est à gauche) */
@@ -100,7 +123,7 @@ function planche(id = "UMa") {
 async function init() {
   sky = await loadSky();
   await document.fonts?.ready;
-  ouverture(); ceSoir(); planche();
+  ouverture(); ceSoir(); planche(); savais();
   setInterval(() => { dessine(1); ceSoir(); }, 60000);
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => dessine(1), 150); });
   $("#maPos")?.addEventListener("click", () => {
@@ -108,7 +131,7 @@ async function init() {
     $("#maPos").textContent = "Localisation…";
     navigator.geolocation.getCurrentPosition(p => {
       lieu.lat = p.coords.latitude; lieu.lon = p.coords.longitude; lieu.moi = true;
-      $("#maPos").textContent = "Position utilisée"; dessine(1); ceSoir();
+      $("#maPos").textContent = "Position utilisée"; dessine(1); ceSoir(); son("magie");
     }, () => { $("#maPos").textContent = "Position refusée, on reste sur Paris"; }, { timeout: 10000, maximumAge: 600000 });
   });
   if ("IntersectionObserver" in window) {

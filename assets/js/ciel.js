@@ -1,12 +1,13 @@
-/* Voûte : le viseur. Pointe le téléphone vers le ciel, les noms s'affichent.
+/* Lunétoiles : le viseur. Pointe le téléphone vers le ciel, les noms s'affichent.
    Rien n'est envoyé : position, orientation et caméra restent dans le téléphone. */
 import { loadSky, horMatrix, starsENU, bodies, altAz, azName, riseSet, fmtTime, toENU } from "./sky.js";
-import { aPlus, offrePlus } from "./achats.js";
+import { aPass, offrePass } from "./achats.js";
+import { son } from "./ambiance.js";
 
 const $ = s => document.querySelector(s);
 const RAD = Math.PI / 180;
 const cv = $("#ciel"), ctx = cv.getContext("2d"), video = $("#cam");
-const LS = { get: (k, d) => { try { const v = localStorage.getItem("voute." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set: (k, v) => { try { localStorage.setItem("voute." + k, JSON.stringify(v)); } catch (e) {} } };
+const LS = { get: (k, d) => { try { const v = localStorage.getItem("lunetoiles." + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set: (k, v) => { try { localStorage.setItem("lunetoiles." + k, JSON.stringify(v)); } catch (e) {} } };
 
 const st = {
   mode: "glisser", lat: 48.8566, lon: 2.3522, lieuMoi: false,
@@ -92,7 +93,7 @@ function dessine() {
   if (!st.camera) { ctx.fillStyle = "#050d1f"; ctx.fillRect(0, 0, st.W, st.H); }
   else { ctx.fillStyle = "rgba(3,8,22,.28)"; ctx.fillRect(0, 0, st.W, st.H); }
   const zoom = Math.sqrt(62 / cam.vfov);
-  const plus = aPlus();
+  const plus = aPass();
   const cibles = [];
 
   // horizon et points cardinaux
@@ -208,10 +209,10 @@ function article(c) {
   return (fem ? "la " : "le ") + c;
 }
 
-/* flèche vers l'astre recherché (Voûte+) */
+/* flèche vers l'astre recherché (Pass des étoiles) */
 function guidage() {
   const fl = $("#fleche");
-  if (!st.cible || !aPlus()) { fl.hidden = true; return; }
+  if (!st.cible || !aPass()) { fl.hidden = true; return; }
   const v = cibleVecteur(st.cible); if (!v) { fl.hidden = true; return; }
   const p = proj(v);
   if (p && p[0] > 30 && p[0] < st.W - 30 && p[1] > 80 && p[1] < st.H - 90) {
@@ -244,7 +245,7 @@ function eclat(m) {
 const dirTxt = v => { const { alt, az } = altAz(v); return alt < 0 ? `sous l'horizon, côté ${azName(az)}` : `vers le ${azName(az)}, à ${Math.round(alt)}° au-dessus de l'horizon`; };
 
 function fiche(c) {
-  const f = $("#fiche"), plus = aPlus();
+  const f = $("#fiche"), plus = aPass();
   let h = "";
   if (c.t === "astre") {
     const b = c.b;
@@ -258,7 +259,7 @@ function fiche(c) {
     if (plus) { const rs = riseSet(b.id, hm); h += `<dt>Lever</dt><dd>${fmtTime(rs.rise)}</dd><dt>Coucher</dt><dd>${fmtTime(rs.set)}</dd>`; }
     h += `</dl>`;
     if (b.id === "Sun") h += `<p class="plus-teaser">Ne regarde jamais le Soleil directement, ni avec des jumelles ou un appareil photo.</p>`;
-    else if (!plus) h += `<p class="plus-teaser">Heures de lever et de coucher : <button type="button" data-plus>avec Voûte+</button></p>`;
+    else if (!plus) h += `<p class="plus-teaser">Heures de lever et de coucher : <button type="button" data-plus>avec le Pass des étoiles, 0,99 €</button></p>`;
   } else if (c.t === "const") {
     const k = c.k.c;
     h = `<h2>${k.fr}</h2><div class="type">Constellation (nom latin : ${k.la})</div><dl><dt>Où</dt><dd>${dirTxt(c.v)}</dd></dl>`;
@@ -270,8 +271,8 @@ function fiche(c) {
   f.innerHTML = `<button class="ferme" type="button" aria-label="Fermer la fiche">×</button>` + h;
   f.hidden = false;
   f.querySelector(".ferme").onclick = () => { f.hidden = true; };
-  f.querySelector("[data-plus]")?.addEventListener("click", offrePlus);
-  st.fiches++; offrePoster();
+  f.querySelector("[data-plus]")?.addEventListener("click", offrePass);
+  st.fiches++; offrePoster(); son("petit");
 }
 
 /* ---------- interactions : glisser, pincer, toucher ---------- */
@@ -328,7 +329,7 @@ async function commencer(forcerGlisser) {
     await new Promise(r => setTimeout(r, 900));
   }
   st.mode = !forcerGlisser && ori ? "capteurs" : "glisser";
-  $("#depart").hidden = true;
+  $("#depart").hidden = true; son("ouvre");
   document.body.classList.toggle("mode-capteurs", st.mode === "capteurs");
   $("#btnCalage").hidden = st.mode !== "capteurs";
   position();
@@ -337,11 +338,17 @@ async function commencer(forcerGlisser) {
     if (!absolu) aide("Ta boussole n'est pas disponible : touche « Recaler » et fais glisser pour aligner le ciel.");
   } else aide("Fais glisser pour explorer le ciel, pince ou utilise la molette pour zoomer.");
   setTimeout(offrePoster, 75000);
+  const cb = new URLSearchParams(location.search).get("cible");
+  const b = cb && bod.find(x => x.id === cb);
+  if (b) setTimeout(() => {
+    if (aPass()) { st.cible = { t: "astre", id: b.id, nom: b.fr }; aide(`Suis la flèche jusqu'à ${b.fr}.`); }
+    else { if (st.mode === "glisser") { const { alt, az } = altAz(b.enu); st.yaw = az; st.pitch = Math.max(5, alt); } fiche({ t: "astre", b, v: b.enu }); }
+  }, 600);
 }
 function position() {
   if (!navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(p => { st.lat = p.coords.latitude; st.lon = p.coords.longitude; st.lieuMoi = true; recalcul(); majReglages(); },
-    () => aide("Sans ta position, Voûte montre le ciel de Paris."), { timeout: 12000, maximumAge: 900000, enableHighAccuracy: false });
+    () => aide("Sans ta position, Lunétoiles montre le ciel de Paris."), { timeout: 12000, maximumAge: 900000, enableHighAccuracy: false });
 }
 async function activerCamera(on) {
   if (!on) { video.srcObject?.getTracks().forEach(t => t.stop()); video.srcObject = null; st.camera = false; video.classList.remove("on"); majReglages(); return; }
@@ -370,14 +377,14 @@ function listeRecherche() {
   $("#liste").innerHTML = f.map((x, n) => `<li><button type="button" data-n="${n}"><span class="t">${x.nom}</span><span class="o">${x.sous}, ${dirTxt(x.v)}</span><span class="h">${x.v[2] > 0 ? "visible" : ""}</span></button></li>`).join("") || `<li class="discret">Aucun résultat.</li>`;
   $("#liste").querySelectorAll("button").forEach(b => b.onclick = () => {
     const x = f[+b.dataset.n]; ferme();
-    if (aPlus()) { st.cible = { t: x.t, id: x.id, i: x.i, nom: x.nom }; aide(`Suis la flèche jusqu'à ${x.nom}.`); }
+    if (aPass()) { st.cible = { t: x.t, id: x.id, i: x.i, nom: x.nom }; aide(`Suis la flèche jusqu'à ${x.nom}.`); }
     else { fiche(x.t === "astre" ? { t: "astre", b: bod.find(b => b.id === x.id), v: x.v } : x.t === "const" ? { t: "const", k: cons.find(k => k.c.id === x.id), v: x.v } : { t: "etoile", i: x.i, v: x.v, m: sky.mag[x.i], nom: x.nom, con: sky.names.get(x.i)?.con });
-      $("#fiche").insertAdjacentHTML("beforeend", `<p class="plus-teaser">Une flèche pour te guider jusqu'à ${x.nom} ? <button type="button" class="lien-btn" id="plusGuide">C'est avec Voûte+</button></p>`);
-      $("#plusGuide").onclick = offrePlus; }
+      $("#fiche").insertAdjacentHTML("beforeend", `<p class="plus-teaser">Une flèche pour te guider jusqu'à ${x.nom} ? <button type="button" class="lien-btn" id="plusGuide">C'est avec le Pass des étoiles</button></p>`);
+      $("#plusGuide").onclick = offrePass; }
   });
 }
 
-/* voyage dans le temps (Voûte+) */
+/* voyage dans le temps (Pass des étoiles) */
 function versLocal(d) { const p = n => String(n).padStart(2, "0"); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
 function decale(ms) { st.temps = new Date((st.temps || new Date()).getTime() + ms); $("#quand").value = versLocal(st.temps); recalcul(); }
 function majBandeau() {
@@ -388,7 +395,7 @@ function majBandeau() {
 }
 
 function majReglages() {
-  $("#rCam").checked = st.camera; $("#rLignes").checked = st.lignes; $("#rNoms").checked = st.noms; $("#rFaibles").checked = st.faibles && aPlus();
+  $("#rCam").checked = st.camera; $("#rLignes").checked = st.lignes; $("#rNoms").checked = st.noms; $("#rFaibles").checked = st.faibles && aPass();
   $("#rZoom").value = st.mode === "capteurs" ? st.vfovCapteurs : st.vfov;
   $("#rLieu").textContent = st.lieuMoi ? `ta position (${st.lat.toFixed(2).replace(".", ",")}°, ${st.lon.toFixed(2).replace(".", ",")}°)` : "Paris (position par défaut)";
 }
@@ -404,6 +411,7 @@ function offrePoster() {
 
 /* capture à partager */
 async function capture() {
+  son("magie");
   const c = document.createElement("canvas"); c.width = cv.width; c.height = cv.height;
   const x = c.getContext("2d");
   if (st.camera && video.videoWidth) {
@@ -415,11 +423,11 @@ async function capture() {
   x.fillStyle = "rgba(5,13,31,.75)"; x.fillRect(0, c.height - 64 * u, c.width, 64 * u);
   x.fillStyle = "#f4efe2"; x.textAlign = "center"; x.textBaseline = "middle";
   x.font = `italic 500 ${22 * u}px "Bodoni Moda", Georgia, serif`;
-  x.fillText("Vu avec Voûte · voute.pages.dev", c.width / 2, c.height - 32 * u);
+  x.fillText(`Vu avec Lunétoiles · ${location.host}`, c.width / 2, c.height - 32 * u);
   c.toBlob(async b => {
-    const file = new File([b], "mon-ciel-voute.png", { type: "image/png" });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: "Mon ciel avec Voûte" }); return; } catch (e) { return; } }
-    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "mon-ciel-voute.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    const file = new File([b], "mon-ciel-lunetoiles.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: "Mon ciel avec Lunétoiles" }); return; } catch (e) { return; } }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "mon-ciel-lunetoiles.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }, "image/png");
 }
 
@@ -428,14 +436,14 @@ async function init() {
   taille(); addEventListener("resize", taille);
   sky = await loadSky(); recalcul();
   const tactile = matchMedia("(pointer: coarse)").matches;
-  $("#depTexte").textContent = tactile ? "Pointe ton téléphone vers le ciel : Voûte affiche le nom de ce que tu regardes." : "Sur ordinateur, fais glisser le ciel à la souris. Pour le viseur, ouvre cette page sur ton téléphone.";
+  $("#depTexte").textContent = tactile ? "Pointe ton téléphone vers le ciel : Lunétoiles affiche le nom de ce que tu regardes." : "Sur ordinateur, fais glisser le ciel à la souris. Pour le viseur, ouvre cette page sur ton téléphone.";
   $("#btnGo").onclick = () => commencer(false);
   $("#btnGlisser").onclick = () => commencer(true);
   if (!tactile) { $("#btnGo").textContent = "Explorer le ciel"; $("#btnGo").onclick = () => commencer(true); $("#btnGlisser").hidden = true; }
 
   $("#btnRecherche").onclick = () => { ouvre("#recherche"); listeRecherche(); setTimeout(() => $("#filtre").focus(), 50); };
   $("#filtre").oninput = listeRecherche;
-  $("#btnTemps").onclick = () => { if (!aPlus()) return offrePlus(); ouvre("#temps"); $("#quand").value = versLocal(st.temps || new Date()); };
+  $("#btnTemps").onclick = () => { if (!aPass()) return offrePass(); ouvre("#temps"); $("#quand").value = versLocal(st.temps || new Date()); };
   $("#quand").onchange = e => { if (e.target.value) { st.temps = new Date(e.target.value); recalcul(); } };
   document.querySelectorAll("[data-dt]").forEach(b => b.onclick = () => decale(+b.dataset.dt * 3600000));
   $("#maintenant").onclick = () => { st.temps = null; recalcul(); ferme(); };
@@ -444,7 +452,7 @@ async function init() {
   $("#rCam").onchange = e => activerCamera(e.target.checked);
   $("#rLignes").onchange = e => { st.lignes = e.target.checked; LS.set("lignes", st.lignes); };
   $("#rNoms").onchange = e => { st.noms = e.target.checked; LS.set("noms", st.noms); };
-  $("#rFaibles").onchange = e => { if (!aPlus()) { e.target.checked = false; return offrePlus(); } st.faibles = e.target.checked; LS.set("faibles", st.faibles); };
+  $("#rFaibles").onchange = e => { if (!aPass()) { e.target.checked = false; return offrePass(); } st.faibles = e.target.checked; LS.set("faibles", st.faibles); };
   $("#rZoom").oninput = e => zoomer(+e.target.value);
   $("#rPos").onclick = position;
   $("#btnRouge").onclick = () => { const r = $("#rouge"), on = r.hidden; r.hidden = !on; $("#btnRouge").setAttribute("aria-pressed", String(on)); };
@@ -455,9 +463,9 @@ async function init() {
   };
   $("#calageOk").onclick = () => $("#btnCalage").click();
   $("#calageZero").onclick = () => { st.offset = 0; };
-  if (aPlus()) document.body.classList.add("plus");
+  if (aPass()) document.body.classList.add("plus");
   const q = new URLSearchParams(location.search);
-  if (q.get("plus") === "1" && !aPlus()) offrePlus();
+  if ((q.get("pass") === "1" || q.get("plus") === "1") && !aPass()) offrePass();
   if (q.get("achat") === "annule") $("#depMsg").textContent = "Paiement annulé : rien n'a été débité.";
   requestAnimationFrame(dessine);
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});

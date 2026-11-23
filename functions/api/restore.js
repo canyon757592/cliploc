@@ -16,8 +16,8 @@ export async function onRequestPost({ request, env }) {
     const t = await signToken(env, { ids: ids.slice(0, 40), exp: Date.now() + 3600_000 });
     await sendMail(env, {
       to: email,
-      subject: "Tes achats Voûte",
-      text: `Bonjour,\n\nVoici le lien pour retrouver tes achats Voûte sur ce téléphone ou cet ordinateur (valable une heure) :\n\n${site(env)}/restaurer/?t=${t}\n\nSi tu n'as rien demandé, ignore simplement cet e-mail.\n\nVoûte`,
+      subject: "Tes achats Lunétoiles",
+      text: `Bonjour,\n\nVoici le lien pour retrouver tes achats Lunétoiles sur ce téléphone ou cet ordinateur (valable une heure) :\n\n${site(env)}/restaurer/?t=${t}\n\nSi tu n'as rien demandé, ignore simplement cet e-mail.\n\nLunétoiles`,
     });
   }
   return json(200, { ok: true });

@@ -1,7 +1,7 @@
 {
-  "name": "Voûte : le ciel a des noms",
-  "short_name": "Voûte",
-  "description": "Pointe ton téléphone vers le ciel : Voûte affiche le nom des étoiles, constellations et planètes.",
+  "name": "Lunétoiles : le ciel a des noms",
+  "short_name": "Lunétoiles",
+  "description": "Pointe ton téléphone vers le ciel : Lunétoiles affiche le nom des étoiles, constellations et planètes.",
   "lang": "fr",
   "start_url": "/ciel/",
   "scope": "/",
@@ -10,8 +10,21 @@
   "background_color": "#10234a",
   "theme_color": "#10234a",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

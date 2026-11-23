@@ -17,7 +17,7 @@ export async function onRequestPost({ request, env }) {
   if (!env.CONTACT_TO) return json(503, { error: "contact_unavailable" });
   const ok = await sendMail(env, {
     to: env.CONTACT_TO, reply_to: email,
-    subject: `Voûte : ${sujet}${nom ? " (" + nom + ")" : ""}`,
+    subject: `Lunétoiles : ${sujet}${nom ? " (" + nom + ")" : ""}`,
     text: `De : ${nom || "(sans nom)"} <${email}>\nSujet : ${sujet}\n\n${message}\n\nRéponds directement à cet e-mail : la réponse part vers ${email}.`,
   });
   return ok ? json(200, { ok: true }) : json(502, { error: "contact_unavailable" });

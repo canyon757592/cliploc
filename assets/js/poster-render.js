@@ -108,6 +108,6 @@ function watermark(ctx, W, H, u) {
   ctx.globalAlpha = 0.16; ctx.fillStyle = "#ffffff"; ctx.strokeStyle = "#000000"; ctx.lineWidth = 1.2 * u;
   ctx.font = `italic 500 ${Math.round(46 * u)}px "Bodoni Moda", Georgia, serif`;
   ctx.textAlign = "center"; ctx.translate(W / 2, H / 2); ctx.rotate(-Math.PI / 7);
-  for (let y = -H; y < H; y += 190 * u) for (let x = -W; x < W; x += 420 * u) { ctx.strokeText("Aperçu Voûte", x + (y / 190 % 2) * 210 * u, y); ctx.fillText("Aperçu Voûte", x + (y / 190 % 2) * 210 * u, y); }
+  for (let y = -H; y < H; y += 190 * u) for (let x = -W; x < W; x += 420 * u) { ctx.strokeText("Aperçu Lunétoiles", x + (y / 190 % 2) * 210 * u, y); ctx.fillText("Aperçu Lunétoiles", x + (y / 190 % 2) * 210 * u, y); }
   ctx.restore();
 }

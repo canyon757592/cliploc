@@ -1,8 +1,13 @@
 // Crée une session de paiement Stripe. Les PRIX sont fixés ici, jamais par le navigateur.
 import { json, site, sameOrigin, stripe } from "../_shared.js";
 
-const PRIX = { plus: 299, poster: 499, bump: 149 }; // en centimes, TTC
-const THEMES = ["encre", "givre", "laiton"];
+// en centimes, TTC
+const OFFRES = {
+  pass: { prix: 99, nom: "Pass des étoiles : toutes les fonctions du viseur, à vie" },
+  affiche: { prix: 499, nom: "Affiche des étoiles (fichier HD)" },
+  carnet: { prix: 99, nom: "Carnet des étoiles (livre numérique PDF)" },
+};
+const THEMES = ["encre", "givre", "laiton", "aurore"];
 const txt = (v, n) => (typeof v === "string" ? v.replace(/[\u0000-\u001f]/g, " ").trim().slice(0, n) : "");
 
 export async function onRequestPost({ request, env }) {
@@ -12,6 +17,8 @@ export async function onRequestPost({ request, env }) {
   if (!(env.STRIPE_SECRET_KEY || "").trim()) return json(503, { error: "payments_unavailable" });
   // Contenu numérique livré tout de suite : accord exprès et renonciation au droit de rétractation (art. L221-28 13° du Code de la consommation)
   if (b.consent !== true) return json(400, { error: "consent_required" });
+  const sku = b.sku;
+  if (!OFFRES[sku]) return json(400, { error: "invalid_choice" });
 
   const S = site(env);
   const f = new URLSearchParams();
@@ -20,32 +27,30 @@ export async function onRequestPost({ request, env }) {
     f.set(`line_items[${k}][quantity]`, "1");
     f.set(`line_items[${k}][price_data][currency]`, "eur");
     f.set(`line_items[${k}][price_data][unit_amount]`, String(cents));
-    f.set(`line_items[${k}][price_data][product_data][name]`, name);
+    f.set(`line_items[${k}][price_data][product_data][name]`, name.slice(0, 120));
     k++;
   };
-  const meta = { app: "voute", consent: "1", consent_at: new Date().toISOString() };
+  const meta = { app: "lunetoiles", sku, consent: "1", consent_at: new Date().toISOString() };
 
-  if (b.sku === "plus") {
-    line("Voûte+ : toutes les fonctions du viseur, à vie", PRIX.plus);
-    meta.sku = "plus";
-    f.set("cancel_url", `${S}/ciel/?achat=annule`);
-  } else if (b.sku === "poster") {
+  if (sku === "affiche") {
     const p = b.poster || {};
     const date = txt(p.date, 10), heure = txt(p.heure, 5), lat = Number(p.lat), lon = Number(p.lon);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || +date.slice(0, 4) < 1800 || +date.slice(0, 4) > 2200) return json(400, { error: "invalid_date" });
     if (!/^\d{2}:\d{2}$/.test(heure)) return json(400, { error: "invalid_time" });
     if (!(lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180)) return json(400, { error: "invalid_place" });
-    const theme = THEMES.includes(p.theme) ? p.theme : "encre";
     const utc = txt(p.utc, 30);
-    Object.assign(meta, { sku: "poster", titre: txt(p.titre, 80), sous: txt(p.sousTitre, 70), lieu: txt(p.lieu, 90), date, heure, lat: lat.toFixed(5), lon: lon.toFixed(5), theme, ...(utc ? { utc } : {}) });
-    line(`Poster carte du ciel (HD) : ${meta.titre || "le ciel de cette nuit-là"}`.slice(0, 120), PRIX.poster);
-    if (b.bump === true && b.dejaPlus !== true) { line("Voûte+ avec le poster : toutes les fonctions du viseur, à vie", PRIX.bump); meta.bump = "1"; }
-    f.set("cancel_url", `${S}/poster/?achat=annule`);
-  } else return json(400, { error: "invalid_choice" });
+    Object.assign(meta, { titre: txt(p.titre, 80), sous: txt(p.sousTitre, 70), lieu: txt(p.lieu, 90), date, heure, lat: lat.toFixed(5), lon: lon.toFixed(5), theme: THEMES.includes(p.theme) ? p.theme : "encre", ...(utc ? { utc } : {}) });
+    line(`${OFFRES.affiche.nom} : ${meta.titre || "le ciel de cette nuit-là"}`, OFFRES.affiche.prix);
+  } else line(OFFRES[sku].nom, OFFRES[sku].prix);
+
+  // options ajoutées au même paiement (jamais l'offre principale elle-même)
+  const extras = Array.isArray(b.extras) ? [...new Set(b.extras)].filter(x => (x === "pass" || x === "carnet") && x !== sku) : [];
+  for (const x of extras) { line(OFFRES[x].nom, OFFRES[x].prix); meta[x] = "1"; }
 
   f.set("mode", "payment");
   f.set("locale", "fr");
   f.set("success_url", `${S}/merci/?s={CHECKOUT_SESSION_ID}`);
+  f.set("cancel_url", `${S}${sku === "affiche" ? "/affiche/" : sku === "carnet" ? "/carnet/" : "/ciel/"}?achat=annule`);
   f.set("customer_creation", "always");
   f.set("invoice_creation[enabled]", "true");
   f.set("custom_text[submit][message]", "Contenu numérique disponible dès le paiement. Tu as accepté qu'il te soit livré immédiatement et renoncé à ton droit de rétractation.");

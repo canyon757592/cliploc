@@ -1,4 +1,4 @@
-/* Voûte : moteur du ciel commun (accueil, viseur, poster).
+/* Lunétoiles : moteur du ciel commun (accueil, viseur, poster).
    Positions réelles : catalogue d'étoiles J2000 (d3-celestial, BSD-3) + Astronomy Engine (MIT)
    pour la rotation vers l'horizon local (précession, nutation) et les planètes. */
 const A = () => window.Astronomy;

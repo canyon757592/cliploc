@@ -4,6 +4,7 @@ import { starsENU, bodies, domeXY, starRadius } from "./sky.js";
 export const THEMES = {
   encre: { nom: "Encre", papier: "#10234a", disque: "#0a1834", trait: "rgba(200,164,93,.55)", libelle: "#c8a45d", texte: "#f4efe2", texte2: "#a9b5cc", anneau: "#c8a45d", etoileCouleur: true },
   givre: { nom: "Givre", papier: "#e9eef4", disque: "#10234a", trait: "rgba(200,164,93,.6)", libelle: "#c8a45d", texte: "#10234a", texte2: "#4a5a78", anneau: "#10234a", etoileCouleur: true },
+  aurore: { nom: "Aurore", papier: "#1b1440", disque: "#120c33", trait: "rgba(157,132,255,.62)", libelle: "#c9b8ff", texte: "#f4efe2", texte2: "#b8abe0", anneau: "#9d84ff", etoileCouleur: true },
   laiton: { nom: "Laiton", papier: "#0a1834", disque: "#0a1834", trait: "rgba(200,164,93,.7)", libelle: "#d8b876", texte: "#d8b876", texte2: "#b49a66", anneau: "#c8a45d", etoileCouleur: false },
 };
 

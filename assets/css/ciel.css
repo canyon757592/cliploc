@@ -91,3 +91,7 @@ body.app{touch-action:none;-webkit-user-select:none;user-select:none}
   .outils{flex:1;gap:4px;justify-content:flex-end}
   .outil{flex:1 1 0;min-width:0;max-width:62px;padding:7px 2px 6px;font-size:10.5px;letter-spacing:-.01em}
 }
+
+.reglage a{color:var(--etoile)}
+.cadeau-lien{display:block;margin-top:14px;padding:14px 16px;border:1px solid rgba(157,132,255,.5);background:rgba(139,108,246,.14);border-radius:12px;text-decoration:none;color:var(--etoile)}
+.cadeau-lien b{display:block;font:italic 500 20px var(--serif)}

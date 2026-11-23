@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Affiche des étoiles : le ciel exact d&#x27;une rencontre, d&#x27;une naissance ou d&#x27;un mariage</title>
+<meta name="description" content="Offre le ciel tel qu&#x27;il était au-dessus de vous un jour qui compte : rencontre, naissance, mariage, anniversaire. Affiche personnalisée en HD, aperçu gratuit, 4,99 €.">
+<link rel="canonical" href="https://lunetoiles.pages.dev/affiche/">
+
+<meta name="theme-color" content="#10234a">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Lunétoiles">
+<meta property="og:title" content="Affiche des étoiles : le ciel exact d&#x27;une rencontre, d&#x27;une naissance ou d&#x27;un mariage">
+<meta property="og:description" content="Offre le ciel tel qu&#x27;il était au-dessus de vous un jour qui compte : rencontre, naissance, mariage, anniversaire. Affiche personnalisée en HD, aperçu gratuit, 4,99 €.">
+<meta property="og:url" content="https://lunetoiles.pages.dev/affiche/">
+<meta property="og:image" content="https://lunetoiles.pages.dev/assets/img/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="preload" href="/assets/fonts/bodoni-moda-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css?v=5f780896">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Product", "name": "Affiche des étoiles (fichier HD personnalisé)", "description": "Le ciel exact d'une date et d'un lieu, personnalisé, en fichier haute définition à imprimer.", "brand": {"@type": "Brand", "name": "Lunétoiles"}, "offers": {"@type": "Offer", "price": "4.99", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://lunetoiles.pages.dev/affiche/"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Qu'est-ce que je reçois exactement ?", "acceptedAnswer": {"@type": "Answer", "text": "Un fichier image en haute définition (PNG, 3000 × 4243 pixels), sans filigrane, qui représente le ciel réel à la date, à l'heure et au lieu choisis, avec ton titre et tes prénoms. Tu le télécharges juste après le paiement."}}, {"@type": "Question", "name": "Le cadre et l'impression sont-ils compris ?", "acceptedAnswer": {"@type": "Answer", "text": "Non : tu reçois le fichier. Tu l'imprimes chez toi, chez un imprimeur ou dans une borne photo, puis tu l'encadres. Le format correspond aux feuilles A4 et A3 et s'adapte à un cadre 30 × 40 cm."}}, {"@type": "Question", "name": "Le ciel est-il vraiment exact ?", "acceptedAnswer": {"@type": "Answer", "text": "Oui. Les étoiles et les planètes sont placées à leur vraie position pour ce moment-là, en tenant compte du fuseau horaire et de l'heure d'été du lieu. C'est un vrai calcul astronomique, pas un dessin au hasard."}}, {"@type": "Question", "name": "Je n'ai pas l'heure exacte, c'est grave ?", "acceptedAnswer": {"@type": "Answer", "text": "Non. Mets une heure approximative, le soir par exemple : le ciel tourne lentement, une heure de différence décale un peu les étoiles sans changer l'esprit de l'affiche."}}, {"@type": "Question", "name": "Je peux la retélécharger plus tard ?", "acceptedAnswer": {"@type": "Answer", "text": "Oui. Sur la page Récupérer un achat, indique l'e-mail utilisé pour payer : tu reçois un lien pour retélécharger ton affiche."}}]}</script>
+</head>
+<body>
+<a class="saut" href="#contenu">Aller au contenu</a>
+<canvas id="fond" aria-hidden="true"></canvas>
+<p class="bandeau">Idée cadeau pour Noël : <a href="/carnet/">le Carnet des étoiles</a>, 26 pages à offrir, 0,99&nbsp;€ pendant le lancement.</p>
+<header class="entete"><div class="cadre">
+<a class="marque" href="/" aria-label="Lunétoiles, accueil"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M15.5 4.5a11.5 11.5 0 1 0 12 15.4A9 9 0 1 1 15.5 4.5z" fill="#f4efe2"/><path d="M24 5l1.1 3.3 3.4 1.2-3.4 1.1L24 14l-1.1-3.4-3.4-1.1 3.4-1.2z" fill="#9d84ff"/><circle cx="27.5" cy="16.5" r=".9" fill="#c8a45d"/></svg>Lunétoiles</a>
+<button class="btn-son" id="btnSon" type="button" aria-pressed="true" aria-label="Couper les sons"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="ondes" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="barre" d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+<button class="burger" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+<nav id="nav" class="nav" aria-label="Navigation principale"><a href="/affiche/" aria-current=page>Affiche des étoiles</a><a href="/carnet/">Carnet des étoiles</a><a href="/guides/">Guides</a><a href="/tarifs/">Tarifs</a><a href="/contact/">Contact</a><a class="bouton petit" href="/ciel/">Ouvrir le ciel</a></nav>
+</div></header>
+<main id="contenu">
+<div class="cadre page-tete"><h1>Offre le ciel d'un jour qui compte</h1>
+<p class="chapo">Une affiche du vrai ciel, tel qu'il était au-dessus de vous à la date et au lieu de ton choix&nbsp;: une rencontre, une naissance, un mariage, un anniversaire.</p>
+<ul class="points">
+<li data-revele><h3>Le ciel exact</h3><p class="discret">Les étoiles et les planètes à leur vraie place ce soir-là, au-dessus de ce lieu-là, fuseau horaire compris.</p></li>
+<li data-revele><h3>À votre nom</h3><p class="discret">Un titre, des prénoms, la date et le lieu, et quatre styles pour l'accorder à votre intérieur.</p></li>
+<li data-revele><h3>Prêt à offrir ce soir</h3><p class="discret">Le fichier HD arrive tout de suite après le paiement. Tu l'imprimes en A4 ou en A3 et tu l'encadres.</p></li>
+</ul></div>
+<div class="cadre atelier" id="creer">
+<div>
+<p class="discret" style="margin-bottom:10px">Pour quelle occasion&nbsp;?</p>
+<div class="puces" role="group" aria-label="Occasion">
+<button type="button" class="puce" data-occ="rencontre" aria-pressed="false">Une rencontre</button>
+<button type="button" class="puce" data-occ="naissance" aria-pressed="false">Une naissance</button>
+<button type="button" class="puce" data-occ="mariage" aria-pressed="false">Un mariage</button>
+<button type="button" class="puce" data-occ="anniversaire" aria-pressed="false">Un anniversaire</button>
+<button type="button" class="puce" data-occ="souvenir" aria-pressed="false">Un souvenir</button>
+</div>
+<div class="champ"><label for="pTitre">Titre</label><input id="pTitre" maxlength="70" placeholder="La nuit où tout a commencé"></div>
+<div class="champ"><label for="pSous">Prénoms ou sous-titre (facultatif)</label><input id="pSous" maxlength="60" placeholder="Léa &amp; Sami"></div>
+<div class="duo"><div class="champ"><label for="pDate">Date</label><input id="pDate" type="date" min="1800-01-01" max="2200-12-31"></div>
+<div class="champ"><label for="pHeure">Heure, sur place</label><input id="pHeure" type="time"></div></div>
+<form class="champ" id="formLieu"><label for="pLieu">Lieu</label><div class="lieu-ligne"><input id="pLieu" autocomplete="off" placeholder="Ville, adresse…"><button class="bouton" type="button" id="btnLieu">Chercher</button></div>
+<ul class="lieux" id="lieux" aria-live="polite"></ul><button type="button" class="lien-btn petit" id="maPosition" style="background:none;border:0;color:var(--etoile);text-decoration:underline;text-decoration-color:var(--laiton);cursor:pointer;padding:6px 0;align-self:flex-start;font:inherit;font-size:15px">Utiliser ma position</button></form>
+<fieldset class="champ" style="border:0;padding:0;margin:0 0 24px"><legend style="font-weight:700;font-size:16px;margin-bottom:10px">Style</legend><div class="themes" id="themes"></div></fieldset>
+<div class="achat-ligne"><p class="prix">4,99&nbsp;€</p><button class="bouton grand" type="button" id="btnAcheter">Recevoir mon affiche en HD</button></div>
+<p class="msg" id="msgAchat"></p>
+<p class="petit discret">Fichier PNG 3000 × 4243 pixels, sans filigrane. Impression et cadre non fournis. Paiement par carte, Apple Pay ou Google Pay.</p>
+</div>
+<div><div class="encadre apercu-cadre"><div class="passe"><canvas id="apercu" role="img" aria-label="Aperçu de ton affiche"></canvas></div></div><p class="discret petit" id="apercuTxt" style="margin-top:12px" aria-live="polite"></p></div>
+</div>
+<section class="profond" aria-labelledby="t-ex"><div class="cadre">
+<h2 id="t-ex" data-revele>Trois histoires, trois ciels</h2>
+<div class="galerie">
+<figure data-revele><div class="encadre"><div class="passe"><canvas id="ex1" role="img" aria-label="Exemple : naissance à Lyon"></canvas></div></div><figcaption><b>Une naissance</b><span>Le ciel de Lyon, la nuit où Léon est né</span></figcaption></figure>
+<figure data-revele><div class="encadre"><div class="passe"><canvas id="ex2" role="img" aria-label="Exemple : mariage à Bordeaux"></canvas></div></div><figcaption><b>Un mariage</b><span>Le ciel de Bordeaux, le soir du oui</span></figcaption></figure>
+<figure data-revele><div class="encadre"><div class="passe"><canvas id="ex3" role="img" aria-label="Exemple : rencontre à Paris"></canvas></div></div><figcaption><b>Une rencontre</b><span>Le ciel de Paris, le soir du premier rendez-vous</span></figcaption></figure>
+</div>
+<p style="margin-top:40px;text-align:center" data-revele><a class="bouton" href="#creer">Créer la nôtre</a></p>
+</div></section>
+<section aria-labelledby="t-faq-a"><div class="cadre"><h2 id="t-faq-a" data-revele>Questions sur l'affiche</h2><div class="questions" style="margin-top:28px"><details><summary>Qu'est-ce que je reçois exactement ?</summary><p>Un fichier image en haute définition (PNG, 3000 × 4243 pixels), sans filigrane, qui représente le ciel réel à la date, à l'heure et au lieu choisis, avec ton titre et tes prénoms. Tu le télécharges juste après le paiement.</p></details><details><summary>Le cadre et l'impression sont-ils compris ?</summary><p>Non : tu reçois le fichier. Tu l'imprimes chez toi, chez un imprimeur ou dans une borne photo, puis tu l'encadres. Le format correspond aux feuilles A4 et A3 et s'adapte à un cadre 30 × 40 cm.</p></details><details><summary>Le ciel est-il vraiment exact ?</summary><p>Oui. Les étoiles et les planètes sont placées à leur vraie position pour ce moment-là, en tenant compte du fuseau horaire et de l'heure d'été du lieu. C'est un vrai calcul astronomique, pas un dessin au hasard.</p></details><details><summary>Je n'ai pas l'heure exacte, c'est grave ?</summary><p>Non. Mets une heure approximative, le soir par exemple : le ciel tourne lentement, une heure de différence décale un peu les étoiles sans changer l'esprit de l'affiche.</p></details><details><summary>Je peux la retélécharger plus tard ?</summary><p>Oui. Sur la page Récupérer un achat, indique l'e-mail utilisé pour payer : tu reçois un lien pour retélécharger ton affiche.</p></details></div></div></section>
+</main>
+<footer class="pied"><div class="cadre">
+<div><h2>Lunétoiles</h2><p>Pointe ton téléphone vers le ciel, Lunétoiles te dit ce que tu regardes. Directement dans le navigateur, sans compte.</p></div>
+<div><ul><li><a href="/ciel/">Ouvrir le ciel</a></li><li><a href="/affiche/">Affiche des étoiles</a></li><li><a href="/carnet/">Carnet des étoiles</a></li><li><a href="/tarifs/">Tarifs</a></li><li><a href="/restaurer/">Récupérer un achat</a></li></ul></div>
+<div><ul><li><a href="/guides/">Guides</a></li><li><a href="/faq/">Questions fréquentes</a></li><li><a href="/contact/">Contact</a></li></ul></div>
+<div><ul><li><a href="/mentions-legales/">Mentions légales</a></li><li><a href="/cgv/">Conditions de vente</a></li><li><a href="/confidentialite/">Confidentialité</a></li><li><a href="/licences/">Licences et sources</a></li></ul></div>
+<p class="credits">Positions calculées avec Astronomy Engine (Don Cross, licence MIT) et le catalogue d'étoiles de d3-celestial (Olaf Frohn, licence BSD). Recherche de lieux : © les contributeurs d'OpenStreetMap. Fuseaux horaires : Natural Earth.</p>
+</div></footer>
+<script src="/assets/js/astronomy.min.js?v=c5e4e5d5" defer></script>
+<script type="module" src="/assets/js/poster.js?v=7907be81"></script>
+<script type="module" src="/assets/js/ambiance.js?v=2dbd0a09"></script>
+<script src="/assets/js/site.js?v=db03bbb1" defer></script>
+</body>
+</html>

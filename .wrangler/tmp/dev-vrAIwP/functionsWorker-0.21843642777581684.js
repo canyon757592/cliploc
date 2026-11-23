@@ -318,6 +318,12 @@ async function onRequestGet2({ request, env }) {
 }
 __name(onRequestGet2, "onRequestGet2");
 __name2(onRequestGet2, "onRequestGet");
+async function onRequest({ env, request }) {
+  const r = await env.ASSETS.fetch(new URL("/404.html", request.url));
+  return new Response(r.body, { status: 404, headers: { "Content-Type": "text/html; charset=utf-8" } });
+}
+__name(onRequest, "onRequest");
+__name2(onRequest, "onRequest");
 var routes = [
   {
     routePath: "/api/checkout",
@@ -353,6 +359,13 @@ var routes = [
     method: "GET",
     middlewares: [],
     modules: [onRequestGet2]
+  },
+  {
+    routePath: "/tools/:rest*",
+    mountPath: "/tools",
+    method: "",
+    middlewares: [],
+    modules: [onRequest]
   }
 ];
 function lexer(str) {

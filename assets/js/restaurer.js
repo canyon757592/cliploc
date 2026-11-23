@@ -1,6 +1,6 @@
 /* Récupérer ses achats avec l'e-mail utilisé pour payer (pas de compte, pas de mot de passe). */
 import { enregistre } from "./achats.js";
-import { blocPoster } from "./merci.js";
+import { livre } from "./merci.js";
 
 const $ = s => document.querySelector(s);
 
@@ -11,9 +11,7 @@ async function avecLien(t) {
   if (!j.ok) { box.innerHTML = `<p>Ce lien a expiré ou n'est pas valide. Demande un nouveau lien ci-dessous.</p>`; return; }
   if (!j.achats.length) { box.innerHTML = `<p>Aucun achat trouvé pour ce lien.</p>`; return; }
   box.innerHTML = "";
-  let plus = false;
-  j.achats.forEach(a => { enregistre(a); if (a.plus) plus = true; if (a.poster) blocPoster(a, box); });
-  if (plus) box.insertAdjacentHTML("afterbegin", `<div class="livraison-plus"><h2>Voûte+ est de nouveau activé sur cet appareil</h2><a class="bouton" href="/ciel/">Ouvrir le ciel</a></div>`);
+  j.achats.forEach(a => { enregistre(a); livre(a, box); });
 }
 
 function init() {

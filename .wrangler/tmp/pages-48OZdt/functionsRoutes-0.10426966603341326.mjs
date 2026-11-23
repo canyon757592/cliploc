@@ -3,6 +3,7 @@ import { onRequestPost as __api_contact_js_onRequestPost } from "/home/claude/vo
 import { onRequestGet as __api_restore_js_onRequestGet } from "/home/claude/voute/functions/api/restore.js"
 import { onRequestPost as __api_restore_js_onRequestPost } from "/home/claude/voute/functions/api/restore.js"
 import { onRequestGet as __api_verify_js_onRequestGet } from "/home/claude/voute/functions/api/verify.js"
+import { onRequest as __tools___rest___js_onRequest } from "/home/claude/voute/functions/tools/[[rest]].js"
 
 export const routes = [
     {
@@ -39,5 +40,12 @@ export const routes = [
       method: "GET",
       middlewares: [],
       modules: [__api_verify_js_onRequestGet],
+    },
+  {
+      routePath: "/tools/:rest*",
+      mountPath: "/tools",
+      method: "",
+      middlewares: [],
+      modules: [__tools___rest___js_onRequest],
     },
   ]

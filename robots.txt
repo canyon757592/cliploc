@@ -3,5 +3,6 @@ Allow: /
 Disallow: /merci/
 Disallow: /restaurer/
 Disallow: /api/
+Disallow: /prive/
 
-Sitemap: https://voute.pages.dev/sitemap.xml
+Sitemap: https://lunetoiles.pages.dev/sitemap.xml

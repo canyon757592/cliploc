@@ -1,18 +1,18 @@
-// Outils communs aux fonctions serveur de Voûte (Cloudflare Pages Functions).
+// Outils communs aux fonctions serveur de Lunétoiles (Cloudflare Pages Functions).
 // Aucune base de données : Stripe garde la trace des achats, le navigateur garde les déblocages.
 export const json = (status, body, extra = {}) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...extra } });
 
 export const EMAIL_RX = /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']{2,}$/;
 
-export function site(env) { return (env.SITE || "https://voute.pages.dev").replace(/\/$/, ""); }
+export function site(env) { return (env.SITE || "https://lunetoiles.pages.dev").replace(/\/$/, ""); }
 
 // Refuse les requêtes d'écriture venant d'un autre site
 export function sameOrigin(request, env) {
   const o = request.headers.get("origin");
   if (!o) return true;
-  const ok = [site(env), "https://voute.pages.dev", "http://127.0.0.1:8791", "http://localhost:8791"];
-  try { const u = new URL(o); return ok.includes(u.origin) || u.hostname.endsWith(".voute.pages.dev"); } catch { return false; }
+  const ok = [site(env), "https://lunetoiles.pages.dev", "http://127.0.0.1:8791", "http://localhost:8791"];
+  try { const u = new URL(o); return ok.includes(u.origin) || u.hostname.endsWith(".lunetoiles.pages.dev") || u.origin === "https://lunetoiles.com" || u.origin === "https://www.lunetoiles.com"; } catch { return false; }
 }
 
 export async function stripe(env, method, path, params) {
@@ -49,12 +49,12 @@ export async function readToken(env, t) {
   } catch { return null; } // lien abîmé ou falsifié
 }
 
-// Un achat Voûte payé, sous une forme que le navigateur peut utiliser
+// Un achat Lunétoiles payé, sous une forme que le navigateur peut utiliser
 export function purchaseOf(s) {
   const m = s.metadata || {};
-  if (m.app !== "voute" || s.payment_status !== "paid") return null;
-  const out = { id: s.id, sku: m.sku, plus: m.sku === "plus" || m.bump === "1", date: s.created };
-  if (m.sku === "poster") out.poster = {
+  if (m.app !== "lunetoiles" || s.payment_status !== "paid") return null;
+  const out = { id: s.id, sku: m.sku, pass: m.sku === "pass" || m.pass === "1", carnet: m.sku === "carnet" || m.carnet === "1", date: s.created };
+  if (m.sku === "affiche") out.poster = {
     titre: m.titre || "", sousTitre: m.sous || "", lieu: m.lieu || "", date: m.date, heure: m.heure,
     lat: +m.lat, lon: +m.lon, utc: m.utc || null, theme: m.theme || "encre",
   };
@@ -66,7 +66,7 @@ export async function sendMail(env, { to, subject, text, reply_to }) {
   if (!key) return false;
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: env.MAIL_FROM || "Voûte <voute@cliploc.com>", to: [to], subject, text, ...(reply_to ? { reply_to } : {}) }),
+    body: JSON.stringify({ from: env.MAIL_FROM || "Lunétoiles <lunetoiles@cliploc.com>", to: [to], subject, text, ...(reply_to ? { reply_to } : {}) }),
     signal: AbortSignal.timeout(15000),
   });
   if (!r.ok) console.error("mail_error", r.status, (await r.text().catch(() => "")).slice(0, 200));

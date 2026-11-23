@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Confidentialité | Voûte</title>
-<meta name="description" content="Ce que Voûte fait (et ne fait pas) de tes données.">
-<link rel="canonical" href="https://voute.pages.dev/confidentialite/">
+<title>Confidentialité | Lunétoiles</title>
+<meta name="description" content="Ce que Lunétoiles fait (et ne fait pas) de tes données.">
+<link rel="canonical" href="https://lunetoiles.pages.dev/confidentialite/">
 
 <meta name="theme-color" content="#10234a">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
-<meta property="og:site_name" content="Voûte">
-<meta property="og:title" content="Confidentialité | Voûte">
-<meta property="og:description" content="Ce que Voûte fait (et ne fait pas) de tes données.">
-<meta property="og:url" content="https://voute.pages.dev/confidentialite/">
-<meta property="og:image" content="https://voute.pages.dev/assets/img/og.png">
+<meta property="og:site_name" content="Lunétoiles">
+<meta property="og:title" content="Confidentialité | Lunétoiles">
+<meta property="og:description" content="Ce que Lunétoiles fait (et ne fait pas) de tes données.">
+<meta property="og:url" content="https://lunetoiles.pages.dev/confidentialite/">
+<meta property="og:image" content="https://lunetoiles.pages.dev/assets/img/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -22,38 +22,42 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="preload" href="/assets/fonts/bodoni-moda-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/css/site.css?v=9ba8a9f0">
+<link rel="stylesheet" href="/assets/css/site.css?v=5f780896">
 </head>
 <body>
 <a class="saut" href="#contenu">Aller au contenu</a>
+<canvas id="fond" aria-hidden="true"></canvas>
+<p class="bandeau">Idée cadeau pour Noël : <a href="/carnet/">le Carnet des étoiles</a>, 26 pages à offrir, 0,99&nbsp;€ pendant le lancement.</p>
 <header class="entete"><div class="cadre">
-<a class="marque" href="/" aria-label="Voûte, accueil"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 27a13 13 0 0 1 26 0" fill="none" stroke="#c8a45d" stroke-width="1.6"/><path d="M16 6l1.5 4.5L22 12l-4.5 1.5L16 18l-1.5-4.5L10 12l4.5-1.5z" fill="#f4efe2"/><circle cx="24.5" cy="20" r="1.1" fill="#f4efe2"/><circle cx="7.5" cy="19" r=".8" fill="#f4efe2"/></svg>Voûte</a>
+<a class="marque" href="/" aria-label="Lunétoiles, accueil"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M15.5 4.5a11.5 11.5 0 1 0 12 15.4A9 9 0 1 1 15.5 4.5z" fill="#f4efe2"/><path d="M24 5l1.1 3.3 3.4 1.2-3.4 1.1L24 14l-1.1-3.4-3.4-1.1 3.4-1.2z" fill="#9d84ff"/><circle cx="27.5" cy="16.5" r=".9" fill="#c8a45d"/></svg>Lunétoiles</a>
+<button class="btn-son" id="btnSon" type="button" aria-pressed="true" aria-label="Couper les sons"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="ondes" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="barre" d="M16 9l5 6M21 9l-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
 <button class="burger" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
-<nav id="nav" class="nav" aria-label="Navigation principale"><a href="/poster/">Poster du ciel</a><a href="/tarifs/">Tarifs</a><a href="/guides/">Guides</a><a href="/contact/">Contact</a><a class="bouton petit" href="/ciel/">Ouvrir le ciel</a></nav>
+<nav id="nav" class="nav" aria-label="Navigation principale"><a href="/affiche/">Affiche des étoiles</a><a href="/carnet/">Carnet des étoiles</a><a href="/guides/">Guides</a><a href="/tarifs/">Tarifs</a><a href="/contact/">Contact</a><a class="bouton petit" href="/ciel/">Ouvrir le ciel</a></nav>
 </div></header>
 <main id="contenu">
-<div class="cadre page-tete"><h1>Confidentialité</h1><p class="chapo">Version courte&nbsp;: Voûte n'a pas de compte, pas de publicité et pas de traceur. Ce qui sert à calculer le ciel reste dans ton téléphone.</p></div>
+<div class="cadre page-tete"><h1>Confidentialité</h1><p class="chapo">Version courte&nbsp;: Lunétoiles n'a pas de compte, pas de publicité et pas de traceur. Ce qui sert à calculer le ciel reste dans ton téléphone.</p></div>
 <div class="cadre prose" style="padding-bottom:clamp(56px,8vw,110px)">
 <h2>Ce qui reste sur ton appareil</h2><ul><li><strong>Caméra</strong>&nbsp;: l'image s'affiche derrière le ciel et n'est jamais enregistrée ni envoyée. Une capture n'est créée que si tu appuies sur «&nbsp;Partager&nbsp;».</li>
 <li><strong>Orientation et boussole</strong>&nbsp;: utilisées en direct pour savoir où pointe ton téléphone.</li>
-<li><strong>Position</strong>&nbsp;: utilisée pour calculer le ciel au-dessus de toi, jamais envoyée à Voûte.</li>
+<li><strong>Position</strong>&nbsp;: utilisée pour calculer le ciel au-dessus de toi, jamais envoyée à Lunétoiles.</li>
 <li><strong>Réglages et achats</strong>&nbsp;: gardés dans le stockage local de ton navigateur.</li></ul>
-<h2>Ce qui est transmis, et à qui</h2><ul><li><strong>Paiement</strong>&nbsp;: Stripe reçoit ton e-mail et tes informations de paiement pour traiter la commande. Pour un poster, les textes, la date et le lieu choisis sont enregistrés avec la commande, afin de pouvoir te le livrer à nouveau.</li>
-<li><strong>Recherche de lieu</strong> (page poster)&nbsp;: le texte que tu tapes est envoyé au service Nominatim d'OpenStreetMap pour trouver les coordonnées.</li>
+<h2>Ce qui est transmis, et à qui</h2><ul><li><strong>Paiement</strong>&nbsp;: Stripe reçoit ton e-mail et tes informations de paiement pour traiter la commande. Pour une affiche, les textes, la date et le lieu choisis sont enregistrés avec la commande, afin de pouvoir te le livrer à nouveau.</li>
+<li><strong>Recherche de lieu</strong> (page affiche)&nbsp;: le texte que tu tapes est envoyé au service Nominatim d'OpenStreetMap pour trouver les coordonnées.</li>
 <li><strong>Contact et récupération d'achat</strong>&nbsp;: ton e-mail et ton message sont transmis par e-mail via Resend, uniquement pour te répondre ou t'envoyer ton lien.</li>
 <li><strong>Hébergement</strong>&nbsp;: Cloudflare traite des données techniques de connexion (adresse IP) pour servir le site et le protéger.</li></ul>
 <h2>Durées</h2><p>Les données de commande sont conservées le temps imposé par les obligations comptables (dix ans pour les pièces comptables). Les messages de contact sont conservés le temps de traiter ta demande.</p>
 <h2>Tes droits</h2><p>Tu peux demander l'accès, la correction ou la suppression de tes données via le <a href="/contact/">formulaire de contact</a>. Tu peux aussi saisir la CNIL (cnil.fr). Responsable du traitement&nbsp;: l'éditeur indiqué dans les <a href="/mentions-legales/">mentions légales</a>.</p>
-<h2>Cookies</h2><p>Voûte n'utilise aucun cookie publicitaire ni outil de mesure d'audience tiers.</p>
+<h2>Cookies</h2><p>Lunétoiles n'utilise aucun cookie publicitaire ni outil de mesure d'audience tiers.</p>
 </div>
 </main>
 <footer class="pied"><div class="cadre">
-<div><h2>Voûte</h2><p>Pointe ton téléphone vers le ciel, Voûte te dit ce que tu regardes. Directement dans le navigateur, sans compte.</p></div>
-<div><ul><li><a href="/ciel/">Ouvrir le ciel</a></li><li><a href="/poster/">Poster du ciel</a></li><li><a href="/tarifs/">Tarifs</a></li><li><a href="/restaurer/">Récupérer un achat</a></li></ul></div>
+<div><h2>Lunétoiles</h2><p>Pointe ton téléphone vers le ciel, Lunétoiles te dit ce que tu regardes. Directement dans le navigateur, sans compte.</p></div>
+<div><ul><li><a href="/ciel/">Ouvrir le ciel</a></li><li><a href="/affiche/">Affiche des étoiles</a></li><li><a href="/carnet/">Carnet des étoiles</a></li><li><a href="/tarifs/">Tarifs</a></li><li><a href="/restaurer/">Récupérer un achat</a></li></ul></div>
 <div><ul><li><a href="/guides/">Guides</a></li><li><a href="/faq/">Questions fréquentes</a></li><li><a href="/contact/">Contact</a></li></ul></div>
 <div><ul><li><a href="/mentions-legales/">Mentions légales</a></li><li><a href="/cgv/">Conditions de vente</a></li><li><a href="/confidentialite/">Confidentialité</a></li><li><a href="/licences/">Licences et sources</a></li></ul></div>
 <p class="credits">Positions calculées avec Astronomy Engine (Don Cross, licence MIT) et le catalogue d'étoiles de d3-celestial (Olaf Frohn, licence BSD). Recherche de lieux : © les contributeurs d'OpenStreetMap. Fuseaux horaires : Natural Earth.</p>
 </div></footer>
+<script type="module" src="/assets/js/ambiance.js?v=2dbd0a09"></script>
 <script src="/assets/js/site.js?v=db03bbb1" defer></script>
 </body>
 </html>

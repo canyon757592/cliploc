@@ -1,6 +1,7 @@
-/* Créateur de poster : date, heure, lieu -> le ciel exact de ce moment-là. Aperçu gratuit, HD après paiement. */
+/* Créateur d'Affiche des étoiles : date, heure, lieu -> le ciel exact de ce moment-là. Aperçu gratuit, HD après paiement. */
 import { renderPoster, localToUTC } from "./poster-render.js";
-import { fenetrePaiement, aPlus, PRIX } from "./achats.js";
+import { fenetrePaiement } from "./achats.js";
+import { son } from "./ambiance.js";
 import { THEMES } from "./dome.js";
 
 const $ = s => document.querySelector(s);
@@ -32,7 +33,7 @@ async function chercheLieu(e) {
     const j = await r.json();
     if (!j.length) { box.innerHTML = `<li class="discret">Aucun lieu trouvé. Essaie avec le nom de la ville.</li>`; return; }
     box.innerHTML = j.map((x, i) => `<li><button type="button" data-i="${i}">${x.display_name}</button></li>`).join("");
-    box.querySelectorAll("button").forEach(b => b.onclick = () => {
+    box.querySelectorAll("button").forEach(b => b.onclick = () => { son("petit");
       const x = j[+b.dataset.i];
       p.lat = +x.lat; p.lon = +x.lon;
       const parts = x.display_name.split(",").map(s => s.trim());
@@ -44,15 +45,41 @@ async function chercheLieu(e) {
 
 function acheter() {
   lireForm();
-  const dejaPlus = aPlus();
   fenetrePaiement({
-    titre: "Ton poster en HD",
-    prix: PRIX.poster,
+    sku: "affiche", titre: "Ton Affiche des étoiles",
     points: ["Fichier haute définition 3000 × 4243 pixels, sans filigrane", "Prêt à imprimer en A4 ou en A3, ou à encadrer en 30 × 40 cm", "Téléchargeable tout de suite, et à nouveau plus tard avec ton e-mail"],
-    extra: dejaPlus ? "" : `<label class="coche"><input type="checkbox" id="fenBump" data-maj> <span><b>Ajoute Voûte+ pour ${PRIX.bump}</b> au lieu de ${PRIX.plus} : toutes les étoiles, le voyage dans le temps et la flèche de guidage dans le viseur.</span></label>`,
-    prixFn: d => d.querySelector("#fenBump")?.checked ? "6,48 €" : PRIX.poster,
-    corpsFn: d => ({ sku: "poster", poster: { ...p }, bump: !!d.querySelector("#fenBump")?.checked, dejaPlus }),
+    note: "L'impression et le cadre ne sont pas fournis : tu imprimes chez toi, chez un imprimeur ou dans une borne photo.",
+    extras: ["carnet", "pass"],
+    corps: { poster: { ...p } },
   });
+}
+
+/* Occasions : un clic pré-remplit le titre et le style */
+const OCCASIONS = {
+  rencontre: { titre: "La nuit où tout a commencé", sous: "Léa & Sami", theme: "aurore" },
+  naissance: { titre: "Bienvenue parmi nous", sous: "Léon, 3,2 kg de bonheur", theme: "givre" },
+  mariage: { titre: "Le soir où l'on s'est dit oui", sous: "Inès & Tom", theme: "laiton" },
+  anniversaire: { titre: "Le ciel de tes 18 ans", sous: "Joyeux anniversaire Maya", theme: "encre" },
+  souvenir: { titre: "Sous le même ciel, pour toujours", sous: "", theme: "encre" },
+};
+function occasions() {
+  document.querySelectorAll(".puce[data-occ]").forEach(b => b.addEventListener("click", () => {
+    const o = OCCASIONS[b.dataset.occ]; if (!o) return;
+    document.querySelectorAll(".puce[data-occ]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    $("#pTitre").value = o.titre; $("#pSous").value = o.sous;
+    const r = document.querySelector(`input[name=theme][value=${o.theme}]`); if (r) r.checked = true;
+    $("#pDate").focus(); apercu();
+  }));
+}
+
+/* Exemples encadrés */
+async function galerie() {
+  const ex = [
+    ["#ex1", { date: "2025-03-08", heure: "04:12", lat: 45.764, lon: 4.8357, lieu: "Lyon, France", titre: "Bienvenue parmi nous", sousTitre: "Léon", theme: "givre" }],
+    ["#ex2", { date: "2024-06-22", heure: "23:00", lat: 44.8378, lon: -0.5792, lieu: "Bordeaux, France", titre: "Le soir où l'on s'est dit oui", sousTitre: "Inès & Tom", theme: "laiton" }],
+    ["#ex3", { date: "2023-12-31", heure: "23:59", lat: 48.8566, lon: 2.3522, lieu: "Paris, France", titre: "La nuit où tout a commencé", sousTitre: "Léa & Sami", theme: "aurore" }],
+  ];
+  for (const [sel, prm] of ex) { const cv = $(sel); if (cv) await renderPoster(cv, prm, { w: 600 }); }
 }
 
 function init() {
@@ -68,7 +95,9 @@ function init() {
   $("#btnLieu").addEventListener("click", chercheLieu);
   $("#maPosition").onclick = () => navigator.geolocation?.getCurrentPosition(g => { p.lat = g.coords.latitude; p.lon = g.coords.longitude; p.lieu = "Ma position"; $("#pLieu").value = p.lieu; apercu(); });
   $("#btnAcheter").onclick = acheter;
-  if (q.get("achat") === "annule") $("#msgAchat").textContent = "Paiement annulé : rien n'a été débité. Ton poster t'attend.";
+  occasions();
+  if ("IntersectionObserver" in window && $("#ex1")) { const io = new IntersectionObserver(e => { if (e[0].isIntersecting) { io.disconnect(); galerie(); } }, { rootMargin: "400px" }); io.observe($("#ex1")); } else galerie();
+  if (q.get("achat") === "annule") $("#msgAchat").textContent = "Paiement annulé : rien n'a été débité. Ton affiche t'attend.";
   apercu();
 }
 init();
