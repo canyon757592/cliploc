@@ -46,13 +46,15 @@ def head(title, desc, path, extra_css="", ld=None, noindex=False, og_img="/asset
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="preload" href="/assets/fonts/bodoni-moda-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/bodoni-moda-latin-500-italic.woff2" as="font" type="font/woff2" crossorigin>
 {css}{lds}
 </head>"""
 
 def header(path):
     links = "".join(f'<a href="{h}"{" aria-current=page" if path.startswith(h) else ""}>{t}</a>' for h, t in NAV)
     return f"""<a class="saut" href="#contenu">Aller au contenu</a>
-<canvas id="fond" aria-hidden="true"></canvas>
+<canvas id="fond" aria-hidden="true"></canvas><canvas id="fond2" aria-hidden="true"></canvas>
 <p class="bandeau">Idée cadeau pour Noël : <a href="/carnet/">le Carnet des étoiles</a>, 26 pages à offrir, 0,99&nbsp;€ pendant le lancement.</p>
 <header class="entete"><div class="cadre">
 <a class="marque" href="/" aria-label="Lunétoiles, accueil">{LOGO}Lunétoiles</a>
@@ -121,8 +123,8 @@ f"""<section class="heros"><div class="cadre">
 <p class="rassure">Gratuit. Marche sur iPhone et Android. Sur ordinateur, on fait glisser le ciel à la souris.</p>
 </div>
 <figure class="dome-cadre" style="margin:0">
-<a class="dome-lien" href="/ciel/" data-son="ouvre" aria-label="Ouvrir le ciel en direct">
-<canvas id="dome" role="img" aria-label="Carte du ciel réel au-dessus de Paris en ce moment, avec les étoiles, les constellations et les planètes"></canvas>
+<a class="dome-lien" href="/ciel/" data-son="ouvre" aria-label="Touche pour ouvrir le ciel : le vrai ciel au-dessus de Paris en ce moment">
+<canvas id="dome" width="620" height="620" aria-hidden="true"></canvas>
 <span class="invite">Touche pour ouvrir le ciel</span></a>
 <figcaption class="legende-dome"><span id="domeLieu">Le vrai ciel au-dessus de Paris, en ce moment.</span> <button type="button" id="maPos">Voir le ciel au-dessus de moi</button></figcaption>
 </figure>
@@ -152,7 +154,7 @@ f"""<section class="heros"><div class="cadre">
 </div></section>
 
 <section aria-labelledby="t-poster"><div class="cadre poster-bloc">
-<div class="encadre" data-revele style="max-width:420px;justify-self:center;width:100%;transform:rotate(-1.2deg)"><div class="passe"><canvas id="posterEx" role="img" aria-label="Exemple d'Affiche des étoiles : le ciel de Paris le 14 février 2026 à 21 h 30"></canvas></div></div>
+<div class="encadre" data-revele style="max-width:420px;justify-self:center;width:100%;transform:rotate(-1.2deg)"><div class="passe"><canvas id="posterEx" width="700" height="990" role="img" aria-label="Exemple d'Affiche des étoiles : le ciel de Paris le 14 février 2026 à 21 h 30"></canvas></div></div>
 <div class="texte" data-revele>
 <h2 id="t-poster">Le cadeau qu'on n'attend pas&nbsp;: le ciel de leur jour</h2>
 <p class="chapo" style="margin-top:18px">Votre rencontre, la naissance d'un enfant, un mariage, des 18 ans&nbsp;: Lunétoiles recalcule le ciel exact de ce soir-là, au-dessus de ce lieu-là.</p>
@@ -172,7 +174,7 @@ f"""<section class="heros"><div class="cadre">
 </div></section>
 
 <section aria-labelledby="t-carnet"><div class="cadre carnet-heros">
-<img src="/assets/img/carnet/couverture.webp" width="520" height="738" alt="Couverture du Carnet des étoiles" loading="lazy" data-revele>
+<img src="/assets/img/carnet/couverture.webp" srcset="/assets/img/carnet/couverture.webp 520w, /assets/img/carnet/couverture-hd.webp 1040w" sizes="(max-width:860px) 90vw, 380px" width="520" height="738" alt="Couverture du Carnet des étoiles" loading="lazy" data-revele>
 <div class="texte" data-revele>
 <h2 id="t-carnet">Le Carnet des étoiles, à garder ou à offrir</h2>
 <p class="chapo" style="margin-top:18px">26 pages pour apprendre à lire le ciel à l'œil nu&nbsp;: six constellations à connaître, le ciel des quatre saisons, la Lune, les planètes, les étoiles filantes.</p>
@@ -275,9 +277,9 @@ PAGES.append(page("/affiche/", "Affiche des étoiles : le ciel exact d'une renco
 f"""<div class="cadre page-tete"><h1>Offre le ciel d'un jour qui compte</h1>
 <p class="chapo">Une affiche du vrai ciel, tel qu'il était au-dessus de vous à la date et au lieu de ton choix&nbsp;: une rencontre, une naissance, un mariage, un anniversaire.</p>
 <ul class="points">
-<li data-revele><h3>Le ciel exact</h3><p class="discret">Les étoiles et les planètes à leur vraie place ce soir-là, au-dessus de ce lieu-là, fuseau horaire compris.</p></li>
-<li data-revele><h3>À votre nom</h3><p class="discret">Un titre, des prénoms, la date et le lieu, et quatre styles pour l'accorder à votre intérieur.</p></li>
-<li data-revele><h3>Prêt à offrir ce soir</h3><p class="discret">Le fichier HD arrive tout de suite après le paiement. Tu l'imprimes en A4 ou en A3 et tu l'encadres.</p></li>
+<li data-revele><h2>Le ciel exact</h2><p class="discret">Les étoiles et les planètes à leur vraie place ce soir-là, au-dessus de ce lieu-là, fuseau horaire compris.</p></li>
+<li data-revele><h2>À votre nom</h2><p class="discret">Un titre, des prénoms, la date et le lieu, et quatre styles pour l'accorder à votre intérieur.</p></li>
+<li data-revele><h2>Prêt à offrir ce soir</h2><p class="discret">Le fichier HD arrive tout de suite après le paiement. Tu l'imprimes en A4 ou en A3 et tu l'encadres.</p></li>
 </ul></div>
 <div class="cadre atelier" id="creer">
 <div>
@@ -300,14 +302,14 @@ f"""<div class="cadre page-tete"><h1>Offre le ciel d'un jour qui compte</h1>
 <p class="msg" id="msgAchat"></p>
 <p class="petit discret">Fichier PNG 3000 × 4243 pixels, sans filigrane. Impression et cadre non fournis. Paiement par carte, Apple Pay ou Google Pay.</p>
 </div>
-<div><div class="encadre apercu-cadre"><div class="passe"><canvas id="apercu" role="img" aria-label="Aperçu de ton affiche"></canvas></div></div><p class="discret petit" id="apercuTxt" style="margin-top:12px" aria-live="polite"></p></div>
+<div><div class="encadre apercu-cadre"><div class="passe"><canvas id="apercu" width="900" height="1273" role="img" aria-label="Aperçu de ton affiche"></canvas></div></div><p class="discret petit" id="apercuTxt" style="margin-top:12px" aria-live="polite"></p></div>
 </div>
 <section class="profond" aria-labelledby="t-ex"><div class="cadre">
 <h2 id="t-ex" data-revele>Trois histoires, trois ciels</h2>
 <div class="galerie">
-<figure data-revele><div class="encadre"><div class="passe"><canvas id="ex1" role="img" aria-label="Exemple : naissance à Lyon"></canvas></div></div><figcaption><b>Une naissance</b><span>Le ciel de Lyon, la nuit où Léon est né</span></figcaption></figure>
-<figure data-revele><div class="encadre"><div class="passe"><canvas id="ex2" role="img" aria-label="Exemple : mariage à Bordeaux"></canvas></div></div><figcaption><b>Un mariage</b><span>Le ciel de Bordeaux, le soir du oui</span></figcaption></figure>
-<figure data-revele><div class="encadre"><div class="passe"><canvas id="ex3" role="img" aria-label="Exemple : rencontre à Paris"></canvas></div></div><figcaption><b>Une rencontre</b><span>Le ciel de Paris, le soir du premier rendez-vous</span></figcaption></figure>
+<figure data-revele><div class="encadre"><div class="passe"><canvas id="ex1" width="600" height="849" role="img" aria-label="Exemple : naissance à Lyon"></canvas></div></div><figcaption><b>Une naissance</b><span>Le ciel de Lyon, la nuit où Léon est né</span></figcaption></figure>
+<figure data-revele><div class="encadre"><div class="passe"><canvas id="ex2" width="600" height="849" role="img" aria-label="Exemple : mariage à Bordeaux"></canvas></div></div><figcaption><b>Un mariage</b><span>Le ciel de Bordeaux, le soir du oui</span></figcaption></figure>
+<figure data-revele><div class="encadre"><div class="passe"><canvas id="ex3" width="600" height="849" role="img" aria-label="Exemple : rencontre à Paris"></canvas></div></div><figcaption><b>Une rencontre</b><span>Le ciel de Paris, le soir du premier rendez-vous</span></figcaption></figure>
 </div>
 <p style="margin-top:40px;text-align:center" data-revele><a class="bouton" href="#creer">Créer la nôtre</a></p>
 </div></section>
@@ -325,7 +327,7 @@ FAQ_CARNET = [
 PAGES.append(page("/carnet/", "Le Carnet des étoiles : 26 pages pour apprendre à lire le ciel (PDF à offrir)",
     "Un livre numérique de 26 pages pour reconnaître les constellations, suivre la Lune et les planètes et observer les étoiles filantes. Page de dédicace pour l'offrir. 0,99 € au lancement.",
 f"""<div class="cadre page-tete carnet-heros">
-<img src="/assets/img/carnet/couverture.webp" width="520" height="738" alt="Couverture du Carnet des étoiles : le ciel de Noël dessiné en carte">
+<img src="/assets/img/carnet/couverture.webp" srcset="/assets/img/carnet/couverture.webp 520w, /assets/img/carnet/couverture-hd.webp 1040w" sizes="(max-width:860px) 90vw, 380px" width="520" height="738" alt="Couverture du Carnet des étoiles : le ciel de Noël dessiné en carte">
 <div>
 <h1>Le Carnet des étoiles</h1>
 <p class="chapo">26 pages pour apprendre à lire le ciel à l'œil nu, à garder pour soi ou à offrir.</p>
@@ -337,10 +339,10 @@ f"""<div class="cadre page-tete carnet-heros">
 <section class="profond" aria-labelledby="t-dedans"><div class="cadre">
 <h2 id="t-dedans" data-revele>Ce qu'il y a dedans</h2>
 <div class="feuilles">
-<img src="/assets/img/carnet/dedicace.webp" width="400" height="568" alt="Page de dédicace à remplir" loading="lazy" data-revele>
-<img src="/assets/img/carnet/grande-ourse.webp" width="400" height="568" alt="Planche de la Grande Ourse" loading="lazy" data-revele>
-<img src="/assets/img/carnet/ciel-hiver.webp" width="400" height="568" alt="Carte du ciel d'hiver" loading="lazy" data-revele>
-<img src="/assets/img/carnet/lune.webp" width="400" height="568" alt="Les phases de la Lune" loading="lazy" data-revele>
+<img src="/assets/img/carnet/dedicace.webp" srcset="/assets/img/carnet/dedicace.webp 400w, /assets/img/carnet/dedicace-hd.webp 720w" sizes="(max-width:860px) 45vw, 270px" width="400" height="568" alt="Page de dédicace à remplir" loading="lazy" data-revele>
+<img src="/assets/img/carnet/grande-ourse.webp" srcset="/assets/img/carnet/grande-ourse.webp 400w, /assets/img/carnet/grande-ourse-hd.webp 720w" sizes="(max-width:860px) 45vw, 270px" width="400" height="568" alt="Planche de la Grande Ourse" loading="lazy" data-revele>
+<img src="/assets/img/carnet/ciel-hiver.webp" srcset="/assets/img/carnet/ciel-hiver.webp 400w, /assets/img/carnet/ciel-hiver-hd.webp 720w" sizes="(max-width:860px) 45vw, 270px" width="400" height="568" alt="Carte du ciel d'hiver" loading="lazy" data-revele>
+<img src="/assets/img/carnet/lune.webp" srcset="/assets/img/carnet/lune.webp 400w, /assets/img/carnet/lune-hd.webp 720w" sizes="(max-width:860px) 45vw, 270px" width="400" height="568" alt="Les phases de la Lune" loading="lazy" data-revele>
 </div>
 <ol class="sommaire" style="margin-top:40px" data-revele>
 <li>Avant de lever les yeux&nbsp;: préparer ses yeux et choisir son coin de ciel</li>

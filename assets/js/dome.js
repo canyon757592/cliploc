@@ -40,18 +40,21 @@ export function drawDome(ctx, sky, hm, o) {
   }
 
   // étoiles (les plus brillantes apparaissent d'abord pendant l'ouverture)
+  // étoiles peintes par familles de couleur : un remplissage par famille au lieu d'un par étoile
   const lim = Math.min(maxMag, -1.6 + reveal * 7.2);
+  const lots = new Map(), halos = new Map(), sc = k * (o.starScale || 1);
+  const lot = (m, key) => { let p = m.get(key); if (!p) { p = new Path2D(); m.set(key, p); } return p; };
   for (let i = 0; i < sky.n; i++) {
     const m = sky.mag[i]; if (m > lim) break; // triées par magnitude
-    const p = domeXY([enu[i * 3], enu[i * 3 + 1], enu[i * 3 + 2]], R, cx, cy);
-    if (!p) continue;
-    const r = starRadius(m, k * (o.starScale || 1));
-    ctx.fillStyle = th.etoileCouleur ? sky.col[i] : th.texte;
-    if (m < 1.5 && o.halo !== false) {
-      ctx.globalAlpha = 0.18; ctx.beginPath(); ctx.arc(p[0], p[1], r * 2.6, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
-    }
-    ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, Math.PI * 2); ctx.fill();
+    const u = enu[i * 3 + 2]; if (u < -0.02) continue;
+    const f = R / (1 + u), x = cx - f * enu[i * 3], y = cy - f * enu[i * 3 + 1];
+    const r = starRadius(m, sc), key = th.etoileCouleur ? sky.cb[i] : -1;
+    const p = lot(lots, key); p.moveTo(x + r, y); p.arc(x, y, r, 0, Math.PI * 2);
+    if (m < 1.5 && o.halo !== false) { const h = lot(halos, key); h.moveTo(x + r * 2.6, y); h.arc(x, y, r * 2.6, 0, Math.PI * 2); }
   }
+  const teinte = key => (key < 0 ? th.texte : sky.bcol[key]);
+  ctx.globalAlpha = 0.18; for (const [key, p] of halos) { ctx.fillStyle = teinte(key); ctx.fill(p); }
+  ctx.globalAlpha = 1; for (const [key, p] of lots) { ctx.fillStyle = teinte(key); ctx.fill(p); }
 
   // noms des constellations (les plus connues)
   if (o.nomsConst !== false && reveal > 0.6) {
@@ -66,7 +69,7 @@ export function drawDome(ctx, sky, hm, o) {
 
   // planètes et Lune
   if (o.planetes !== false && reveal > 0.8) {
-    for (const b of bodies(hm)) {
+    for (const b of (o.corps || bodies(hm))) {
       if (b.id === "Sun") continue;
       const p = domeXY(b.enu, R, cx, cy);
       if (!p || b.mag > 6.5) continue;

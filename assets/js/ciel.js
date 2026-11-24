@@ -86,6 +86,7 @@ const dedans = p => p && p[0] > -40 && p[0] < st.W + 40 && p[1] > -40 && p[1] < 
 
 function dessine() {
   if (!sky) return;
+  if (!$("#depart").hidden) { setTimeout(() => requestAnimationFrame(dessine), 300); return; } // écran de démarrage opaque : inutile de dessiner
   if (!st.temps && performance.now() - dernierCalcul > 2000) recalcul();
   cam = camera();
   ctx.setTransform(st.dpr, 0, 0, st.dpr, 0, 0);

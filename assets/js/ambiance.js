@@ -46,46 +46,37 @@ function sonsAuClic() {
   }, { capture: true });
 }
 
-/* Ciel étoilé animé en fond de page */
+/* Ciel étoilé en fond de page : deux calques dessinés UNE fois, le scintillement et les étoiles filantes
+   sont des animations CSS gérées par la carte graphique (aucun calcul image par image). */
 function cielDeFond() {
-  const cv = document.getElementById("fond"); if (!cv) return;
-  const ctx = cv.getContext("2d");
-  let W = 0, H = 0, dpr = 1, etoiles = [], filante = null, prochaine = 6000, t0 = performance.now(), dernier = 0;
-  let graine = 7; const rnd = () => ((graine = (graine * 16807) % 2147483647) / 2147483647);
-  function taille() {
-    dpr = Math.min(devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight;
-    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    graine = 7; const n = Math.round(Math.min(220, W * H / 7000));
-    etoiles = Array.from({ length: n }, () => ({ x: rnd() * W, y: rnd() * H, r: 0.35 + rnd() * rnd() * 1.4, v: 0.4 + rnd() * 1.6, p: rnd() * 6.3, c: rnd() < 0.12 ? "182,160,255" : rnd() < 0.2 ? "255,226,180" : "244,239,226" }));
-    dessine(performance.now());
-  }
-  function dessine(t) {
-    ctx.clearRect(0, 0, W, H);
-    for (const s of etoiles) {
-      const a = calme ? 0.7 : 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(t / 1000 * s.v + s.p));
-      ctx.fillStyle = `rgba(${s.c},${(a * 0.85).toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.29); ctx.fill();
-    }
-    if (filante) {
-      const k = (t - filante.t) / 900; if (k > 1) filante = null;
-      else {
-        const x = filante.x + filante.dx * k, y = filante.y + filante.dy * k, g = ctx.createLinearGradient(x, y, x - filante.dx * 0.22, y - filante.dy * 0.22);
-        g.addColorStop(0, `rgba(244,239,226,${(1 - k).toFixed(2)})`); g.addColorStop(1, "rgba(182,160,255,0)");
-        ctx.strokeStyle = g; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - filante.dx * 0.22, y - filante.dy * 0.22); ctx.stroke();
+  const c1 = document.getElementById("fond"), c2 = document.getElementById("fond2"); if (!c1) return;
+  function peins() {
+    const dpr = Math.min(devicePixelRatio || 1, 1.5), W = innerWidth, H = innerHeight;
+    let g = 7; const rnd = () => ((g = (g * 16807) % 2147483647) / 2147483647);
+    const n = Math.round(Math.min(220, W * H / 7000));
+    [c1, c2].forEach((cv, couche) => {
+      if (!cv) return;
+      cv.width = W * dpr; cv.height = H * dpr;
+      const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+      for (let i = 0; i < n; i++) {
+        const x = rnd() * W, y = rnd() * H, r = 0.35 + rnd() * rnd() * 1.4, t = rnd(), a = 0.5 + rnd() * 0.45;
+        if ((i % 2) !== couche) continue;
+        ctx.fillStyle = `rgba(${t < 0.12 ? "182,160,255" : t < 0.2 ? "255,226,180" : "244,239,226"},${a.toFixed(2)})`;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, 6.29); ctx.fill();
       }
-    }
+    });
   }
-  function boucle(t) {
-    if (!document.hidden && t - dernier > 40) { // ~25 images/s suffisent
-      dernier = t;
-      if (!filante && t - t0 > prochaine) { t0 = t; prochaine = 9000 + Math.random() * 9000; filante = { t, x: W * (0.2 + Math.random() * 0.6), y: H * Math.random() * 0.3, dx: (Math.random() < 0.5 ? -1 : 1) * (180 + Math.random() * 160), dy: 120 + Math.random() * 80 }; }
-      dessine(t);
-    }
-    requestAnimationFrame(boucle);
+  function filante() {
+    if (calme || document.hidden) return;
+    const f = document.createElement("i"); f.className = "filante"; f.setAttribute("aria-hidden", "true");
+    f.style.left = (15 + Math.random() * 70) + "vw"; f.style.top = (Math.random() * 30) + "vh";
+    f.style.setProperty("--sens", Math.random() < 0.5 ? "-1" : "1");
+    f.addEventListener("animationend", () => f.remove());
+    document.body.append(f);
   }
-  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(taille, 150); });
-  taille();
-  if (!calme) requestAnimationFrame(boucle);
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(peins, 200); });
+  const go = () => { peins(); if (!calme) { const suite = () => setTimeout(() => { filante(); suite(); }, 9000 + Math.random() * 9000); setTimeout(filante, 4000); suite(); } };
+  if (document.readyState === "complete") setTimeout(go, 200); else addEventListener("load", () => setTimeout(go, 200), { once: true });
 }
 
 /* Apparitions douces au défilement */

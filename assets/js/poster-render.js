@@ -18,11 +18,18 @@ function inRing(r, x, y) {
   }
   return ins;
 }
+/* cadre englobant de chaque contour, calculé une fois : on ne teste en détail que les zones qui entourent le point */
+let cadres = null;
+function prepareCadres(z) {
+  cadres = z.f.map(([, , rings]) => rings.map(r => { let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; for (let i = 0; i < r.length; i += 2) { const x = r[i], y = r[i + 1]; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } return [x0, x1, y0, y1]; }));
+}
 export async function zoneAt(lat, lon) {
   const z = await loadZones(), x = lon * z.u, y = lat * z.u;
-  for (const [tz, off, rings] of z.f) {
+  if (!cadres) prepareCadres(z);
+  for (let k = 0; k < z.f.length; k++) {
+    const [tz, off, rings] = z.f[k];
     let ins = false;
-    for (const r of rings) if (inRing(r, x, y)) ins = !ins;
+    for (let j = 0; j < rings.length; j++) { const c = cadres[k][j]; if (x < c[0] || x > c[1] || y < c[2] || y > c[3]) continue; if (inRing(rings[j], x, y)) ins = !ins; }
     if (ins) return { tz: tz || null, off: typeof off === "number" ? off : Math.round(lon / 15) };
   }
   return { tz: null, off: Math.round(lon / 15) };
@@ -90,7 +97,7 @@ export async function renderPoster(cv, p, opt = {}) {
   ctx.fillText(l2, cx, yT + 150 * u);
   ctx.fillText(`${p.lieu || ""}${p.lieu ? "  ·  " : ""}${coordFr(p.lat, p.lon)}`, cx, yT + 188 * u);
 
-  if (opt.apercu) watermark(ctx, W, H, u);
+  if (opt.apercu) watermark(ctx, W, H, u, th.texte);
   return cv;
 }
 
@@ -103,11 +110,11 @@ function wrap(ctx, text, x, y, maxW, lh, maxLines) {
   lines.forEach((l, i) => ctx.fillText(l, x, y0 + i * lh));
 }
 
-function watermark(ctx, W, H, u) {
+function watermark(ctx, W, H, u, couleur = "#ffffff") {
   ctx.save();
-  ctx.globalAlpha = 0.16; ctx.fillStyle = "#ffffff"; ctx.strokeStyle = "#000000"; ctx.lineWidth = 1.2 * u;
+  ctx.globalAlpha = 0.2; ctx.fillStyle = couleur; ctx.strokeStyle = "#000000"; ctx.lineWidth = 1.2 * u;
   ctx.font = `italic 500 ${Math.round(46 * u)}px "Bodoni Moda", Georgia, serif`;
   ctx.textAlign = "center"; ctx.translate(W / 2, H / 2); ctx.rotate(-Math.PI / 7);
-  for (let y = -H; y < H; y += 190 * u) for (let x = -W; x < W; x += 420 * u) { ctx.strokeText("Aperçu Lunétoiles", x + (y / 190 % 2) * 210 * u, y); ctx.fillText("Aperçu Lunétoiles", x + (y / 190 % 2) * 210 * u, y); }
+  for (let y = -H; y < H; y += 190 * u) for (let x = -W; x < W; x += 420 * u) { ctx.fillText("Aperçu Lunétoiles", x + (y / 190 % 2) * 210 * u, y); }
   ctx.restore();
 }

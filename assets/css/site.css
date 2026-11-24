@@ -226,7 +226,13 @@ section{padding:clamp(64px,9vw,120px) 0}
 @media (max-width:860px){.planche{grid-template-columns:1fr}}
 
 /* ---------- Ambiance : ciel animé, violet, apparitions ---------- */
-#fond{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+#fond,#fond2{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;will-change:opacity}
+#fond{animation:scintille 4.2s ease-in-out infinite alternate}
+#fond2{animation:scintille 3.1s ease-in-out -1.5s infinite alternate-reverse}
+@keyframes scintille{from{opacity:.35}to{opacity:1}}
+.filante{position:fixed;z-index:-1;width:150px;height:1.5px;pointer-events:none;background:linear-gradient(90deg,rgba(244,239,226,.95),rgba(182,160,255,0));transform-origin:0 50%;transform:rotate(calc(var(--sens) * 32deg + 180deg * (var(--sens) - 1) / -2));animation:file .95s ease-out forwards}
+@keyframes file{from{opacity:1;translate:0 0}to{opacity:0;translate:calc(var(--sens) * -260px) 170px}}
+@media (prefers-reduced-motion:reduce){#fond,#fond2{animation:none;opacity:.8}.filante{display:none}}
 .profond{background:rgba(10,24,52,.78)}
 .pied{background:rgba(10,24,52,.9)}
 .js [data-revele]{opacity:0;transform:translateY(18px);filter:blur(6px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1),filter .7s ease}
@@ -250,7 +256,7 @@ section{padding:clamp(64px,9vw,120px) 0}
 .bouton.grand::after{content:"";position:absolute;inset:-6px;border-radius:999px;border:2px solid rgba(157,132,255,.55);animation:halo 2.4s ease-out infinite;pointer-events:none}
 @keyframes halo{0%{opacity:.9;transform:scale(.96)}100%{opacity:0;transform:scale(1.14)}}
 @media (prefers-reduced-motion:reduce){.bouton.grand::after{animation:none;opacity:0}}
-.dome-lien{position:relative;display:block;border-radius:50%;text-decoration:none}
+.dome-lien{position:relative;display:block;border-radius:50%;text-decoration:none;aspect-ratio:1;width:100%}
 .dome-lien::before{content:"";position:absolute;inset:-8%;border-radius:50%;background:radial-gradient(closest-side,rgba(139,108,246,.32),rgba(139,108,246,.08) 60%,transparent 72%);z-index:-1}
 .dome-lien .invite{position:absolute;left:50%;bottom:9%;transform:translateX(-50%);background:var(--veille);color:#fff;font:700 17px var(--sans);padding:12px 20px;border-radius:999px;white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .2s}
 .dome-lien:hover .invite,.dome-lien:focus-visible .invite{transform:translateX(-50%) scale(1.05)}
@@ -300,7 +306,7 @@ section{padding:clamp(64px,9vw,120px) 0}
 
 /* carnet */
 .carnet-heros{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(28px,5vw,72px);align-items:center}
-.carnet-heros img{width:100%;max-width:380px;justify-self:center;box-shadow:0 30px 70px rgba(0,0,0,.5);border-radius:4px;transform:rotate(-2deg)}
+.carnet-heros img{width:100%;height:auto;max-width:380px;justify-self:center;box-shadow:0 30px 70px rgba(0,0,0,.5);border-radius:4px;transform:rotate(-2deg)}
 .prix-lancement{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:18px 0 22px}
 .prix-lancement .prix{margin:0;font-size:64px}
 .prix-lancement .badge{background:var(--violet-fond);border:1px solid var(--violet);border-radius:999px;padding:6px 14px;font-weight:700;font-size:15px}
@@ -313,3 +319,16 @@ section{padding:clamp(64px,9vw,120px) 0}
 
 /* les éléments inclinés (affiches) ne doivent jamais créer de défilement horizontal */
 main{overflow-x:clip}
+
+.points h2{font-size:24px;line-height:1.2;margin-bottom:8px}
+
+/* apparition du dôme : fondu et mise au point, sans recalcul */
+#dome{transition:opacity 1.6s ease,filter 1.6s ease,transform 1.8s cubic-bezier(.2,.7,.2,1)}
+#dome.avant{opacity:0;filter:blur(10px);transform:scale(.94)}
+/* place réservée pour la liste des astres de ce soir (évite que la page saute) */
+.astres{min-height:330px}
+@media (prefers-reduced-motion:reduce){#dome{transition:none}}
+
+/* les dessins gardent leur forme avant d'être peints (pas de saut de page) */
+.dome-lien canvas{width:100%;height:100%;aspect-ratio:1}
+.encadre canvas,.atelier canvas{aspect-ratio:1/1.4142}

@@ -98,6 +98,7 @@ function init() {
   occasions();
   if ("IntersectionObserver" in window && $("#ex1")) { const io = new IntersectionObserver(e => { if (e[0].isIntersecting) { io.disconnect(); galerie(); } }, { rootMargin: "400px" }); io.observe($("#ex1")); } else galerie();
   if (q.get("achat") === "annule") $("#msgAchat").textContent = "Paiement annulé : rien n'a été débité. Ton affiche t'attend.";
-  apercu();
+  // l'aperçu est dessiné juste après l'affichage de la page
+  (window.requestIdleCallback ? requestIdleCallback(apercu, { timeout: 800 }) : setTimeout(apercu, 100));
 }
 init();

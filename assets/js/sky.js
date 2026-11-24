@@ -22,13 +22,16 @@ export async function loadSky(base = "/assets/data/sky.json") {
   const r = await fetch(base);
   const d = await r.json();
   const n = d.stars.length / 4;
-  const vec = new Float32Array(n * 3), mag = new Float32Array(n), col = new Array(n);
+  const vec = new Float32Array(n * 3), mag = new Float32Array(n), col = new Array(n), cb = new Uint8Array(n);
+  // familles de couleur (indice B-V par pas de 0,25) : permet de peindre les étoiles par lots
+  const bcol = Array.from({ length: 11 }, (_, k) => bvColor((k - 2) / 4));
   for (let i = 0; i < n; i++) {
     const ra = d.stars[i * 4] / 100 * RAD, de = d.stars[i * 4 + 1] / 100 * RAD;
     const c = Math.cos(de);
     vec[i * 3] = c * Math.cos(ra); vec[i * 3 + 1] = c * Math.sin(ra); vec[i * 3 + 2] = Math.sin(de);
     mag[i] = d.stars[i * 4 + 2] / 100;
     col[i] = bvColor(d.stars[i * 4 + 3] / 100);
+    cb[i] = Math.max(0, Math.min(10, Math.round(d.stars[i * 4 + 3] / 25) + 2));
   }
   const names = new Map();
   for (const [k, v] of Object.entries(d.names)) names.set(+k, { name: v[0], con: v[1] });
@@ -38,7 +41,7 @@ export async function loadSky(base = "/assets/data/sky.json") {
     lines: c.l.map(seg => { const out = []; for (let i = 0; i < seg.length; i += 2) out.push(radec(seg[i] / 100, seg[i + 1] / 100)); return out; }),
   }));
   const byId = new Map(cons.map(c => [c.id, c]));
-  cache = { n, vec, mag, col, names, cons, byId };
+  cache = { n, vec, mag, col, cb, bcol, names, cons, byId };
   return cache;
 }
 
@@ -116,11 +119,11 @@ export function riseSet(id, hm) {
 
 /* Projection « dôme » : ciel entier vu en levant la tête (nord en haut, est à gauche). */
 export function domeXY(enu, R, cx, cy) {
-  const [e, n, u] = enu;
+  // projection stéréographique depuis le zénith : r = R·tan(distance zénithale / 2), soit simplement R / (1 + haut)
+  const u = enu[2];
   if (u < -0.02) return null;
-  const alt = Math.asin(Math.min(1, u)), az = Math.atan2(e, n);
-  const r = R * Math.tan((Math.PI / 2 - alt) / 2);
-  return [cx - r * Math.sin(az), cy - r * Math.cos(az)];
+  const k = R / (1 + u);
+  return [cx - k * enu[0], cy - k * enu[1]];
 }
 
 export function starRadius(mag, k = 1) {

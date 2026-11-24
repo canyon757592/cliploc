@@ -1,4 +1,5 @@
 import { loadSky, horMatrix, starsENU, bodies, altAz, azName } from "./sky.js";
+const plusTard = f => (window.requestIdleCallback ? requestIdleCallback(f, { timeout: 1500 }) : setTimeout(f, 200));
 import { drawDome, fitCanvas } from "./dome.js";
 import { renderPoster } from "./poster-render.js";
 import { son } from "./ambiance.js";
@@ -20,22 +21,31 @@ function moment() {
 
 function heureFr(d) { return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", " h "); }
 
-function dessine(reveal = 1) {
-  const cv = $("#dome"); if (!cv) return;
-  const box = cv.parentElement.getBoundingClientRect();
-  const s = Math.round(box.width);
+/* Le ciel est calculé une fois (puis chaque minute) ; l'animation d'ouverture ne fait que redessiner */
+let etat = null;
+function prepare() {
+  const cv = $("#dome"); if (!cv) return null;
+  const s = Math.round(cv.parentElement.getBoundingClientRect().width);
   const ctx = fitCanvas(cv, s, s);
-  ctx.clearRect(0, 0, s, s);
   const hm = horMatrix(new Date(), lieu.lat, lieu.lon);
-  drawDome(ctx, sky, hm, { cx: s / 2, cy: s / 2, R: s / 2 - 38 * (s / 620), reveal, maxMag: 5.2, rangMax: 1 });
+  etat = { s, ctx, hm, enu: starsENU(sky, hm.m), corps: bodies(hm) };
   $("#domeLieu").textContent = `Le vrai ciel au-dessus ${lieu.moi ? "de toi" : "de " + lieu.nom}, en ce moment (${heureFr(new Date())}).`;
+  return etat;
+}
+function dessine(reveal = 1, recalcule = true) {
+  if (recalcule || !etat) prepare();
+  if (!etat) return;
+  const { s, ctx, hm, enu, corps } = etat;
+  ctx.clearRect(0, 0, s, s);
+  drawDome(ctx, sky, hm, { cx: s / 2, cy: s / 2, R: s / 2 - 38 * (s / 620), reveal, maxMag: 5.2, rangMax: 1, enu, corps });
 }
 
 function ouverture() {
-  if (calme) return dessine(1);
-  const t0 = performance.now(), D = 1800;
-  const pas = t => { const r = Math.min(1, (t - t0) / D); dessine(1 - Math.pow(1 - r, 3)); if (r < 1) requestAnimationFrame(pas); };
-  requestAnimationFrame(pas);
+  // le ciel est dessiné UNE fois ; l'apparition (fondu, netteté) est confiée à la carte graphique en CSS
+  dessine(1);
+  const cv = $("#dome"); if (!cv || calme) return;
+  cv.classList.add("avant");
+  requestAnimationFrame(() => requestAnimationFrame(() => cv.classList.remove("avant")));
 }
 
 function ceSoir() {
@@ -123,7 +133,10 @@ function planche(id = "UMa") {
 async function init() {
   sky = await loadSky();
   await document.fonts?.ready;
-  ouverture(); ceSoir(); planche(); savais();
+  ouverture(); savais(); ceSoir();
+  // la planche d'atlas est plus bas dans la page : dessinée seulement quand on s'en approche
+  const pl = $("#planche");
+  if (pl && "IntersectionObserver" in window) { const io = new IntersectionObserver(e => { if (e[0].isIntersecting) { io.disconnect(); plusTard(() => planche()); } }, { rootMargin: "500px" }); io.observe(pl); } else plusTard(() => planche());
   setInterval(() => { dessine(1); ceSoir(); }, 60000);
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => dessine(1), 150); });
   $("#maPos")?.addEventListener("click", () => {
