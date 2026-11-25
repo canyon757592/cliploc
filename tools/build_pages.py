@@ -13,13 +13,18 @@ ORG = {"@type": "Organization", "@id": SITE + "/#org", "name": "Cliploc", "url":
        "logo": SITE + "/icon-512.png", "email": "contact@cliploc.com"}
 
 
+def stamp(rel):
+    import hashlib
+    return hashlib.sha1(open(os.path.join(ROOT, rel), "rb").read()).hexdigest()[:8]
+
+
 def ld(obj):
     return '<script type="application/ld+json">' + json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + "</script>"
 
 
 def page(path, title, desc, body, schema, current="", og_type="article", wide=False, extra_head=""):
     url = SITE + path
-    nav = [("/exemples/", "Exemples", "ex"), ("/guides/", "Guides", "gd")]
+    nav = [("/exemples/", "Exemples", "ex"), ("/guides/", "Guides", "gd"), ("/carte/", "Carte", "ct")]
     navh = "".join(f'<a href="{h}" class="opt"{" aria-current=page" if k == current else ""}>{t}</a>' for h, t, k in nav)
     return f"""<!DOCTYPE html>
 <html lang="fr">
@@ -56,7 +61,7 @@ def page(path, title, desc, body, schema, current="", og_type="article", wide=Fa
 </main>
 <footer>
 <a class="logo" href="/" style="justify-content:center"><i></i>Cliploc</a>
-<nav aria-label="Liens du site"><a href="/">Créer une vidéo</a><a href="/exemples/">Exemples</a><a href="/guides/">Guides</a><a href="/#pr">Formules</a><a href="/#mentions">Mentions légales</a><a href="/#cgv">CGV</a><a href="/#privacy">Confidentialité</a><a href="/#contact">Contact</a></nav>
+<nav aria-label="Liens du site"><a href="/">Créer une vidéo</a><a href="/exemples/">Exemples</a><a href="/guides/">Guides</a><a href="/carte/">Carte des locations</a><a href="/#pr">Formules</a><a href="/#mentions">Mentions légales</a><a href="/#cgv">CGV</a><a href="/#privacy">Confidentialité</a><a href="/#contact">Contact</a></nav>
 <div>© Cliploc · non affilié à Airbnb</div>
 </footer>
 </body>
@@ -303,13 +308,58 @@ def build():
                                     "Regarde des vidéos réalisées avec Cliploc à partir des photos de vrais logements, en vertical, carré et horizontal : villa avec piscine, appartement avec vue.",
                                     body, vids + [crs], "ex", "website", wide=True,
                                     extra_head=f'<link rel="preload" as="image" href="/examples/thumb/{VIDEOS[0][0]}.jpg" fetchpriority="high">\n')))
+    # ----- carte des locations courte durée (Eurostat, par département) -----
+    fr = os.path.join(ROOT, "carte", "data", "france.json")
+    if os.path.exists(fr):
+        D = json.load(open(fr, encoding="utf-8"))
+        nf = lambda n: f"{n:,}".replace(",", "\u202f")
+        pc = lambda x: f"{x:+.1f}".replace(".", ",").replace("-", "−") + "\u00a0%"
+        cr, crs = crumbs([("Accueil", "/"), ("Carte des locations", None)])
+        deps = D["deps"]
+        evo = lambda d: 100 * (d["v"] / d["p"] - 1)
+        top = "".join(f'<tr><td>{d["r"]}</td><td>{html.escape(d["n"])} ({d["c"]})</td><td>{nf(d["v"])}</td><td>{pc(evo(d))}</td><td>{round(100 * d["e"] / d["v"])}\u00a0%</td></tr>' for d in deps[:15])
+        hausse = sorted(deps, key=lambda d: -evo(d))[:5]
+        etr = sorted(deps, key=lambda d: -d["e"] / d["v"])[:5]
+        tot, prec = D["total"], D["total_prec"]
+        h1 = "Carte des locations courte durée en France"
+        desc = (f"Carte interactive des nuitées réservées sur Airbnb, Booking, Expedia et Tripadvisor en 2025, département par département : "
+                f"{nf(tot)} nuitées en France ({pc(100 * (tot / prec - 1))} sur un an). Chiffres officiels Eurostat.")
+        body = (f'{cr}<p class="kk">Carte</p><h1>{h1}</h1>'
+                f'<p class="lead">Où les voyageurs réservent-ils le plus de nuits en location type Airbnb ? Les chiffres officiels de 2025 pour les 101 départements, publiés par Eurostat à partir des données d\'Airbnb, Booking, Expedia et Tripadvisor.</p>'
+                f'<section class="ct charge" id="carte" aria-label="Carte interactive">'
+                f'<form class="recherche" role="search"><label for="cherche">Ton département</label><input id="cherche" list="deps" autocomplete="off" placeholder="Nom ou numéro, par exemple Gironde ou 33"><datalist id="deps"></datalist><button type="submit">Voir</button><p class="msg" role="status"></p></form>'
+                f'<div class="bar"><div class="seg mesures" role="group" aria-label="Chiffre affiché"><button type="button" data-m="v" aria-pressed="true">Nuitées</button><button type="button" data-m="evo" aria-pressed="false">Évolution</button><button type="button" data-m="etr" aria-pressed="false">Voyageurs étrangers</button></div></div>'
+                f'<div class="grille"><div><div class="cv"><div class="mp" role="region" aria-label="Carte de France des nuitées par département"></div></div><div class="leg"></div><div class="dom"></div></div>'
+                f'<aside class="fiche" aria-live="polite"><p>Chargement de la carte…</p></aside></div>'
+                f'<div class="rang"><h2>Classement</h2><ol></ol><button type="button" class="lien tout"></button></div>'
+                f'<noscript><p>La carte a besoin de JavaScript. Les principaux chiffres sont dans le tableau plus bas.</p></noscript></section>'
+                f'<h2>Ce que montre cette carte</h2><ul>'
+                f'<li><b>Nuitées réservées :</b> le nombre de nuits passées par des voyageurs dans des logements loués via Airbnb, Booking.com, Expedia et Tripadvisor. Une nuit pour quatre personnes compte quatre nuitées.</li>'
+                f'<li><b>Les quatre plateformes ensemble :</b> Eurostat ne publie pas Airbnb à part. Ce sont des logements de particuliers et de professionnels, pas les hôtels.</li>'
+                f'<li><b>Évolution :</b> la comparaison entre 2025 et 2024 pour le même département.</li>'
+                f'<li><b>Voyageurs étrangers :</b> la part des nuitées réservées par des voyageurs qui ne résident pas en France.</li></ul>'
+                f'<h2>Les 15 départements où l\'on réserve le plus</h2>'
+                f'<div class="tw"><table class="tb"><tr><th>Rang</th><th>Département</th><th>Nuitées 2025</th><th>Sur un an</th><th>Étrangers</th></tr>{top}</table></div>'
+                f'<h2>Plus forte hausse sur un an</h2><p>{", ".join(f"{html.escape(d['n'])} ({pc(evo(d))})" for d in hausse)}.</p>'
+                f'<h2>Le plus de voyageurs étrangers</h2><p>{", ".join(f"{html.escape(d['n'])} ({round(100 * d['e'] / d['v'])}\u00a0%)" for d in etr)}.</p>'
+                f'<div class="box cta"><p><b>Tu loues dans un de ces départements ?</b><br>Fais ressortir ton annonce avec une vidéo, à partir des photos que tu as déjà.</p><a class="btn" href="/">Créer ma vidéo →</a></div>'
+                f'<p class="source">Chiffres : <a href="https://ec.europa.eu/eurostat/databrowser/view/tour_ce_oan3/default/table?lang=fr" rel="noopener">Eurostat, jeu tour_ce_oan3</a> (nuitées dans les hébergements de courte durée réservés via des plateformes en ligne, par région NUTS 3), données 2024 et 2025. '
+                f'Contours des départements : IGN Admin Express (Licence Ouverte), via france-geojson. Fond de carte : © contributeurs OpenStreetMap. '
+                f'Cliploc n\'est affilié ni à Airbnb, ni à Booking, ni à Expedia, ni à Tripadvisor.</p>'
+                f'<script src="/vendor/leaflet-1.9.4/leaflet.js" defer></script>'
+                f'<script src="/carte/carte.js?v={stamp("carte/carte.js")}" defer></script>')
+        ds = {"@context": "https://schema.org", "@type": "Dataset", "name": "Nuitées en location courte durée par département (2024-2025)",
+              "description": desc, "url": SITE + "/carte/", "inLanguage": "fr-FR", "isBasedOn": "https://ec.europa.eu/eurostat/databrowser/view/tour_ce_oan3/default/table",
+              "creator": ORG, "temporalCoverage": "2024/2025", "spatialCoverage": {"@type": "Country", "name": "France"}}
+        out.append(("/carte/", page("/carte/", "Carte des locations Airbnb en France par département (2025) | Cliploc", desc, body, [ds, crs], "ct", "website", wide=True,
+                                    extra_head=f'<link rel="preload" href="/carte/data/france.json" as="fetch" crossorigin>\n<link rel="stylesheet" href="/vendor/leaflet-1.9.4/leaflet.css">\n<link rel="stylesheet" href="/carte/carte.css?v={stamp("carte/carte.css")}">\n')))
     for path, h in out:
         d = os.path.join(ROOT, path.strip("/"))
         os.makedirs(d, exist_ok=True)
         with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
             f.write(h)
     # ----- sitemap (pages + vidéos) -----
-    urls = ["/", "/exemples/", "/guides/"] + [f"/guides/{g['slug']}/" for g in GUIDES]
+    urls = ["/", "/exemples/", "/guides/"] + (["/carte/"] if os.path.exists(os.path.join(ROOT, "carte", "data", "france.json")) else []) + [f"/guides/{g['slug']}/" for g in GUIDES]
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">']
     for u in urls:
