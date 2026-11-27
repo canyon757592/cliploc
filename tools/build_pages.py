@@ -350,7 +350,7 @@ def build():
                 f'<script src="/carte/carte.js?v={stamp("carte/carte.js")}" defer></script>')
         ds = {"@context": "https://schema.org", "@type": "Dataset", "name": "Nuitées en location courte durée par département (2024-2025)",
               "description": desc, "url": SITE + "/carte/", "inLanguage": "fr-FR", "isBasedOn": "https://ec.europa.eu/eurostat/databrowser/view/tour_ce_oan3/default/table",
-              "creator": ORG, "temporalCoverage": "2024/2025", "spatialCoverage": {"@type": "Place", "name": "France", "address": {"@type": "PostalAddress", "addressCountry": "FR"}}}
+              "creator": ORG, "license": "https://creativecommons.org/licenses/by/4.0/", "creditText": "Eurostat (tour_ce_oan3), IGN Admin Express", "temporalCoverage": "2024/2025", "spatialCoverage": {"@type": "Place", "name": "France", "address": {"@type": "PostalAddress", "addressCountry": "FR"}}}
         out.append(("/carte/", page("/carte/", "Carte des locations Airbnb en France par département (2025) | Cliploc", desc, body, [ds, crs], "ct", "website", wide=True,
                                     extra_head=f'<link rel="preload" href="/carte/data/france.json" as="fetch" crossorigin>\n<link rel="stylesheet" href="/vendor/leaflet-1.9.4/leaflet.css">\n<link rel="stylesheet" href="/carte/carte.css?v={stamp("carte/carte.css")}">\n')))
     for path, h in out:
